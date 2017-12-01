@@ -53,7 +53,7 @@ TRAIN:
   lr_step: '40.336'
   model_prefix: "deeplab_resnet_v1_101_cityscapes_segmentation_base"
   # whether flip image
-  FLIP: true
+  FLIP: false
   # size of images for each device
   BATCH_IMAGES: 1
   # wheter crop image during training

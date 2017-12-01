@@ -55,6 +55,8 @@ def get_segmentation_image(segdb, config):
         seg_rec = segdb[i]
         assert os.path.exists(seg_rec['image']), '%s does not exist'.format(seg_rec['image'])
         im = np.array(cv2.imread(seg_rec['image']))
+        #print seg_rec['image']
+        #print im.shape
 
         new_rec = seg_rec.copy()
 
