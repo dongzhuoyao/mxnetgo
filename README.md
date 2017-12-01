@@ -8,7 +8,7 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 2. deeplab result reproduce
 
-3, data loader change to a more approximate pattern
+3. data loader change to a more approximate pattern
 
 
 
