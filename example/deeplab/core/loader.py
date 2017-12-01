@@ -153,12 +153,9 @@ class TrainDataLoader(mx.io.DataIter):
         self.data = None
         self.label = None
 
-        # init multi-process pool
-        self.pool = Pool(processes = len(self.ctx))
-
         # get first batch to fill in provide_data and provide_label
         self.reset()
-        self.get_batch_parallel()
+        self.get_batch()
         random.seed()
 
     @property
@@ -187,7 +184,7 @@ class TrainDataLoader(mx.io.DataIter):
 
     def next(self):
         if self.iter_next():
-            self.get_batch_parallel()
+            self.get_batch()
             self.cur += self.batch_size
             return mx.io.DataBatch(data=self.data, label=self.label,
                                    pad=self.getpad(), index=self.getindex(),
@@ -216,30 +213,15 @@ class TrainDataLoader(mx.io.DataIter):
         label_shape = [(self.label_name[0], label_shape)]
         return max_data_shape, label_shape
 
-    def get_batch_parallel(self):
+    def get_batch(self):
         cur_from = self.cur
         cur_to = min(cur_from + self.batch_size, self.size)
         segdb = [self.segdb[self.index[i]] for i in range(cur_from, cur_to)]
 
-        # decide multi device slice
-        work_load_list = self.work_load_list
-        ctx = self.ctx
-        if work_load_list is None:
-            work_load_list = [1] * len(ctx)
-        assert isinstance(work_load_list, list) and len(work_load_list) == len(ctx), \
-            "Invalid settings for work load. "
-        slices = _split_input_slice(self.batch_size, work_load_list)
+        rst = parfetch(self.config, self.crop_width, self.crop_height, segdb)
 
-        multiprocess_results = []
-
-        for idx, islice in enumerate(slices):
-            isegdb = [segdb[i] for i in range(islice.start, islice.stop)]
-            multiprocess_results.append(self.pool.apply_async(parfetch, (self.config, self.crop_width, self.crop_height, isegdb)))
-
-        rst = [multiprocess_result.get() for multiprocess_result in multiprocess_results]
-
-        all_data = [_['data'] for _ in rst]
-        all_label = [_['label'] for _ in rst]
+        all_data = [rst['data']]
+        all_label = [rst['label']]
         self.data = [[mx.nd.array(data[key]) for key in self.data_name] for data in all_data]
         self.label = [[mx.nd.array(label[key]) for key in self.label_name] for label in all_label]
 
