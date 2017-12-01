@@ -130,10 +130,13 @@ class TrainDataLoader(mx.io.DataIter):
             self.crop_width = None
 
         self.shuffle = shuffle
-        self.ctx = ctx
+        #self.ctx = ctx
+        self.ctx = [ctx[0]] #single thread temporary, TODO
 
         if self.ctx is None:
             self.ctx = [mx.cpu()]
+
+
         self.work_load_list = work_load_list
 
         # infer properties from segdb
