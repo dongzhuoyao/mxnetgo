@@ -15,7 +15,7 @@ import numpy as np
 from PIL import Image
 from utils.image import resize, transform
 
-from example.deeplab.config.config import config, update_config
+from mxnetgo.myutils.config  import config, update_config
 
 # get config
 os.environ['PYTHONUNBUFFERED'] = '1'

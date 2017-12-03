@@ -10,7 +10,7 @@ import argparse
 import os
 import sys
 
-from example.deeplab.config.config import config, update_config
+from mxnetgo.myutils.config  import config, update_config
 
 
 def parse_args():

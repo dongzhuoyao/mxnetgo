@@ -40,9 +40,9 @@ curr_path = os.path.abspath(os.path.dirname(__file__))
 import shutil
 import mxnet as mx
 
-from core import callback, metric
-from core.loader import TrainDataLoader
-from core.module import MutableModule
+from mxnetgo.core import callback, metric
+from mxnetgo.core.loader import TrainDataLoader
+from mxnetgo.core.module import MutableModule
 from utils.load_data import load_gt_segdb, merge_segdb
 from utils.load_model import load_param
 from utils.create_logger import create_logger
