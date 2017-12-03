@@ -13,7 +13,7 @@ import sys
 import logging
 import pprint
 import cv2
-from config.config import config, update_config
+from utils.config import config, update_config
 from utils.image import resize, transform
 from PIL import Image
 import numpy as np

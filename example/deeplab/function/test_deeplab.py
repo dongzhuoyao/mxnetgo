@@ -13,7 +13,7 @@ import time
 import os
 import mxnet as mx
 
-from config.config import config, generate_config, update_config
+from utils.config import config, generate_config, update_config
 from config.dataset_conf import dataset
 from config.network_conf import network
 from symbols import *

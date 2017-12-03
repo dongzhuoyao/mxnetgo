@@ -11,7 +11,7 @@ import cPickle
 import os
 import mxnet as mx
 
-from config.config import config, generate_config
+from utils.config import config, generate_config
 from dataset import *
 
 

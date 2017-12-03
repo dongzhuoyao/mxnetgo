@@ -14,7 +14,7 @@ import numpy as np
 
 from PIL import Image
 from module import MutableModule
-from config.config import config
+from utils.config import config
 from utils import image
 from utils.PrefetchingIter import PrefetchingIter
 

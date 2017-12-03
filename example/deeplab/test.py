@@ -6,14 +6,10 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-import _init_paths
-
 import argparse
 import os
 import sys
-import time
-import logging
-from config.config import config, update_config
+from utils.config import config, update_config
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a Deeplab Network')
@@ -37,11 +33,9 @@ sys.path.insert(0, os.path.join(curr_path, '../external/mxnet', config.MXNET_VER
 import pprint
 import mxnet as mx
 
-from symbols import *
 from dataset import *
 from core.loader import TestDataLoader
 from core.tester import Predictor, pred_eval
-from utils.load_data import load_gt_segdb, merge_segdb
 from utils.load_model import load_param
 from utils.create_logger import create_logger
 
