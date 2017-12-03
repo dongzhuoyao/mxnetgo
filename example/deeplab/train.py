@@ -142,10 +142,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
 
-    #if not isinstance(train_data, PrefetchingIter):
-    #    train_data = PrefetchingIter(train_data)
 
-    # train
     mod.fit(train_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callback,
             batch_end_callback=batch_end_callback, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
