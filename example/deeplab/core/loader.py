@@ -12,7 +12,6 @@ import mxnet as mx
 import random
 import math, os, sys
 
-
 from mxnet.executor_manager import _split_input_slice
 from utils.image import tensor_vstack
 from segmentation.segmentation import get_segmentation_train_batch, get_segmentation_test_batch

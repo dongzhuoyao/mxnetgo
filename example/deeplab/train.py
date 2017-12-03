@@ -6,16 +6,13 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-
-import time
-import argparse
-import logging
-import pprint
-import os
-import sys
-from utils.config import config, update_config
-
 import _init_paths
+
+import argparse
+import os
+import pprint
+
+from config.config import config, update_config
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -41,32 +38,29 @@ args = parse_args()
 curr_path = os.path.abspath(os.path.dirname(__file__))
 
 import shutil
-import numpy as np
 import mxnet as mx
 
-from symbols import *
 from core import callback, metric
 from core.loader import TrainDataLoader
 from core.module import MutableModule
 from utils.load_data import load_gt_segdb, merge_segdb
 from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
 from utils.create_logger import create_logger
 from utils.lr_scheduler import WarmupMultiFactorScheduler
+from symbols import *
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
     prefix = os.path.join(final_output_path, prefix)
 
     # load symbol
-    shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), final_output_path)
+    shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), final_output_path)#copy file to logger dir for debug convenience
     sym_instance = eval(config.symbol + '.' + config.symbol)()
     sym = sym_instance.get_symbol(config, is_train=True)
-    #sym = eval('get_' + args.network + '_train')(num_classes=config.dataset.NUM_CLASSES)
 
     # setup multi-gpu
-    batch_size = len(ctx)
-    input_batch_size = config.TRAIN.BATCH_IMAGES * batch_size
+    gpu_nums = len(ctx)
+    input_batch_size = config.TRAIN.BATCH_IMAGES * gpu_nums
 
     # print config
     pprint.pprint(config)
@@ -113,12 +107,12 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     label_names = [k[0] for k in train_data.provide_label_single]
 
     mod = MutableModule(sym, data_names=data_names, label_names=label_names,
-                        logger=logger, context=ctx, max_data_shapes=[max_data_shape for _ in xrange(batch_size)],
-                        max_label_shapes=[max_label_shape for _ in xrange(batch_size)], fixed_param_prefix=fixed_param_prefix)
+                        logger=logger, context=ctx, max_data_shapes=[max_data_shape for _ in xrange(gpu_nums)],
+                        max_label_shapes=[max_label_shape for _ in xrange(gpu_nums)], fixed_param_prefix=fixed_param_prefix)
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(config.default.frequent * batch_size)
+    fcn_loss_metric = metric.FCNLogLossMetric(config.default.frequent * gpu_nums)
     eval_metrics = mx.metric.CompositeEvalMetric()
 
     # rpn_eval_metric, rpn_cls_metric, rpn_bbox_metric, eval_metric, cls_metric, bbox_metric
@@ -135,7 +129,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     lr_epoch = [float(epoch) for epoch in lr_step.split(',')]
     lr_epoch_diff = [epoch - begin_epoch for epoch in lr_epoch if epoch > begin_epoch]
     lr = base_lr * (lr_factor ** (len(lr_epoch) - len(lr_epoch_diff)))
-    lr_iters = [int(epoch * len(segdb) / batch_size) for epoch in lr_epoch_diff]
+    lr_iters = [int(epoch * len(segdb) / gpu_nums) for epoch in lr_epoch_diff]
     print('lr', lr, 'lr_epoch_diff', lr_epoch_diff, 'lr_iters', lr_iters)
 
     lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, config.TRAIN.warmup, config.TRAIN.warmup_lr, config.TRAIN.warmup_step)

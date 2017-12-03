@@ -8,6 +8,8 @@
 
 import cPickle
 import mxnet as mx
+import os, sys
+from utils.combine_model import combine_model
 from utils.symbol import Symbol
 
 class resnet_v1_101_deeplab(Symbol):

@@ -9,14 +9,11 @@
 import cPickle
 import os
 import time
-import mxnet as mx
-import numpy as np
 
-from PIL import Image
-from module import MutableModule
-from utils.config import config
-from utils import image
+import mxnet as mx
 from utils.PrefetchingIter import PrefetchingIter
+
+from module import MutableModule
 
 
 class Predictor(object):

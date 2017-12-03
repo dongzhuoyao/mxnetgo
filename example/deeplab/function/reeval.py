@@ -9,10 +9,10 @@
 import argparse
 import cPickle
 import os
-import mxnet as mx
 
-from utils.config import config, generate_config
 from dataset import *
+
+from example.deeplab.config.config import generate_config
 
 
 def reeval(args):

@@ -6,21 +6,15 @@
 # Modified by Zheng Zhang
 # --------------------------------------------------------
 
-import argparse
 import pprint
-import logging
-import time
-import os
-import mxnet as mx
 
-from utils.config import config, generate_config, update_config
-from config.dataset_conf import dataset
-from config.network_conf import network
-from symbols import *
-from dataset import *
 from core.loader import TestDataLoader
 from core.tester import Predictor, pred_eval
+from dataset import *
+from symbols import *
 from utils.load_model import load_param
+
+from example.deeplab.config.config import config
 
 def test_deeplab(network, dataset, image_set, root_path, dataset_path,
               ctx, prefix, epoch,

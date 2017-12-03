@@ -9,7 +9,9 @@
 import argparse
 import os
 import sys
-from utils.config import config, update_config
+
+from example.deeplab.config.config import config, update_config
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a Deeplab Network')
