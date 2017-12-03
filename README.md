@@ -1,6 +1,6 @@
 # mxnetgo
 
-[![Build Status](https://travis-ci.org/dongzhuoyao/mxnetgo.svg?branch=master?branch=master)](hhttps://travis-ci.org/dongzhuoyao/mxnetgo)
+[![Build Status](https://travis-ci.org/dongzhuoyao/mxnetgo.svg?branch=master?branch=master)](https://travis-ci.org/dongzhuoyao/mxnetgo)
 
 a  simple scaffold of MXNet, easy to customize, extremely boosting your research. more examples will be provided.
 
