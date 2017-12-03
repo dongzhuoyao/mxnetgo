@@ -15,6 +15,13 @@ import os
 import sys
 from config.config import config, update_config
 
+import _init_paths
+
+os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
+os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
+
+
 
 
 
@@ -154,11 +161,9 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch)
 
-def main():
+
+if __name__ == '__main__':
     print('Called with argument:', args)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     train_net(args, ctx, config.network.pretrained, config.network.pretrained_epoch, config.TRAIN.model_prefix,
               config.TRAIN.begin_epoch, config.TRAIN.end_epoch, config.TRAIN.lr, config.TRAIN.lr_step)
-
-if __name__ == '__main__':
-    main()
