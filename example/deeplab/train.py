@@ -12,7 +12,7 @@ import argparse
 import os
 import pprint
 
-from config.config import config, update_config
+from mxnetgo.myutils.config import config, update_config
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
