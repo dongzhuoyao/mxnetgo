@@ -3,4 +3,4 @@ python:
     - 3.5
     - nightly
 script:
-    - print "hello world"
+    - echo "hello world"
