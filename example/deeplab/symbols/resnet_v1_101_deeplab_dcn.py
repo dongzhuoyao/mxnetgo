@@ -8,7 +8,7 @@
 
 import cPickle
 import mxnet as mx
-from utils.symbol import Symbol
+from mxnetgo.myutils.symbol import Symbol
 
 class resnet_v1_101_deeplab_dcn(Symbol):
     def __init__(self):

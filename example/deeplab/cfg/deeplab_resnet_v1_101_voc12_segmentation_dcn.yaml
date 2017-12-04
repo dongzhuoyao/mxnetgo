@@ -2,7 +2,7 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/voc12"
 symbol: resnet_v1_101_deeplab_dcn
-gpus: '2'
+gpus: '3'
 SCALES:
 - 360
 - 600

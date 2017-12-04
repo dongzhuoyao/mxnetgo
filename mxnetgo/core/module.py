@@ -13,7 +13,11 @@ using shared arrays from the initial module binded with maximum shape.
 
 import time
 import logging
-import warnings
+import warnings,os,cPickle
+
+
+import mxnet as mx
+from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
 
 from mxnet import context as ctx
 from mxnet.initializer import Uniform, InitDesc
@@ -872,7 +876,7 @@ class MutableModule(BaseModule):
                                          force_init=force_init)
         self.optimizer_initialized = True
 
-    def fit(self, train_data, eval_data=None, eval_metric='acc',
+    def fit(self, train_data, config, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
             epoch_end_callback=None, batch_end_callback=None, kvstore='local',
             optimizer='sgd', optimizer_params=(('learning_rate', 0.01),),
             eval_end_callback=None,
@@ -999,6 +1003,7 @@ class MutableModule(BaseModule):
 
             #----------------------------------------
             # evaluation on validation set
+            """
             if eval_data:
                 res = self.score(eval_data, validation_metric,
                                  score_end_callback=eval_end_callback,
@@ -1006,9 +1011,30 @@ class MutableModule(BaseModule):
                 #TODO: pull this into default
                 for name, val in res:
                     self.logger.info('Epoch[%d] Validation-%s=%f', epoch, name, val)
+            """
 
-            # end of 1 epoch, reset the data-iter for another epoch
+            # infer shape
+            data_shape_dict = dict(eval_data.provide_data_single)
+            eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
+            eval_sym_instance.infer_shape(data_shape_dict)
+            eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
+            data_names = [k[0] for k in eval_data.provide_data_single]
+            label_names = ['softmax_label']
+
+
+            # create predictor
+            predictor = Predictor(eval_sym, data_names, label_names,
+                                  context=self._context, max_data_shapes=self._max_data_shapes,
+                                  provide_data=eval_data.provide_data, provide_label=eval_data.provide_label,
+                                  arg_params=arg_params, aux_params=aux_params)
+
+            # start detection
+            pred_eval(predictor, eval_data, eval_imdb, vis=False, ignore_cache=True, logger=self.logger)
+
+
+            # end of one epoch, reset the data-iter for another epoch
             train_data.reset()
+            eval_data.reset()
 
 
     def forward(self, data_batch, is_train=None):
@@ -1030,8 +1056,12 @@ class MutableModule(BaseModule):
         shape_changed = len(current_shapes) != len(input_shapes)
         for pre, cur in zip(current_shapes, input_shapes):
             for k, v in pre.items():
-                if v != cur[k]:
-                    shape_changed = True
+                try:
+                    if cur.has_key(k) and v != cur[k]:# test data
+                        shape_changed = True
+                except Exception,e:
+                    print str(e)
+                    pass
 
         if shape_changed:
             # self._curr_module.reshape(data_batch.provide_data, data_batch.provide_label)
@@ -1069,3 +1099,114 @@ class MutableModule(BaseModule):
         """ Install monitor on all executors """
         assert self.binded
         self._curr_module.install_monitor(mon)
+
+class Predictor(object):
+    def __init__(self, symbol, data_names, label_names,
+                 context=mx.cpu(), max_data_shapes=None,
+                 provide_data=None, provide_label=None,
+                 arg_params=None, aux_params=None):
+        self._mod = MutableModule(symbol, data_names, label_names,
+                                  context=context, max_data_shapes=max_data_shapes)
+        self._mod.bind(provide_data, provide_label, for_training=False)
+        self._mod.init_params(arg_params=arg_params, aux_params=aux_params)
+
+    def predict(self, data_batch):
+        self._mod.forward(data_batch)
+        # [dict(zip(self._mod.output_names, _)) for _ in zip(*self._mod.get_outputs(merge_multi_context=False))]
+        return [dict(zip(self._mod.output_names, _)) for _ in
+                zip(*self._mod.get_outputs(merge_multi_context=False))]
+
+def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=None):
+    """
+    wrapper for calculating offline validation for faster data analysis
+    in this example, all threshold are set by hand
+    :param predictor: Predictor
+    :param test_data: data iterator, must be non-shuffle
+    :param imdb: image database
+    :param vis: controls visualization
+    :param ignore_cache: ignore the saved cache file
+    :param logger: the logger instance
+    :return:
+    """
+    res_file = os.path.join(imdb.result_path, imdb.name + '_segmentations.pkl')
+    if os.path.exists(res_file) and not ignore_cache:
+        with open(res_file, 'rb') as fid:
+            evaluation_results = cPickle.load(fid)
+        print 'evaluate segmentation: \n'
+        if logger:
+            logger.info('evaluate segmentation: \n')
+
+        meanIU = evaluation_results['meanIU']
+        IU_array = evaluation_results['IU_array']
+        print 'IU_array:\n'
+        if logger:
+            logger.info('IU_array:\n')
+        for i in range(len(IU_array)):
+            print '%.5f' % IU_array[i]
+            if logger:
+                logger.info('%.5f' % IU_array[i])
+        print 'meanIU:%.5f' % meanIU
+        if logger:
+            logger.info('meanIU:%.5f' % meanIU)
+        return
+
+    assert vis or not test_data.shuffle
+    if not isinstance(test_data, PrefetchingIter):
+        test_data = PrefetchingIter(test_data)
+
+    num_images = imdb.num_images
+    all_segmentation_result = [[] for _ in xrange(num_images)]
+    idx = 0
+
+    data_time, net_time, post_time = 0.0, 0.0, 0.0
+    t = time.time()
+    for data_batch in test_data:
+        t1 = time.time() - t
+        t = time.time()
+        output_all = predictor.predict(data_batch)
+        output_all = [mx.ndarray.argmax(output['softmax_output'], axis=1).asnumpy() for output in output_all]
+        t2 = time.time() - t
+        t = time.time()
+
+        all_segmentation_result[idx: idx + test_data.batch_size] = [output.astype('int8') for output in
+                                                                    output_all]
+
+        idx += test_data.batch_size
+        t3 = time.time() - t
+        t = time.time()
+
+        data_time += t1
+        net_time += t2
+        post_time += t3
+        print 'testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
+                                                                           data_time / idx * test_data.batch_size,
+                                                                           net_time / idx * test_data.batch_size,
+                                                                           post_time / idx * test_data.batch_size)
+        if logger:
+            logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
+                                                                                     data_time / idx * test_data.batch_size,
+                                                                                     net_time / idx * test_data.batch_size,
+                                                                                     post_time / idx * test_data.batch_size))
+
+    evaluation_results = imdb.evaluate_segmentations(all_segmentation_result)
+
+    if not os.path.exists(res_file) or ignore_cache:
+        with open(res_file, 'wb') as f:
+            cPickle.dump(evaluation_results, f, protocol=cPickle.HIGHEST_PROTOCOL)
+
+    print 'evaluate segmentation: \n'
+    if logger:
+        logger.info('evaluate segmentation: \n')
+
+    meanIU = evaluation_results['meanIU']
+    IU_array = evaluation_results['IU_array']
+    print 'IU_array:\n'
+    if logger:
+        logger.info('IU_array:\n')
+    for i in range(len(IU_array)):
+        print '%.5f' % IU_array[i]
+        if logger:
+            logger.info('%.5f' % IU_array[i])
+    print 'meanIU:%.5f' % meanIU
+    if logger:
+        logger.info('meanIU:%.5f' % meanIU)

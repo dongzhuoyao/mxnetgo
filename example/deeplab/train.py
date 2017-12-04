@@ -41,13 +41,14 @@ import shutil
 import mxnet as mx
 
 from mxnetgo.core import callback, metric
-from mxnetgo.core.loader import TrainDataLoader
+from mxnetgo.core.loader import TrainDataLoader, TestDataLoader
 from mxnetgo.core.module import MutableModule
 from mxnetgo.myutils.load_data import load_gt_segdb, merge_segdb
 from mxnetgo.myutils.load_model import load_param
 from mxnetgo.myutils.create_logger import create_logger
 from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from symbols import *
+from mxnetgo.myutils.dataset import *
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
     logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
@@ -69,13 +70,20 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     # load dataset and prepare imdb for training
     image_sets = [iset for iset in config.dataset.image_set.split('+')]
     segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
-                            result_path=final_output_path, flip=config.TRAIN.FLIP)
+                            result_path=final_output_path, flip=config.TRAIN.FLIP, use_cache=False)
               for image_set in image_sets]
     segdb = merge_segdb(segdbs)
 
     # load training data
     train_data = TrainDataLoader(sym, segdb, config, batch_size=input_batch_size, crop_height=config.TRAIN.CROP_HEIGHT, crop_width=config.TRAIN.CROP_WIDTH,
                                  shuffle=config.TRAIN.SHUFFLE, ctx=ctx)
+
+    # load test data
+    test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=final_output_path)
+    test_segdb = test_imdb.gt_segdb(use_cache = False)
+    test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
+    eval_sym_instance = eval(config.symbol + '.' + config.symbol)()
+
 
     # infer max shape
     max_scale = [(config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)]
@@ -143,7 +151,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
                         'clip_gradient': None}
 
 
-    mod.fit(train_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callback,
+
+    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_imdb=test_imdb, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callback,
             batch_end_callback=batch_end_callback, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch)

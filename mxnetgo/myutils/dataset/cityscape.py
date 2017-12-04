@@ -34,7 +34,7 @@ class CityScape(IMDB):
         self.num_classes = 19
         self.image_set_index = self.load_image_set_index()
         self.num_images = len(self.image_set_index)
-        print 'num_images', self.num_images
+        print "{} num_images:{}".format(image_set,self.num_images)
 
         self.config = {'comp_id': 'comp4',
                        'use_diff': False,
@@ -61,7 +61,9 @@ class CityScape(IMDB):
                 index_set[valid_index_count] = "_".join(splited_name_set[:len(splited_name_set)-1])
                 valid_index_count += 1
 
-        return index_set[:valid_index_count]
+        result = index_set[:valid_index_count]
+        result = result[:20]
+        return result
 
     def image_path_from_index(self, index):
         """
@@ -102,19 +104,21 @@ class CityScape(IMDB):
 
         return seg_rec
 
-    def gt_segdb(self):
+    def gt_segdb(self,use_cache = True):
         """
         return ground truth image regions database
         :return: imdb[image_index]['', 'flipped']
         """
         cache_file = os.path.join(self.cache_path, self.name + '_gt_segdb.pkl')
-        if os.path.exists(cache_file):
+        if os.path.exists(cache_file) and  use_cache:
             with open(cache_file, 'rb') as fid:
                 segdb = cPickle.load(fid)
             print '{} gt segdb loaded from {}'.format(self.name, cache_file)
             return segdb
 
         gt_segdb = [self.load_segdb_from_index(index) for index in self.image_set_index]
+
+
         with open(cache_file, 'wb') as fid:
             cPickle.dump(gt_segdb, fid, cPickle.HIGHEST_PROTOCOL)
         print 'wrote gt segdb to {}'.format(cache_file)

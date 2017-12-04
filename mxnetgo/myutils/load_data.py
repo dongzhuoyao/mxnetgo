@@ -52,10 +52,10 @@ def filter_roidb(roidb, config):
 
 
 def load_gt_segdb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,
-                  flip=False):
+                  flip=False,use_cache = True):
     """ load ground truth segdb """
     imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, result_path)
-    segdb = imdb.gt_segdb()
+    segdb = imdb.gt_segdb(use_cache = use_cache)
     if flip:
         segdb = imdb.append_flipped_images_for_segmentation(segdb)
     return segdb

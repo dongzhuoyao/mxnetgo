@@ -11,9 +11,9 @@ import os
 import time
 
 import mxnet as mx
-from utils.PrefetchingIter import PrefetchingIter
+from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
 
-from module import MutableModule
+from mxnetgo.core.module import MutableModule
 
 
 class Predictor(object):
