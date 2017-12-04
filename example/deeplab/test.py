@@ -14,8 +14,6 @@ import sys
 from symbols import *
 
 from mxnetgo.myutils.config  import config, update_config
-
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a Deeplab Network')
     # general
@@ -37,7 +35,7 @@ curr_path = os.path.abspath(os.path.dirname(__file__))
 import pprint
 import mxnet as mx
 
-from dataset import *
+from mxnetgo.myutils.dataset import *
 from mxnetgo.core.loader import TestDataLoader
 from mxnetgo.core.tester import Predictor, pred_eval
 from mxnetgo.myutils.load_model import load_param
