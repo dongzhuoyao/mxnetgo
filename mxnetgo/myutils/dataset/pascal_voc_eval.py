@@ -11,7 +11,7 @@ given a pascal voc imdb, compute mAP
 import numpy as np
 import os
 import cPickle
-from mask.mask_transform import mask_overlap
+from mxnetgo.myutils.mask.mask_transform import mask_overlap
 
 
 def parse_voc_rec(filename):
