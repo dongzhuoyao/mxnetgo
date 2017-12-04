@@ -8,7 +8,7 @@ label =
 """
 
 import numpy as np
-from utils.image import get_segmentation_image, tensor_vstack
+from image import get_segmentation_image, tensor_vstack
 
 def get_segmentation_test_batch(segdb, config):
     """
