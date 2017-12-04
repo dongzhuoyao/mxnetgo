@@ -43,10 +43,10 @@ import mxnet as mx
 from mxnetgo.core import callback, metric
 from mxnetgo.core.loader import TrainDataLoader
 from mxnetgo.core.module import MutableModule
-from utils.load_data import load_gt_segdb, merge_segdb
-from utils.load_model import load_param
-from utils.create_logger import create_logger
-from utils.lr_scheduler import WarmupMultiFactorScheduler
+from mxnetgo.myutils.load_data import load_gt_segdb, merge_segdb
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.create_logger import create_logger
+from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from symbols import *
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
