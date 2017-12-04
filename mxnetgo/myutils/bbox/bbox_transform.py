@@ -1,5 +1,5 @@
 import numpy as np
-from bbox import bbox_overlaps_cython
+from bbox.bbox import bbox_overlaps_cython
 
 
 def bbox_overlaps(boxes, query_boxes):

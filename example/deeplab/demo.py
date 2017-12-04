@@ -4,6 +4,7 @@
 # Licensed under The Apache-2.0 License [see LICENSE for details]
 # Written by Zheng Zhang
 # --------------------------------------------------------
+import _init_paths
 
 import argparse
 import os
@@ -13,27 +14,26 @@ import sys
 import cv2
 import numpy as np
 from PIL import Image
-from utils.image import resize, transform
-
+from mxnetgo.myutils.image import resize, transform
 from mxnetgo.myutils.config  import config, update_config
-
+from symbols import *
 # get config
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 cur_path = os.path.abspath(os.path.dirname(__file__))
-update_config(cur_path + '/../experiments/deeplab/cfgs/deeplab_cityscapes_demo.yaml')
+update_config(os.path.join(cur_path,'cfg/deeplab_cityscapes_demo.yaml'))
 
-sys.path.insert(0, os.path.join(cur_path, '../external/mxnet', config.MXNET_VERSION))
+
 import mxnet as mx
-from core.tester import Predictor
-from utils.load_model import load_param
-from utils.tictoc import tic, toc
+from mxnetgo.core.tester import Predictor
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.tictoc import tic, toc
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Show Deformable ConvNets demo')
     # general
-    parser.add_argument('--deeplab_only', help='whether use Deeplab only (w/o Deformable ConvNets)', default=False, action='store_true')
+    parser.add_argument('--deeplab_only', help='whether use Deeplab only (w/o Deformable ConvNets)', default=True, action='store_true')
 
     args = parser.parse_args()
     return args
@@ -103,8 +103,8 @@ def main():
     image_names = ['frankfurt_000001_073088_leftImg8bit.png', 'lindau_000024_000019_leftImg8bit.png']
     data = []
     for im_name in image_names:
-        assert os.path.exists(cur_path + '/../demo/' + im_name), ('%s does not exist'.format('../demo/' + im_name))
-        im = cv2.imread(cur_path + '/../demo/' + im_name, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
+        assert os.path.exists('demo/' + im_name), ('%s does not exist'.format('demo/' + im_name))
+        im = cv2.imread('demo/' + im_name, cv2.IMREAD_COLOR | cv2.IMREAD_IGNORE_ORIENTATION)
         target_size = config.SCALES[0][0]
         max_size = config.SCALES[0][1]
         im, im_scale = resize(im, target_size, max_size, stride=config.network.IMAGE_STRIDE)
@@ -120,7 +120,8 @@ def main():
     max_data_shape = [[('data', (1, 3, max([v[0] for v in config.SCALES]), max([v[1] for v in config.SCALES])))]]
     provide_data = [[(k, v.shape) for k, v in zip(data_names, data[i])] for i in xrange(len(data))]
     provide_label = [None for i in xrange(len(data))]
-    arg_params, aux_params = load_param(cur_path + '/../model/' + ('deeplab_dcn_cityscapes' if not args.deeplab_only else 'deeplab_cityscapes'), 0, process=True)
+    weight = 'output/cityscape/deeplab_resnet_v1_101_cityscapes_segmentation_base/leftImg8bit_train/' + ('deeplab_resnet_v1_101_cityscapes_segmentation_base' if not args.deeplab_only else 'deeplab_resnet_v1_101_cityscapes_segmentation_base')
+    arg_params, aux_params = load_param(weight, 53, process=True)
     predictor = Predictor(sym, data_names, label_names,
                           context=[mx.gpu(0)], max_data_shapes=max_data_shape,
                           provide_data=provide_data, provide_label=provide_label,
@@ -150,10 +151,10 @@ def main():
         segmentation_result.putpalette(pallete)
         print 'testing {} {:.4f}s'.format(im_name, toc())
         pure_im_name, ext_im_name = os.path.splitext(im_name)
-        segmentation_result.save(cur_path + '/../demo/seg_' + pure_im_name + '.png')
+        segmentation_result.save('demo/seg_' + pure_im_name + '.png')
         # visualize
-        im_raw = cv2.imread(cur_path + '/../demo/' + im_name)
-        seg_res = cv2.imread(cur_path + '/../demo/seg_' + pure_im_name + '.png')
+        im_raw = cv2.imread('demo/' + im_name)
+        seg_res = cv2.imread('demo/seg_' + pure_im_name + '.png')
         cv2.imshow('Raw Image', im_raw)
         cv2.imshow('segmentation_result', seg_res)
         cv2.waitKey(0)
