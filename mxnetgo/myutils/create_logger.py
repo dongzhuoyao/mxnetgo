@@ -25,9 +25,11 @@ def create_logger(root_output_path, cfg, image_set):
     if not os.path.exists(final_output_path):
         os.makedirs(final_output_path)
 
-    log_file = '{}_{}.log'.format(cfg_name, time.strftime('%Y-%m-%d-%H-%M'))
+    #log_file = '{}_{}.log'.format(cfg_name, time.strftime('%Y-%m-%d-%H-%M'))
+    log_file = 'log.log'
     head = '%(asctime)-15s %(message)s'
     logging.basicConfig(filename=os.path.join(final_output_path, log_file), format=head)
+    logging.FileHandler(filename=os.path.join(final_output_path, log_file), mode='a', encoding=None, delay=False)#append mode, w is needed
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
 
