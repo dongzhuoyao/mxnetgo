@@ -70,7 +70,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     # load dataset and prepare imdb for training
     image_sets = [iset for iset in config.dataset.image_set.split('+')]
     segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
-                            result_path=final_output_path, flip=config.TRAIN.FLIP, use_cache=False)
+                            result_path=final_output_path, flip=config.TRAIN.FLIP, use_cache=True)
               for image_set in image_sets]
     segdb = merge_segdb(segdbs)
 
@@ -80,7 +80,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
     # load test data
     test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=final_output_path)
-    test_segdb = test_imdb.gt_segdb(use_cache = False)
+    test_segdb = test_imdb.gt_segdb(use_cache = True)
     test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
     eval_sym_instance = eval(config.symbol + '.' + config.symbol)()
 

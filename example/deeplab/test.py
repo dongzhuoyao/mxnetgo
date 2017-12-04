@@ -24,7 +24,7 @@ def parse_args():
 
     # testing
     parser.add_argument('--vis', help='turn on visualization', action='store_true')
-    parser.add_argument('--ignore_cache', help='ignore cached results boxes', action='store_true')
+    parser.add_argument('--ignore_cache', help='ignore cached results boxes', default=False, action='store_true')
     parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
     args = parser.parse_args()
     return args
