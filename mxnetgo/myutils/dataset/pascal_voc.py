@@ -108,13 +108,13 @@ class PascalVOC(IMDB):
 
         return gt_roidb
 
-    def gt_segdb(self):
+    def gt_segdb(self,use_cache=True):
         """
         return ground truth image regions database
         :return: imdb[image_index]['boxes', 'gt_classes', 'gt_overlaps', 'flipped']
         """
         cache_file = os.path.join(self.cache_path, self.name + '_gt_segdb.pkl')
-        if os.path.exists(cache_file):
+        if os.path.exists(cache_file) and use_cache:
             with open(cache_file, 'rb') as fid:
                 segdb = cPickle.load(fid)
             print '{} gt segdb loaded from {}'.format(self.name, cache_file)
