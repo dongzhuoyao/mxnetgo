@@ -6,9 +6,12 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
+import _init_paths
+
 import argparse
 import os
 import sys
+from symbols import *
 
 from mxnetgo.myutils.config  import config, update_config
 
@@ -30,16 +33,15 @@ def parse_args():
 
 args = parse_args()
 curr_path = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, os.path.join(curr_path, '../external/mxnet', config.MXNET_VERSION))
 
 import pprint
 import mxnet as mx
 
 from dataset import *
-from core.loader import TestDataLoader
-from core.tester import Predictor, pred_eval
-from utils.load_model import load_param
-from utils.create_logger import create_logger
+from mxnetgo.core.loader import TestDataLoader
+from mxnetgo.core.tester import Predictor, pred_eval
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.create_logger import create_logger
 
 def test_deeplab():
     epoch = config.TEST.test_epoch
