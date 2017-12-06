@@ -20,7 +20,7 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 3. data loader change to a more approximate pattern
 
-##Acknowledgement
+## Acknowledgement
 
 Some of the example codes are bases on others' code. thanks for their contribution. if this example helps you, please citate their paper.
 
