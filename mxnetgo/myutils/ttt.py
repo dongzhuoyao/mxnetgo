@@ -1,5 +1,9 @@
 # Author: Tao Hu <taohu620@gmail.com>
 
-import mxnet.gluon.models as models
-resnet18 = models.resnet18_v1(pretrained=True)
-alexnet = models.alexnet(pretrained=True)
+import sys,os
+
+
+if __name__ == '__main__':
+    mod = sys.modules['__main__']
+    basename = os.path.basename(mod.__file__)
+    print basename

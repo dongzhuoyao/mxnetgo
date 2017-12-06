@@ -18,6 +18,7 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
+use_cache = False
 
 
 def parse_args():
@@ -49,13 +50,19 @@ from mxnetgo.myutils.create_logger import create_logger
 from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from symbols import *
 from mxnetgo.myutils.dataset import *
-
+from mxnetgo.myutils import logger
+import sys
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
-    logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
-    prefix = os.path.join(final_output_path, prefix)
+    mod = sys.modules['__main__']
+    basename = os.path.basename(mod.__file__)
+
+    logger.auto_set_dir()
+    #logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
+    #prefix = os.path.join(final_output_path, prefix)
 
     # load symbol
-    shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), final_output_path)#copy file to logger dir for debug convenience
+    #shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), final_output_path)#copy file to logger dir for debug convenience
+
     sym_instance = eval(config.symbol + '.' + config.symbol)()
     sym = sym_instance.get_symbol(config, is_train=True)
 
@@ -67,10 +74,11 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
+
     # load dataset and prepare imdb for training
     image_sets = [iset for iset in config.dataset.image_set.split('+')]
     segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
-                            result_path=final_output_path, flip=config.TRAIN.FLIP, use_cache=True)
+                            result_path=final_output_path, flip=config.TRAIN.FLIP, use_cache=use_cache)
               for image_set in image_sets]
     segdb = merge_segdb(segdbs)
 
@@ -80,7 +88,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
     # load test data
     test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=final_output_path)
-    test_segdb = test_imdb.gt_segdb(use_cache = True)
+    test_segdb = test_imdb.gt_segdb(use_cache = use_cache)
     test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
     eval_sym_instance = eval(config.symbol + '.' + config.symbol)()
 
