@@ -62,6 +62,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
     logger.auto_set_dir()
+
     # load symbol
     shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
 
@@ -72,6 +73,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     gpu_nums = len(ctx)
     input_batch_size = config.TRAIN.BATCH_IMAGES * gpu_nums
 
+    # print config
+    #pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
 
@@ -137,7 +140,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
     # callback
     batch_end_callback = callback.Speedometer(train_data.batch_size, frequent=args.frequent)
-    epoch_end_callback = mx.callback.module_checkpoint(mod, prefix, period=1, save_optimizer_states=True)
+    epoch_end_callback = mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True)
 
     # decide learning rate
     base_lr = lr

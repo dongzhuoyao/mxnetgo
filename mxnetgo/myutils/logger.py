@@ -9,6 +9,7 @@ import os.path
 from termcolor import colored
 from datetime import datetime
 from six.moves import input
+import tqdm
 import sys
 
 __all__ = ['set_logger_dir', 'auto_set_dir', 'get_logger_dir']
@@ -30,6 +31,20 @@ class _MyFormatter(logging.Formatter):
         self._fmt = fmt
         return super(_MyFormatter, self).format(record)
 
+class TqdmLoggingHandler (logging.Handler):
+    def __init__ (self, level = logging.NOTSET):
+        super (self.__class__, self).__init__ (level)
+
+    def emit (self, record):
+        try:
+            msg = self.format (record)
+            tqdm.tqdm.write (msg)
+            self.flush ()
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
 
 def _getlogger():
     logger = logging.getLogger('mxnetgo')
@@ -38,6 +53,7 @@ def _getlogger():
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(_MyFormatter(datefmt='%m%d %H:%M:%S'))
     logger.addHandler(handler)
+    #logger.addHandler(TqdmLoggingHandler())
     return logger
 
 
@@ -138,3 +154,6 @@ def get_logger_dir():
         The directory is used for general logging, tensorboard events, checkpoints, etc.
     """
     return LOG_DIR
+
+
+

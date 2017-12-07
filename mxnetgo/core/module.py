@@ -1165,10 +1165,10 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, output_i
         net_time += t2
         post_time += t3
 
-        logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
-                                                                                     data_time / idx * test_data.batch_size,
-                                                                                     net_time / idx * test_data.batch_size,
-                                                                        post_time / idx * test_data.batch_size))
+        #logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
+         #                                                                            data_time / idx * test_data.batch_size,
+          #                                                                           net_time / idx * test_data.batch_size,
+           #                                                             post_time / idx * test_data.batch_size))
     evaluation_results = imdb.evaluate_segmentations(all_segmentation_result)
 
     if not os.path.exists(res_file) or ignore_cache:
