@@ -7,9 +7,9 @@ import numpy as np
 from imdb import IMDB
 
 # coco api
-from .pycocotools.coco import COCO
-from .pycocotools.cocoeval import COCOeval
-from .pycocotools import mask as COCOmask
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval
+from pycocotools import mask as COCOmask
 from utils.mask_coco2voc import mask_coco2voc
 from utils.mask_voc2coco import mask_voc2coco
 from utils.tictoc import tic, toc

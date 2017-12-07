@@ -22,7 +22,7 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 ## Acknowledgement
 
-Some of the example codes are bases on others' code. thanks for their contribution. if this example helps you, please citate their paper.
+Some of the example codes are based on others' codes. thanks for their contributions. if this example helps you, please citate their papers.
 
 
 

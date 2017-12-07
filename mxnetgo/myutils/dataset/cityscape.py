@@ -12,8 +12,9 @@ import cv2
 import numpy as np
 import itertools
 
-from imdb import IMDB
+from .imdb import IMDB
 from PIL import Image
+from ...myutils import logger
 
 class CityScape(IMDB):
     def __init__(self, image_set, root_path, dataset_path, result_path=None):
@@ -34,7 +35,7 @@ class CityScape(IMDB):
         self.num_classes = 19
         self.image_set_index = self.load_image_set_index()
         self.num_images = len(self.image_set_index)
-        print "{} num_images:{}".format(image_set,self.num_images)
+        logger.info("{} num_images:{}".format(image_set,self.num_images))
 
         self.config = {'comp_id': 'comp4',
                        'use_diff': False,
@@ -113,7 +114,7 @@ class CityScape(IMDB):
         if os.path.exists(cache_file) and  use_cache:
             with open(cache_file, 'rb') as fid:
                 segdb = cPickle.load(fid)
-            print '{} gt segdb loaded from {}'.format(self.name, cache_file)
+            logger.info('{} gt segdb loaded from {}'.format(self.name, cache_file))
             return segdb
 
         gt_segdb = [self.load_segdb_from_index(index) for index in self.image_set_index]
@@ -121,7 +122,7 @@ class CityScape(IMDB):
 
         with open(cache_file, 'wb') as fid:
             cPickle.dump(gt_segdb, fid, cPickle.HIGHEST_PROTOCOL)
-        print 'wrote gt segdb to {}'.format(cache_file)
+        logger.info('wrote gt segdb to {}'.format(cache_file))
 
         return gt_segdb
 

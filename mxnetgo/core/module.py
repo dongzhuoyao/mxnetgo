@@ -18,7 +18,8 @@ from tqdm import tqdm
 
 
 import mxnet as mx
-from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
+from ..myutils.PrefetchingIter import PrefetchingIter
+from ..myutils import logger
 
 from mxnet import context as ctx
 from mxnet.initializer import Uniform, InitDesc
@@ -44,8 +45,6 @@ class Module(BaseModule):
     label_names : list of str
         Default is `('softmax_label')` for a typical model used in image
         classification.
-    logger : Logger
-        Default is `logging`.
     context : Context or list of Context
         Default is `cpu()`.
     work_load_list : list of number
@@ -56,10 +55,9 @@ class Module(BaseModule):
         states are similar to data and label, but not provided by data iterator.
         Instead they are initialized to 0 and can be set by set_states()
     """
-    def __init__(self, symbol, data_names=('data',), label_names=('softmax_label',),
-                 logger=logging, context=ctx.cpu(), work_load_list=None,
+    def __init__(self, symbol, data_names=('data',), label_names=('softmax_label',), context=ctx.cpu(), work_load_list=None,
                  fixed_param_names=None, state_names=None):
-        super(Module, self).__init__(logger=logger)
+        super(Module, self).__init__()
 
         if isinstance(context, ctx.Context):
             context = [context]
@@ -127,8 +125,6 @@ class Module(BaseModule):
         label_names : list of str
             Default is `('softmax_label')` for a typical model used in image
             classification.
-        logger : Logger
-            Default is `logging`.
         context : Context or list of Context
             Default is `cpu()`.
         work_load_list : list of number
@@ -362,7 +358,7 @@ class Module(BaseModule):
             self._reset_bind()
 
         if self.binded:
-            self.logger.warning('Already binded, ignoring bind()')
+            logger.warning('Already binded, ignoring bind()')
             return
 
         self.for_training = for_training
@@ -395,7 +391,7 @@ class Module(BaseModule):
                                                      self._work_load_list, self._data_shapes,
                                                      self._label_shapes, self._param_names,
                                                      for_training, inputs_need_grad,
-                                                     shared_group, logger=self.logger,
+                                                     shared_group,
                                                      fixed_param_names=self._fixed_param_names,
                                                      grad_req=grad_req,
                                                      state_names=self._state_names)
@@ -465,7 +461,7 @@ class Module(BaseModule):
         assert self.binded and self.params_initialized
 
         if self.optimizer_initialized and not force_init:
-            self.logger.warning('optimizer already initialized, ignoring...')
+            logger.warning('optimizer already initialized, ignoring...')
             return
 
         (kvstore, update_on_kvstore) = \
@@ -722,17 +718,15 @@ class MutableModule(BaseModule):
     symbol : Symbol
     data_names : list of str
     label_names : list of str
-    logger : Logger
     context : Context or list of Context
     work_load_list : list of number
     max_data_shapes : list of (name, shape) tuple, designating inputs whose shape vary
     max_label_shapes : list of (name, shape) tuple, designating inputs whose shape vary
     fixed_param_prefix : list of str, indicating fixed parameters
     """
-    def __init__(self, symbol, data_names, label_names,
-                 logger=logging, context=ctx.cpu(), work_load_list=None,
+    def __init__(self, symbol, data_names, label_names, context=ctx.cpu(), work_load_list=None,
                  max_data_shapes=None, max_label_shapes=None, fixed_param_prefix=None):
-        super(MutableModule, self).__init__(logger=logger)
+        super(MutableModule, self).__init__()
         self._symbol = symbol
         self._data_names = data_names
         self._label_names = label_names
@@ -806,7 +800,7 @@ class MutableModule(BaseModule):
             self._reset_bind()
 
         if self.binded:
-            self.logger.warning('Already binded, ignoring bind()')
+            logger.warning('Already binded, ignoring bind()')
             return
 
         assert shared_module is None, 'shared_module for MutableModule is not supported'
@@ -839,7 +833,7 @@ class MutableModule(BaseModule):
         if len(max_label_shapes) == 0:
             max_label_shapes = None
 
-        module = Module(self._symbol, self._data_names, self._label_names, logger=self.logger,
+        module = Module(self._symbol, self._data_names, self._label_names,
                         context=self._context, work_load_list=self._work_load_list,
                         fixed_param_names=self._fixed_param_names)
         module.bind([max_data_shapes for _ in range(len(self._context))], [max_label_shapes for _ in range(len(self._context))],
@@ -869,7 +863,7 @@ class MutableModule(BaseModule):
                        optimizer_params=(('learning_rate', 0.01),), force_init=False):
         assert self.binded and self.params_initialized
         if self.optimizer_initialized and not force_init:
-            self.logger.warning('optimizer already initialized, ignoring.')
+            logger.warning('optimizer already initialized, ignoring.')
             return
 
         self._curr_module._preload_opt_states = self._preload_opt_states
@@ -990,9 +984,9 @@ class MutableModule(BaseModule):
 
             # one epoch of training is finished
             for name, val in eval_metric.get_name_value():
-                self.logger.info('Epoch[%d] Train-%s=%f', epoch, name, val)
+                logger.info('Epoch[%d] Train-%s=%f', epoch, name, val)
             toc = time.time()
-            self.logger.info('Epoch[%d] Time cost=%.3f', epoch, (toc-tic))
+            logger.info('Epoch[%d] Time cost=%.3f', epoch, (toc-tic))
 
             # sync aux params across devices
             arg_params, aux_params = self.get_params()
@@ -1030,7 +1024,7 @@ class MutableModule(BaseModule):
                                   arg_params=arg_params, aux_params=aux_params)
 
             # start detection
-            pred_eval(predictor, eval_data, eval_imdb, vis=False, ignore_cache=True, logger=self.logger)
+            pred_eval(predictor, eval_data, eval_imdb, vis=False, ignore_cache=True)
 
 
             # end of one epoch, reset the data-iter for another epoch
@@ -1067,7 +1061,7 @@ class MutableModule(BaseModule):
         if shape_changed:
             # self._curr_module.reshape(data_batch.provide_data, data_batch.provide_label)
             module = Module(self._symbol, self._data_names, self._label_names,
-                            logger=self.logger, context=[self._context[i] for i in range(len(data_batch.provide_data))],
+                 context=[self._context[i] for i in range(len(data_batch.provide_data))],
                             work_load_list=self._work_load_list,
                             fixed_param_names=self._fixed_param_names)
             module.bind(data_batch.provide_data, data_batch.provide_label, self._curr_module.for_training,
@@ -1117,7 +1111,7 @@ class Predictor(object):
         return [dict(zip(self._mod.output_names, _)) for _ in
                 zip(*self._mod.get_outputs(merge_multi_context=False))]
 
-def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=None):
+def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, output_img = False):
     """
     wrapper for calculating offline validation for faster data analysis
     in this example, all threshold are set by hand
@@ -1126,29 +1120,20 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=N
     :param imdb: image database
     :param vis: controls visualization
     :param ignore_cache: ignore the saved cache file
-    :param logger: the logger instance
     :return:
     """
     res_file = os.path.join(imdb.result_path, imdb.name + '_segmentations.pkl')
     if os.path.exists(res_file) and not ignore_cache:
         with open(res_file, 'rb') as fid:
             evaluation_results = cPickle.load(fid)
-        print 'evaluate segmentation: \n'
-        if logger:
-            logger.info('evaluate segmentation: \n')
 
+        logger.info('evaluate segmentation:')
         meanIU = evaluation_results['meanIU']
         IU_array = evaluation_results['IU_array']
-        print 'IU_array:\n'
-        if logger:
-            logger.info('IU_array:\n')
+        logger.info('IU_array:')
         for i in range(len(IU_array)):
-            print '%.5f' % IU_array[i]
-            if logger:
-                logger.info('%.5f' % IU_array[i])
-        print 'meanIU:%.5f' % meanIU
-        if logger:
-            logger.info('meanIU:%.5f' % meanIU)
+            logger.info('%.5f' % IU_array[i])
+        logger.info('meanIU:%.5f' % meanIU)
         return
 
     assert vis or not test_data.shuffle
@@ -1179,37 +1164,24 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=N
         data_time += t1
         net_time += t2
         post_time += t3
-        """
-        print 'testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
-                                                                           data_time / idx * test_data.batch_size,
-                                                                           net_time / idx * test_data.batch_size,
-                                                                           post_time / idx * test_data.batch_size)
-        if logger:
-            logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
+
+        logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
                                                                                      data_time / idx * test_data.batch_size,
                                                                                      net_time / idx * test_data.batch_size,
-                                                                                     post_time / idx * test_data.batch_size))
-        """
-
+                                                                        post_time / idx * test_data.batch_size))
     evaluation_results = imdb.evaluate_segmentations(all_segmentation_result)
 
     if not os.path.exists(res_file) or ignore_cache:
         with open(res_file, 'wb') as f:
             cPickle.dump(evaluation_results, f, protocol=cPickle.HIGHEST_PROTOCOL)
 
-    print 'evaluate segmentation: \n'
-    if logger:
-        logger.info('evaluate segmentation: \n')
+
+    logger.info('evaluate segmentation:')
 
     meanIU = evaluation_results['meanIU']
     IU_array = evaluation_results['IU_array']
-    print 'IU_array:\n'
-    if logger:
-        logger.info('IU_array:\n')
+
+    logger.info('IU_array:')
     for i in range(len(IU_array)):
-        print '%.5f' % IU_array[i]
-        if logger:
-            logger.info('%.5f' % IU_array[i])
-    print 'meanIU:%.5f' % meanIU
-    if logger:
-        logger.info('meanIU:%.5f' % meanIU)
+        logger.info('confusion matrix diag %d : %.5f' % (i,IU_array[i]))
+    logger.info('final meanIU:%.5f' % meanIU)

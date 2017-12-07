@@ -1,6 +1,5 @@
 import numpy as np
-from dataset import *
-
+#from .dataset.cityscape import CityScape
 
 def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,
                   flip=False):
@@ -15,6 +14,7 @@ def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_
 def load_proposal_roidb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,
                         proposal='rpn', append_gt=True, flip=False):
     """ load proposal roidb (append_gt when training) """
+    from .dataset.cityscape import CityScape
     imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, result_path)
 
     gt_roidb = imdb.gt_roidb()
@@ -54,6 +54,7 @@ def filter_roidb(roidb, config):
 def load_gt_segdb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,
                   flip=False,use_cache = True):
     """ load ground truth segdb """
+    from .dataset.cityscape import CityScape
     imdb = eval(dataset_name)(image_set_name, root_path, dataset_path, result_path)
     segdb = imdb.gt_segdb(use_cache = use_cache)
     if flip:

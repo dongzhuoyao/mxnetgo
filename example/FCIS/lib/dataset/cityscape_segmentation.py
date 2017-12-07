@@ -6,7 +6,9 @@ import itertools
 
 from imdb import IMDB
 from PIL import Image
-from utils import image
+from mxnetgo.myutils import image
+from mxnetgo.myutils import logger
+
 
 class CityScape_Segmentation(IMDB):
     def __init__(self, image_set, root_path, dataset_path, result_path=None):
@@ -27,7 +29,7 @@ class CityScape_Segmentation(IMDB):
         self.num_classes = 19
         self.image_set_index = self.load_image_set_index()
         self.num_images = len(self.image_set_index)
-        print 'num_images', self.num_images
+        logger.info('num_images: {}'.format(self.num_images))
 
         self.config = {'comp_id': 'comp4',
                        'use_diff': False,
@@ -104,13 +106,13 @@ class CityScape_Segmentation(IMDB):
         if os.path.exists(cache_file):
             with open(cache_file, 'rb') as fid:
                 segdb = cPickle.load(fid)
-            print '{} gt segdb loaded from {}'.format(self.name, cache_file)
+            logger.info('{} gt segdb loaded from {}'.format(self.name, cache_file))
             return segdb
 
         gt_segdb = [self.load_segdb_from_index(index) for index in self.image_set_index]
         with open(cache_file, 'wb') as fid:
             cPickle.dump(gt_segdb, fid, cPickle.HIGHEST_PROTOCOL)
-        print 'wrote gt segdb to {}'.format(cache_file)
+        logger.info('wrote gt segdb to {}'.format(cache_file))
 
         return gt_segdb
 

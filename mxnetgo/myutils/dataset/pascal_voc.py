@@ -19,9 +19,9 @@ import os
 import numpy as np
 import PIL
 
-from imdb import IMDB
-from pascal_voc_eval import voc_eval, voc_eval_sds
-from ds_utils import unique_boxes, filter_small_boxes
+from .imdb import IMDB
+from .pascal_voc_eval import voc_eval, voc_eval_sds
+from .ds_utils import unique_boxes, filter_small_boxes
 
 class PascalVOC(IMDB):
     def __init__(self, image_set, root_path, devkit_path, result_path=None, mask_size=-1, binary_thresh=None):
