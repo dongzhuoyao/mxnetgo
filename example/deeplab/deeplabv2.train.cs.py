@@ -24,7 +24,7 @@ use_cache = False
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml", type=str)
 
     args, rest = parser.parse_known_args()
     # update config
@@ -139,8 +139,11 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
         eval_metrics.add(child_metric)
 
     # callback
-    batch_end_callback = callback.Speedometer(train_data.batch_size, frequent=args.frequent)
-    epoch_end_callback = mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True)
+    #batch_end_callbacks = [callback.Speedometer(train_data.batch_size, frequent=args.frequent)]
+    batch_end_callbacks = [mx.callback.ProgressBar(total=train_data.size/train_data.batch_size)]
+    epoch_end_callbacks = \
+        [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
+         ]
 
     # decide learning rate
     base_lr = lr
@@ -163,8 +166,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
 
 
-    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_imdb=test_imdb, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callback,
-            batch_end_callback=batch_end_callback, kvstore=config.default.kvstore,
+    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_imdb=test_imdb, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+            batch_end_callback=batch_end_callbacks, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch)
 

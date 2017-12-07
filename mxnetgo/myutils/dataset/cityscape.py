@@ -63,7 +63,7 @@ class CityScape(IMDB):
                 valid_index_count += 1
 
         result = index_set[:valid_index_count]
-        result = result[:20]
+        result = result[:50]
         return result
 
     def image_path_from_index(self, index):
