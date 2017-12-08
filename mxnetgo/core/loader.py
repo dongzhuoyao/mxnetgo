@@ -226,6 +226,7 @@ class TrainDataLoader(mx.io.DataIter):
 
 def parfetch(config, crop_width, crop_height, isegdb):
     data, label = get_segmentation_train_batch(isegdb, config)
+
     if config.TRAIN.ENABLE_CROP:
         data_internal = data['data']
         label_internal = label['label']

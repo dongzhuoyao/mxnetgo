@@ -10,6 +10,9 @@ label =
 import numpy as np
 from image import get_segmentation_image, tensor_vstack
 
+__all__ = [
+    'get_segmentation_test_batch','get_segmentation_train_batch'
+]
 def get_segmentation_test_batch(segdb, config):
     """
     return a dict of train batch

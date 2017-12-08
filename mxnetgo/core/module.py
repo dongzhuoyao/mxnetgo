@@ -31,7 +31,7 @@ from mxnet import metric
 from .DataParallelExecutorGroup import DataParallelExecutorGroup
 from mxnet import ndarray as nd
 from mxnet import optimizer as opt
-
+import numpy as np
 
 class Module(BaseModule):
     """Module is a basic module that wrap a `Symbol`. It is functionally the same
@@ -942,8 +942,10 @@ class MutableModule(BaseModule):
                         num_epoch=10)
         """
         assert num_epoch is not None, 'please specify number of epochs'
+        provide_data = [[("data",(1L, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
+        provide_label = [[("label",(1L, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
 
-        self.bind(data_shapes=train_data.provide_data, label_shapes=train_data.provide_label,
+        self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)
         if monitor is not None:
             self.install_monitor(monitor)
@@ -965,7 +967,20 @@ class MutableModule(BaseModule):
         for epoch in range(begin_epoch, num_epoch):
             tic = time.time()
             eval_metric.reset()
-            for nbatch, data_batch in enumerate(train_data):
+            train_data.reset_state()
+            nbatch = 0
+            size = train_data.size()
+            for data,label in train_data.get_data():
+            #for nbatch, data_batch in enumerate(train_data):
+                #nbatch, data_batch
+                data = np.transpose(data, (0, 3, 1, 2))
+                label = label[:,:,:,None]
+                label = np.transpose(label, (0, 3, 1, 2))
+                dl = [[mx.nd.array(data)]]
+                ll = [[mx.nd.array(label)]]
+                data_batch = mx.io.DataBatch(data=dl, label=ll,
+                                    pad=0, index=nbatch,
+                                    provide_data=provide_data, provide_label=provide_label)
                 if monitor is not None:
                     monitor.tic()
                 self.forward_backward(data_batch)
@@ -981,7 +996,7 @@ class MutableModule(BaseModule):
                                                      locals=locals())
                     for callback in _as_list(batch_end_callback):
                         callback(batch_end_params)
-
+                nbatch += 1
             # one epoch of training is finished
             for name, val in eval_metric.get_name_value():
                 logger.info('Epoch[%d] Train-%s=%f', epoch, name, val)

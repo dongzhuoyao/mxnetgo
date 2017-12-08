@@ -53,11 +53,42 @@ from mxnetgo.myutils.load_data import merge_roidb
 
 
 from mxnetgo.myutils import logger
-
 from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
 from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from tensorpack.dataflow import imgaug
+from tensorpack.dataflow.common import BatchData
+from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
+from tensorpack.dataflow.image import AugmentImageComponents
+from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 
+CROP_SIZE = 321
+IGNORE_LABEL = 255
+
+def get_data(name, data_dir, meta_dir, config):
+    isTrain = name == 'train'
+    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
+
+
+    if isTrain:#special augmentation
+        shape_aug = [imgaug.RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
+                            aspect_ratio_thres=0.15),
+                     RandomCropWithPadding((config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH),IGNORE_LABEL),
+                     imgaug.Flip(horiz=True),
+                     ]
+    else:
+        shape_aug = []
+
+    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+
+
+    if isTrain:
+        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES)
+        ds = PrefetchDataZMQ(ds, 1)
+    else:
+        ds = BatchData(ds, 1)
+    return ds
 
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
@@ -85,9 +116,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
               for image_set in image_sets]
     segdb = merge_segdb(segdbs)
 
-    # load training data
-    train_data = TrainDataLoader(sym, segdb, config, batch_size=input_batch_size, crop_height=config.TRAIN.CROP_HEIGHT, crop_width=config.TRAIN.CROP_WIDTH,
-                                 shuffle=config.TRAIN.SHUFFLE, ctx=ctx)
+    train_data = get_data("train", "/data_a/dataset/cityscapes", "data/cityscapes", config)
 
     # load test data
     from mxnetgo.myutils.dataset.cityscape import CityScape
@@ -105,7 +134,9 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     #logger.info('providing maximum shape', max_data_shape, max_label_shape)
 
     # infer shape
-    data_shape_dict = dict(train_data.provide_data_single + train_data.provide_label_single)
+    data_shape_dict = {'data':(1L, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
+                       ,'label':(1L, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
+
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
 
@@ -123,8 +154,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
     # create solver
     fixed_param_prefix = config.network.FIXED_PARAMS
-    data_names = [k[0] for k in train_data.provide_data_single]
-    label_names = [k[0] for k in train_data.provide_label_single]
+    data_names = ['data']
+    label_names = ['label']
 
     mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, max_data_shapes=[max_data_shape for _ in xrange(gpu_nums)],
                         max_label_shapes=[max_label_shape for _ in xrange(gpu_nums)], fixed_param_prefix=fixed_param_prefix)
@@ -139,8 +170,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
         eval_metrics.add(child_metric)
 
     # callback
-    #batch_end_callbacks = [callback.Speedometer(train_data.batch_size, frequent=args.frequent)]
-    batch_end_callbacks = [mx.callback.ProgressBar(total=train_data.size/train_data.batch_size)]
+    batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]
+    #batch_end_callbacks = [mx.callback.ProgressBar(total=train_data.size/train_data.batch_size)]
     epoch_end_callbacks = \
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
