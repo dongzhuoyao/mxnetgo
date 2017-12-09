@@ -1013,15 +1013,6 @@ class MutableModule(BaseModule):
 
             #----------------------------------------
             # evaluation on validation set
-            """
-            if eval_data:
-                res = self.score(eval_data, validation_metric,
-                                 score_end_callback=eval_end_callback,
-                                 batch_end_callback=eval_batch_end_callback, epoch=epoch)
-                #TODO: pull this into default
-                for name, val in res:
-                    self.logger.info('Epoch[%d] Validation-%s=%f', epoch, name, val)
-            """
 
             # infer shape
             data_shape_dict = dict(eval_data.provide_data_single)

@@ -63,7 +63,6 @@ from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 
-CROP_SIZE = 321
 IGNORE_LABEL = 255
 
 def get_data(name, data_dir, meta_dir, config):
