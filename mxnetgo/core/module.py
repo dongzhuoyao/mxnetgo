@@ -1034,7 +1034,6 @@ class MutableModule(BaseModule):
 
 
             # end of one epoch, reset the data-iter for another epoch
-            train_data.reset()
             eval_data.reset()
 
 
