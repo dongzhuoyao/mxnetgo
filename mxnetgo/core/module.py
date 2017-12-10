@@ -734,8 +734,10 @@ class MutableModule(BaseModule):
         self._work_load_list = work_load_list
 
         self._curr_module = None
-        self._max_data_shapes = max_data_shapes
-        self._max_label_shapes = max_label_shapes
+        #self._max_data_shapes = max_data_shapes
+        #self._max_label_shapes = max_label_shapes
+        self._max_data_shapes = None
+        self._max_label_shapes = None
         self._fixed_param_prefix = fixed_param_prefix
 
         fixed_param_names = list()
@@ -1028,12 +1030,32 @@ class MutableModule(BaseModule):
 
             # create predictor
             predictor = Predictor(eval_sym, data_names, label_names,
-                                  context=self._context, max_data_shapes=self._max_data_shapes,
+                                  context=self._context,
                                   provide_data=val_provide_data, provide_label=val_provide_label,
                                   arg_params=arg_params, aux_params=aux_params)
 
+            from mxnetgo.myutils.stats import MIoUStatistics
+
             from mxnetgo.myutils.seg.segmentation import predict_scaler
-            
+            stats = MIoUStatistics(config.dataset.NUM_CLASSES)
+            eval_data.reset_state()
+            nbatch = 0
+            for data, label in eval_data.get_data():
+                # for nbatch, data_batch in enumerate(train_data):
+                # nbatch, data_batch
+                data = np.transpose(data, (0, 3, 1, 2))
+                label = label[:, :, :, None]
+                label = np.transpose(label, (0, 3, 1, 2))
+                dl = [[mx.nd.array(data)]]
+                ll = [[mx.nd.array(label)]]
+                data_batch = mx.io.DataBatch(data=dl, label=ll,
+                                             pad=0, index=nbatch,
+                                             provide_data=val_provide_data, provide_label=val_provide_label)
+                output_all = predictor.predict(data_batch)
+                output_all = [mx.ndarray.argmax(output['softmax_output'], axis=1).asnumpy() for output in output_all]
+                pass
+
+
             #pred_eval(predictor, eval_data, eval_imdb,val_provide_data, val_provide_label)
 
 
