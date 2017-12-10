@@ -69,3 +69,5 @@ TEST:
   # size of images for each device
   BATCH_IMAGES: 1
   test_epoch: 53
+  tile_height: 768
+  tile_width: 1024

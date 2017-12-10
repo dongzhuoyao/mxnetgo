@@ -1015,26 +1015,27 @@ class MutableModule(BaseModule):
             # evaluation on validation set
 
             # infer shape
-            data_shape_dict = dict(eval_data.provide_data_single)
+            val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
+            val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
+            data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
+                , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
             eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
             eval_sym_instance.infer_shape(data_shape_dict)
             eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
-            data_names = [k[0] for k in eval_data.provide_data_single]
+            data_names = ['data']
             label_names = ['softmax_label']
 
 
             # create predictor
             predictor = Predictor(eval_sym, data_names, label_names,
                                   context=self._context, max_data_shapes=self._max_data_shapes,
-                                  provide_data=eval_data.provide_data, provide_label=eval_data.provide_label,
+                                  provide_data=val_provide_data, provide_label=val_provide_label,
                                   arg_params=arg_params, aux_params=aux_params)
 
-            # start detection
-            pred_eval(predictor, eval_data, eval_imdb, vis=False, ignore_cache=True)
+            from mxnetgo.myutils.seg.segmentation import predict_scaler
+            
+            #pred_eval(predictor, eval_data, eval_imdb,val_provide_data, val_provide_label)
 
-
-            # end of one epoch, reset the data-iter for another epoch
-            eval_data.reset()
 
 
     def forward(self, data_batch, is_train=None):
@@ -1116,7 +1117,10 @@ class Predictor(object):
         return [dict(zip(self._mod.output_names, _)) for _ in
                 zip(*self._mod.get_outputs(merge_multi_context=False))]
 
-def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, output_img = False):
+def my_pred_eval(predictor):
+    pass
+
+def pred_eval(predictor, test_data, imdb, provide_data, provide_label):
     """
     wrapper for calculating offline validation for faster data analysis
     in this example, all threshold are set by hand
@@ -1127,31 +1131,26 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, output_i
     :param ignore_cache: ignore the saved cache file
     :return:
     """
-    res_file = os.path.join(imdb.result_path, imdb.name + '_segmentations.pkl')
-    if os.path.exists(res_file) and not ignore_cache:
-        with open(res_file, 'rb') as fid:
-            evaluation_results = cPickle.load(fid)
 
-        logger.info('evaluate segmentation:')
-        meanIU = evaluation_results['meanIU']
-        IU_array = evaluation_results['IU_array']
-        logger.info('IU_array:')
-        for i in range(len(IU_array)):
-            logger.info('%.5f' % IU_array[i])
-        logger.info('meanIU:%.5f' % meanIU)
-        return
-
-    assert vis or not test_data.shuffle
-    if not isinstance(test_data, PrefetchingIter):
-        test_data = PrefetchingIter(test_data)
-
-    num_images = imdb.num_images
+    num_images = test_data.size()
     all_segmentation_result = [[] for _ in xrange(num_images)]
     idx = 0
 
     data_time, net_time, post_time = 0.0, 0.0, 0.0
     t = time.time()
-    for data_batch in tqdm(test_data):
+    nbatch = 0
+    for data, label in test_data.get_data():
+        # for nbatch, data_batch in enumerate(train_data):
+        # nbatch, data_batch
+        data = np.transpose(data, (0, 3, 1, 2))
+        label = label[:, :, :, None]
+        label = np.transpose(label, (0, 3, 1, 2))
+        dl = [[mx.nd.array(data)]]
+        ll = [[mx.nd.array(label)]]
+        data_batch = mx.io.DataBatch(data=dl, label=ll,
+                                     pad=0, index=nbatch,
+                                     provide_data=provide_data, provide_label=provide_label)
+
         t1 = time.time() - t
         t = time.time()
         output_all = predictor.predict(data_batch)
@@ -1169,18 +1168,9 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, output_i
         data_time += t1
         net_time += t2
         post_time += t3
+        nbatch += 1
 
-        #logger.info('testing {}/{} data {:.4f}s net {:.4f}s post {:.4f}s'.format(idx, imdb.num_images,
-         #                                                                            data_time / idx * test_data.batch_size,
-          #                                                                           net_time / idx * test_data.batch_size,
-           #                                                             post_time / idx * test_data.batch_size))
     evaluation_results = imdb.evaluate_segmentations(all_segmentation_result)
-
-    if not os.path.exists(res_file) or ignore_cache:
-        with open(res_file, 'wb') as f:
-            cPickle.dump(evaluation_results, f, protocol=cPickle.HIGHEST_PROTOCOL)
-
-
     logger.info('evaluate segmentation:')
 
     meanIU = evaluation_results['meanIU']

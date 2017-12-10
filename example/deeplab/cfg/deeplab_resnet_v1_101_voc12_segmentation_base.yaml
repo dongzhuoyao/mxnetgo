@@ -61,8 +61,8 @@ TRAIN:
   # wheter crop image during training
   ENABLE_CROP: False
   # scale of cropped image during training
-  CROP_HEIGHT: 768
-  CROP_WIDTH: 1024
+  CROP_HEIGHT: 321 #768
+  CROP_WIDTH:  321 #1024
   # whether resume training
   RESUME: false
   # whether shuffle image

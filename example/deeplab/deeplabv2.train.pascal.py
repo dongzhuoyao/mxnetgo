@@ -24,7 +24,7 @@ use_cache = False
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml", type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_voc12_segmentation_base.yaml", type=str)
 
     args, rest = parser.parse_known_args()
     # update config
@@ -56,7 +56,7 @@ from mxnetgo.myutils import logger
 from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
 from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
-from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 from tensorpack.dataflow import imgaug
 from tensorpack.dataflow.common import BatchData
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
@@ -67,8 +67,7 @@ IGNORE_LABEL = 255
 
 def get_data(name, data_dir, meta_dir, config):
     isTrain = name == 'train'
-    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
-
+    ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
     if isTrain:#special augmentation
         shape_aug = [imgaug.RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
@@ -109,21 +108,23 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
 
     # load dataset and prepare imdb for training
-    image_sets = [iset for iset in config.dataset.image_set.split('+')]
-    segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
-                            result_path=logger.get_logger_dir(), flip=config.TRAIN.FLIP, use_cache=use_cache)
-              for image_set in image_sets]
-    segdb = merge_segdb(segdbs)
+    from mxnetgo.myutils.dataset.pascal_voc import PascalVOC
+    ##image_sets = [iset for iset in config.dataset.image_set.split('+')]
+    #segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
+    #                        result_path=logger.get_logger_dir(), flip=config.TRAIN.FLIP, use_cache=use_cache)
+    #          for image_set in image_sets]
+    #segdb = merge_segdb(segdbs)
 
-    train_data = get_data("train", "/data_a/dataset/cityscapes", "data/cityscapes", config)
+    train_data = get_data("train", "/data_a/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12", config)
 
     # load test data
-    from mxnetgo.myutils.dataset.cityscape import CityScape
-    test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=logger.get_logger_dir())
-    test_segdb = test_imdb.gt_segdb(use_cache = use_cache)
-    test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
+    #test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=logger.get_logger_dir())
+    #test_segdb = test_imdb.gt_segdb(use_cache = use_cache)
+    #test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
 
-    test_data = get_data("val", "/data_a/dataset/cityscapes", "data/cityscapes", config)
+    test_data = get_data("val", "/data_a/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012",
+                          "data/pascalvoc12", config)
+
     eval_sym_instance = eval(config.symbol)()
 
 
@@ -183,7 +184,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     lr_epoch = [float(epoch) for epoch in lr_step.split(',')]
     lr_epoch_diff = [epoch - begin_epoch for epoch in lr_epoch if epoch > begin_epoch]
     lr = base_lr * (lr_factor ** (len(lr_epoch) - len(lr_epoch_diff)))
-    lr_iters = [int(epoch * len(segdb) / gpu_nums) for epoch in lr_epoch_diff]
+    lr_iters = [int(epoch * train_data.size() / gpu_nums) for epoch in lr_epoch_diff]
     logger.info('lr: {}, lr_epoch_diff: {}, lr_iters: {}'.format(lr,lr_epoch_diff,lr_iters))
 
     lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, config.TRAIN.warmup, config.TRAIN.warmup_lr, config.TRAIN.warmup_step)
@@ -198,7 +199,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
 
 
-    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_imdb=test_imdb, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch)
