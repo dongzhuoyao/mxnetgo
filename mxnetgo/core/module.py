@@ -20,6 +20,10 @@ from tqdm import tqdm
 import mxnet as mx
 from ..myutils.PrefetchingIter import PrefetchingIter
 from ..myutils import logger
+from ..myutils.seg.segmentation import predict_scaler
+
+
+
 
 from mxnet import context as ctx
 from mxnet.initializer import Uniform, InitDesc
@@ -1040,23 +1044,18 @@ class MutableModule(BaseModule):
             stats = MIoUStatistics(config.dataset.NUM_CLASSES)
             eval_data.reset_state()
             nbatch = 0
-            for data, label in eval_data.get_data():
-                # for nbatch, data_batch in enumerate(train_data):
-                # nbatch, data_batch
-                data = np.transpose(data, (0, 3, 1, 2))
-                label = label[:, :, :, None]
-                label = np.transpose(label, (0, 3, 1, 2))
-                dl = [[mx.nd.array(data)]]
-                ll = [[mx.nd.array(label)]]
-                data_batch = mx.io.DataBatch(data=dl, label=ll,
-                                             pad=0, index=nbatch,
-                                             provide_data=val_provide_data, provide_label=val_provide_label)
-                output_all = predictor.predict(data_batch)
-                output_all = [mx.ndarray.argmax(output['softmax_output'], axis=1).asnumpy() for output in output_all]
-                pass
-
-
-            #pred_eval(predictor, eval_data, eval_imdb,val_provide_data, val_provide_label)
+            for data, label in tqdm(eval_data.get_data()):
+                output_all = predict_scaler(data, predictor,
+                      scales=[1.0],classes=config.dataset.NUM_CLASSES,
+                                            tile_size=(config.TEST.tile_height, config.TEST.tile_width),
+                                            is_densecrf=False,nbatch =nbatch,
+                                            val_provide_data = val_provide_data,
+                                            val_provide_label = val_provide_label)
+                output_all = np.argmax(output_all, axis=0)
+                label = np.squeeze(label)
+                stats.feed(output_all,label) #very time-consuming
+                nbatch += 1
+            logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
 
 
 
@@ -1135,70 +1134,5 @@ class Predictor(object):
 
     def predict(self, data_batch):
         self._mod.forward(data_batch)
-        # [dict(zip(self._mod.output_names, _)) for _ in zip(*self._mod.get_outputs(merge_multi_context=False))]
         return [dict(zip(self._mod.output_names, _)) for _ in
                 zip(*self._mod.get_outputs(merge_multi_context=False))]
-
-def my_pred_eval(predictor):
-    pass
-
-def pred_eval(predictor, test_data, imdb, provide_data, provide_label):
-    """
-    wrapper for calculating offline validation for faster data analysis
-    in this example, all threshold are set by hand
-    :param predictor: Predictor
-    :param test_data: data iterator, must be non-shuffle
-    :param imdb: image database
-    :param vis: controls visualization
-    :param ignore_cache: ignore the saved cache file
-    :return:
-    """
-
-    num_images = test_data.size()
-    all_segmentation_result = [[] for _ in xrange(num_images)]
-    idx = 0
-
-    data_time, net_time, post_time = 0.0, 0.0, 0.0
-    t = time.time()
-    nbatch = 0
-    for data, label in test_data.get_data():
-        # for nbatch, data_batch in enumerate(train_data):
-        # nbatch, data_batch
-        data = np.transpose(data, (0, 3, 1, 2))
-        label = label[:, :, :, None]
-        label = np.transpose(label, (0, 3, 1, 2))
-        dl = [[mx.nd.array(data)]]
-        ll = [[mx.nd.array(label)]]
-        data_batch = mx.io.DataBatch(data=dl, label=ll,
-                                     pad=0, index=nbatch,
-                                     provide_data=provide_data, provide_label=provide_label)
-
-        t1 = time.time() - t
-        t = time.time()
-        output_all = predictor.predict(data_batch)
-        output_all = [mx.ndarray.argmax(output['softmax_output'], axis=1).asnumpy() for output in output_all]
-        t2 = time.time() - t
-        t = time.time()
-
-        all_segmentation_result[idx: idx + test_data.batch_size] = [output.astype('int8') for output in
-                                                                    output_all]
-
-        idx += test_data.batch_size
-        t3 = time.time() - t
-        t = time.time()
-
-        data_time += t1
-        net_time += t2
-        post_time += t3
-        nbatch += 1
-
-    evaluation_results = imdb.evaluate_segmentations(all_segmentation_result)
-    logger.info('evaluate segmentation:')
-
-    meanIU = evaluation_results['meanIU']
-    IU_array = evaluation_results['IU_array']
-
-    logger.info('IU_array:')
-    for i in range(len(IU_array)):
-        logger.info('confusion matrix diag %d : %.5f' % (i,IU_array[i]))
-    logger.info('final meanIU:%.5f' % meanIU)
