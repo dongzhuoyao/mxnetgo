@@ -62,7 +62,7 @@ TRAIN:
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024
   # whether resume training
-  RESUME: true
+  RESUME: false
   # whether shuffle image
   SHUFFLE: true
 TEST:

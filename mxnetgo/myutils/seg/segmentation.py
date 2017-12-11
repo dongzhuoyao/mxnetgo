@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 import pydensecrf.densecrf as dcrf
 import mxnet as mx
 
-__all__ = ['predict_slider']
+__all__ = ['update_confusion_matrix', 'predict_slider']
 
 # Colour map.
 label_colours = [(0,0,0)
@@ -24,6 +24,19 @@ label_colours = [(0,0,0)
                 ,(0,64,0),(128,64,0),(0,192,0),(128,192,0),(0,64,128)]
                 # 16=potted plant, 17=sheep, 18=sofa, 19=train, 20=tv/monitor
 
+def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
+    flat_pred = np.ravel(pred)
+    flat_label = np.ravel(label)
+
+    for p, l in zip(flat_pred, flat_label):
+        if l == ignore:
+            continue
+        if l < nb_classes and p < nb_classes:
+            conf_m[l, p] += 1
+        else:
+            raise
+
+    return conf_m
 
 def pad_image(img, target_size):
     """Pad an image up to the target size."""

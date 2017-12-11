@@ -42,14 +42,11 @@ import shutil
 import mxnet as mx
 
 from mxnetgo.core import callback, metric
-from mxnetgo.core.loader import TrainDataLoader, TestDataLoader
 from mxnetgo.core.module import MutableModule
 from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from mxnetgo.myutils.load_model import load_param
 
 
-from mxnetgo.myutils.load_data import load_gt_segdb,merge_segdb
-from mxnetgo.myutils.load_data import merge_roidb
 
 
 from mxnetgo.myutils import logger
