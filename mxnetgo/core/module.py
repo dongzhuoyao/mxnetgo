@@ -1022,39 +1022,40 @@ class MutableModule(BaseModule):
             #----------------------------------------
             # evaluation on validation set
 
-            # infer shape
-            val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
-            val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
-            data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
-                , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
-            eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
-            eval_sym_instance.infer_shape(data_shape_dict)
-            eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
-            data_names = ['data']
-            label_names = ['softmax_label']
+            if False:
+                # infer shape
+                val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
+                val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
+                data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
+                    , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
+                eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
+                eval_sym_instance.infer_shape(data_shape_dict)
+                eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
+                data_names = ['data']
+                label_names = ['softmax_label']
 
 
-            # create predictor
-            predictor = Predictor(eval_sym, data_names, label_names,
-                                  context=self._context,
-                                  provide_data=val_provide_data, provide_label=val_provide_label,
-                                  arg_params=arg_params, aux_params=aux_params)
+                # create predictor
+                predictor = Predictor(eval_sym, data_names, label_names,
+                                      context=self._context,
+                                      provide_data=val_provide_data, provide_label=val_provide_label,
+                                      arg_params=arg_params, aux_params=aux_params)
 
-            stats = MIoUStatistics(config.dataset.NUM_CLASSES)
-            eval_data.reset_state()
-            nbatch = 0
-            for data, label in tqdm(eval_data.get_data()):
-                output_all = predict_scaler(data, predictor,
-                      scales=[1.0],classes=config.dataset.NUM_CLASSES,
-                                            tile_size=(config.TEST.tile_height, config.TEST.tile_width),
-                                            is_densecrf=False,nbatch =nbatch,
-                                            val_provide_data = val_provide_data,
-                                            val_provide_label = val_provide_label)
-                output_all = np.argmax(output_all, axis=0)
-                label = np.squeeze(label)
-                stats.feed(output_all,label) #very time-consuming
-                nbatch += 1
-            logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
+                stats = MIoUStatistics(config.dataset.NUM_CLASSES)
+                eval_data.reset_state()
+                nbatch = 0
+                for data, label in tqdm(eval_data.get_data()):
+                    output_all = predict_scaler(data, predictor,
+                          scales=[1.0],classes=config.dataset.NUM_CLASSES,
+                                                tile_size=(config.TEST.tile_height, config.TEST.tile_width),
+                                                is_densecrf=False,nbatch =nbatch,
+                                                val_provide_data = val_provide_data,
+                                                val_provide_label = val_provide_label)
+                    output_all = np.argmax(output_all, axis=0)
+                    label = np.squeeze(label)
+                    stats.feed(output_all,label) #very time-consuming
+                    nbatch += 1
+                logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
 
 
 

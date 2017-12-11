@@ -6,6 +6,8 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
+DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
+
 import _init_paths
 
 import argparse
@@ -104,8 +106,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     #pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
-    train_data = get_data("train", "/data_a/dataset/cityscapes", "data/cityscapes", config)
-    test_data = get_data("val", "/data_a/dataset/cityscapes", "data/cityscapes", config)
+    train_data = get_data("train", DATA_DIR, LIST_DIR, config)
+    test_data = get_data("val", DATA_DIR, LIST_DIR, config)
 
     eval_sym_instance = eval(config.symbol)()
 
