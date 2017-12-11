@@ -14,11 +14,11 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 ## TODO
 
-1. resnet101 model train
+* resnet101 model train
 
-2. deeplab result reproduce
+* deeplab result reproduce
 
-3. data loader change to a more approximate pattern
+* PSPNet 
 
 ## Acknowledgement
 
