@@ -48,7 +48,7 @@ TRAIN:
   # typically we will use 4000 warmup step for single GPU
   warmup_step: 1000
   begin_epoch: 0
-  end_epoch: 53
+  end_epoch: 80
   lr: 0.0005
   lr_step: '40.336'
   model_prefix: "deeplab_resnet_v1_101_cityscapes_segmentation_base"
@@ -62,7 +62,7 @@ TRAIN:
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024
   # whether resume training
-  RESUME: false
+  RESUME: true
   # whether shuffle image
   SHUFFLE: true
 TEST:
