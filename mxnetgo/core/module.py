@@ -37,6 +37,10 @@ from mxnet import ndarray as nd
 from mxnet import optimizer as opt
 import numpy as np
 
+from mxnetgo.myutils.stats import MIoUStatistics
+from mxnetgo.myutils.seg.segmentation import predict_scaler
+
+
 class Module(BaseModule):
     """Module is a basic module that wrap a `Symbol`. It is functionally the same
     as the `FeedForward` model, except under the module API.
@@ -977,8 +981,6 @@ class MutableModule(BaseModule):
             nbatch = 0
             size = train_data.size()
             for data,label in train_data.get_data():
-            #for nbatch, data_batch in enumerate(train_data):
-                #nbatch, data_batch
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
@@ -1038,9 +1040,6 @@ class MutableModule(BaseModule):
                                   provide_data=val_provide_data, provide_label=val_provide_label,
                                   arg_params=arg_params, aux_params=aux_params)
 
-            from mxnetgo.myutils.stats import MIoUStatistics
-
-            from mxnetgo.myutils.seg.segmentation import predict_scaler
             stats = MIoUStatistics(config.dataset.NUM_CLASSES)
             eval_data.reset_state()
             nbatch = 0

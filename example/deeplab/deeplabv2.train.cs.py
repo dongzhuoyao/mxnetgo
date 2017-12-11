@@ -107,23 +107,9 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     #pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
-
-    # load dataset and prepare imdb for training
-    image_sets = [iset for iset in config.dataset.image_set.split('+')]
-    segdbs = [load_gt_segdb(config.dataset.dataset, image_set, config.dataset.root_path, config.dataset.dataset_path,
-                            result_path=logger.get_logger_dir(), flip=config.TRAIN.FLIP, use_cache=use_cache)
-              for image_set in image_sets]
-    segdb = merge_segdb(segdbs)
-
     train_data = get_data("train", "/data_a/dataset/cityscapes", "data/cityscapes", config)
-
-    # load test data
-    #from mxnetgo.myutils.dataset.cityscape import CityScape
-    #test_imdb = eval(config.dataset.dataset)(config.dataset.test_image_set, config.dataset.root_path, config.dataset.dataset_path, result_path=logger.get_logger_dir())
-    #test_segdb = test_imdb.gt_segdb(use_cache = use_cache)
-    #test_data = TestDataLoader(test_segdb, config=config, batch_size=len(ctx))
-
     test_data = get_data("val", "/data_a/dataset/cityscapes", "data/cityscapes", config)
+
     eval_sym_instance = eval(config.symbol)()
 
 
@@ -131,8 +117,6 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     max_scale = [(config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)]
     max_data_shape = [('data', (config.TRAIN.BATCH_IMAGES, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
     max_label_shape = [('label', (config.TRAIN.BATCH_IMAGES, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
-    #max_data_shape, max_label_shape = train_data.infer_shape(max_data_shape, max_label_shape)
-    #logger.info('providing maximum shape', max_data_shape, max_label_shape)
 
     # infer shape
     data_shape_dict = {'data':(1L, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
@@ -183,7 +167,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     lr_epoch = [float(epoch) for epoch in lr_step.split(',')]
     lr_epoch_diff = [epoch - begin_epoch for epoch in lr_epoch if epoch > begin_epoch]
     lr = base_lr * (lr_factor ** (len(lr_epoch) - len(lr_epoch_diff)))
-    lr_iters = [int(epoch * len(segdb) / gpu_nums) for epoch in lr_epoch_diff]
+    lr_iters = [int(epoch * train_data.size() / gpu_nums) for epoch in lr_epoch_diff]
     logger.info('lr: {}, lr_epoch_diff: {}, lr_iters: {}'.format(lr,lr_epoch_diff,lr_iters))
 
     lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, config.TRAIN.warmup, config.TRAIN.warmup_lr, config.TRAIN.warmup_step)

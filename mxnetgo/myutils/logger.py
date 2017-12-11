@@ -121,7 +121,7 @@ If you're resuming from a previous run you can choose to keep it.""")
         elif act == 'd':
             shutil.rmtree(dirname)
         elif act == 'n':
-            dirname = dirname + _get_time_str()
+            dirname = dirname +"-"+ _get_time_str()
             info("Use a new log directory {}".format(dirname))  # noqa: F821
         elif act == 'k':
             pass

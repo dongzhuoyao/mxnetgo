@@ -7,7 +7,7 @@
 # --------------------------------------------------------
 
 import time
-import logging
+from ..myutils import logger
 import mxnet as mx
 
 class Speedometer(object):
@@ -37,8 +37,7 @@ class Speedometer(object):
                 else:
                     s = "Iter[%d] Batch [%d]\tSpeed: %.2f samples/sec" % (param.epoch, count, speed)
 
-                logging.info(s)
-                print(s)
+                logger.info(s)
                 self.tic = time.time()
         else:
             self.init = True
