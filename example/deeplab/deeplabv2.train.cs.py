@@ -30,7 +30,7 @@ def parse_args():
 
     args, rest = parser.parse_known_args()
     # update config
-    update_config(args.cfg)
+    update_config(args.cfg) shuo
 
     # training
     parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)

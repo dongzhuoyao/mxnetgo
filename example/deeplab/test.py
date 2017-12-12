@@ -5,7 +5,7 @@ import _init_paths
 import argparse
 import os,sys
 import pprint
-
+import cv2
 from mxnetgo.myutils.config import config, update_config
 
 os.environ['PYTHONUNBUFFERED'] = '1'
@@ -26,11 +26,12 @@ def parse_args():
 
     # training
     parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
+    parser.add_argument('--vis', help='image visualization', default=True)
+
     args = parser.parse_args()
     return args
 
 args = parse_args()
-curr_path = os.path.abspath(os.path.dirname(__file__))
 
 import shutil
 import mxnet as mx
@@ -40,7 +41,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.core.tester import Predictor
-from mxnetgo.myutils.seg.segmentation import predict_scaler
+from mxnetgo.myutils.seg.segmentation import predict_scaler,visualize_label
 from mxnetgo.myutils.load_model import load_param
 from mxnetgo.myutils.stats import MIoUStatistics
 
@@ -83,6 +84,7 @@ def get_data(name, data_dir, meta_dir, config):
 
 
 def test_deeplab():
+    logger.auto_set_dir()
     test_data = get_data("val", DATA_DIR, LIST_DIR, config)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
 
@@ -110,6 +112,10 @@ def test_deeplab():
                           provide_data=val_provide_data, provide_label=val_provide_label,
                           arg_params=arg_params, aux_params=aux_params)
 
+    if args.vis:
+        from mxnetgo.myutils.fs import mkdir_p
+        vis_dir = os.path.join(logger.get_logger_dir(),"vis")
+        mkdir_p(vis_dir)
     stats = MIoUStatistics(config.dataset.NUM_CLASSES)
     test_data.reset_state()
     nbatch = 0
@@ -122,6 +128,8 @@ def test_deeplab():
                                     val_provide_label=val_provide_label)
         output_all = np.argmax(output_all, axis=0)
         label = np.squeeze(label)
+        if args.vis:
+            cv2.imwrite(os.path.join(vis_dir,"{}.jpg".format(nbatch)),visualize_label(output_all))
         stats.feed(output_all, label)  # very time-consuming
         nbatch += 1
     logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
