@@ -18,6 +18,8 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 * deeplab result reproduce
 
+* DUC
+
 * PSPNet 
 
 ## Acknowledgement
