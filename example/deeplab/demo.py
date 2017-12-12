@@ -120,6 +120,7 @@ def main():
     max_data_shape = [[('data', (1, 3, max([v[0] for v in config.SCALES]), max([v[1] for v in config.SCALES])))]]
     provide_data = [[(k, v.shape) for k, v in zip(data_names, data[i])] for i in xrange(len(data))]
     provide_label = [None for i in xrange(len(data))]
+
     weight = 'output/cityscape/deeplab_resnet_v1_101_cityscapes_segmentation_base/leftImg8bit_train/' + ('deeplab_resnet_v1_101_cityscapes_segmentation_base' if not args.deeplab_only else 'deeplab_resnet_v1_101_cityscapes_segmentation_base')
     arg_params, aux_params = load_param(weight, 53, process=True)
     predictor = Predictor(sym, data_names, label_names,
