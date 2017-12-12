@@ -31,8 +31,9 @@ class Predictor(object):
         # [dict(zip(self._mod.output_names, _)) for _ in zip(*self._mod.get_outputs(merge_multi_context=False))]
         return [dict(zip(self._mod.output_names, _)) for _ in zip(*self._mod.get_outputs(merge_multi_context=False))]
 
+"""
 def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=None):
-    """
+
     wrapper for calculating offline validation for faster data analysis
     in this example, all threshold are set by hand
     :param predictor: Predictor
@@ -42,7 +43,7 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=N
     :param ignore_cache: ignore the saved cache file
     :param logger: the logger instance
     :return:
-    """
+
     res_file = os.path.join(imdb.result_path, imdb.name + '_segmentations.pkl')
     if os.path.exists(res_file) and not ignore_cache:
         with open(res_file , 'rb') as fid:
@@ -118,3 +119,4 @@ def pred_eval(predictor, test_data, imdb, vis=False, ignore_cache=None, logger=N
     print 'meanIU:%.5f'%meanIU
     if logger:
         logger.info( 'meanIU:%.5f'%meanIU)
+"""

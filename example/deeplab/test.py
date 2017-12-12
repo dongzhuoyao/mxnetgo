@@ -1,23 +1,40 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Written by Zheng Zhang
-# --------------------------------------------------------
-
 import _init_paths
-
 import argparse
 import os
-import sys
-from symbols import *
 
+from mxnetgo.myutils import logger
+
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from tensorpack.dataflow import imgaug
+from tensorpack.dataflow.common import BatchData
+from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
+from tensorpack.dataflow.image import AugmentImageComponents
+from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.config  import config, update_config
+import numpy as np
+
+
+curr_path = os.path.abspath(os.path.dirname(__file__))
+
+import pprint
+import mxnet as mx
+
+from mxnetgo.myutils.dataset import *
+from mxnetgo.core.tester import Predictor
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.stats import MIoUStatistics
+DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
+from tqdm import tqdm
+from mxnetgo.myutils.seg.segmentation import predict_scaler
+
+IGNORE_LABEL = 255
+
+
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Test a Deeplab Network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', required=True, type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', required=True,default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml",  type=str)
 
     args, rest = parser.parse_known_args()
     update_config(args.cfg)
@@ -30,64 +47,76 @@ def parse_args():
     return args
 
 args = parse_args()
-curr_path = os.path.abspath(os.path.dirname(__file__))
 
-import pprint
-import mxnet as mx
+def get_data(name, data_dir, meta_dir, config):
+    isTrain = name == 'train'
+    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
 
-from mxnetgo.myutils.dataset import *
-from mxnetgo.core.loader import TestDataLoader
-from mxnetgo.core.tester import Predictor, pred_eval
-from mxnetgo.myutils.load_model import load_param
-from mxnetgo.myutils.create_logger import create_logger
+
+    if isTrain:#special augmentation
+        shape_aug = [imgaug.RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
+                            aspect_ratio_thres=0.15),
+                     RandomCropWithPadding((config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH),IGNORE_LABEL),
+                     imgaug.Flip(horiz=True),
+                     ]
+    else:
+        shape_aug = []
+
+    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+
+
+    if isTrain:
+        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES)
+        ds = PrefetchDataZMQ(ds, 1)
+    else:
+        ds = BatchData(ds, 1)
+    return ds
+
 
 def test_deeplab():
-    epoch = config.TEST.test_epoch
+    test_data = get_data("val", DATA_DIR, LIST_DIR, config)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
-    image_set = config.dataset.test_image_set
-    root_path = config.dataset.root_path
-    dataset = config.dataset.dataset
-    dataset_path = config.dataset.dataset_path
 
-    logger, final_output_path = create_logger(config.output_path, args.cfg, image_set)
-    prefix = os.path.join(final_output_path, '..', '_'.join([iset for iset in config.dataset.image_set.split('+')]), config.TRAIN.model_prefix)
-
-    # print config
-    pprint.pprint(config)
+    arg_params, aux_params = load_param("train_log/deeplabv2.train.cs.1th/mxnetgo", 78, process=True)
     logger.info('testing config:{}\n'.format(pprint.pformat(config)))
 
     # load symbol and testing data
+    from symbols import resnet_v1_101_deeplab
     sym_instance = eval(config.symbol + '.' + config.symbol)()
-    sym = sym_instance.get_symbol(config, is_train=False)
-
-    imdb = eval(dataset)(image_set, root_path, dataset_path, result_path=final_output_path)
-    segdb = imdb.gt_segdb()
-
-    # get test data iter
-    test_data = TestDataLoader(segdb, config=config, batch_size=len(ctx))
 
     # infer shape
-    data_shape_dict = dict(test_data.provide_data_single)
+    val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
+    val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
+    data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
+        , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
+    eval_sym = sym_instance.get_symbol(config, is_train=False)
     sym_instance.infer_shape(data_shape_dict)
-
-    # load model and check parameters
-    arg_params, aux_params = load_param(prefix, epoch, process=True)
-
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
-
-    # decide maximum shape
-    data_names = [k[0] for k in test_data.provide_data_single]
+    data_names = ['data']
     label_names = ['softmax_label']
-    max_data_shape = [[('data', (1, 3, max([v[0] for v in config.SCALES]), max([v[1] for v in config.SCALES])))]]
 
     # create predictor
-    predictor = Predictor(sym, data_names, label_names,
-                          context=ctx, max_data_shapes=max_data_shape,
-                          provide_data=test_data.provide_data, provide_label=test_data.provide_label,
+    predictor = Predictor(eval_sym, data_names, label_names,
+                          context=ctx,
+                          provide_data=val_provide_data, provide_label=val_provide_label,
                           arg_params=arg_params, aux_params=aux_params)
 
-    # start detection
-    pred_eval(predictor, test_data, imdb, vis=args.vis, ignore_cache=args.ignore_cache, logger=logger)
+    stats = MIoUStatistics(config.dataset.NUM_CLASSES)
+    test_data.reset_state()
+    nbatch = 0
+    for data, label in tqdm(test_data.get_data()):
+        output_all = predict_scaler(data, predictor,
+                                    scales=[1.0], classes=config.dataset.NUM_CLASSES,
+                                    tile_size=(config.TEST.tile_height, config.TEST.tile_width),
+                                    is_densecrf=False, nbatch=nbatch,
+                                    val_provide_data=val_provide_data,
+                                    val_provide_label=val_provide_label)
+        output_all = np.argmax(output_all, axis=0)
+        label = np.squeeze(label)
+        stats.feed(output_all, label)  # very time-consuming
+        nbatch += 1
+    logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
+
 
 def main():
     print args
