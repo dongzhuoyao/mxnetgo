@@ -1,52 +1,61 @@
-import _init_paths
-import argparse
-import os
+DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
 
+import _init_paths
+
+import argparse
+import os,sys
+import pprint
+
+from mxnetgo.myutils.config import config, update_config
+
+os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
+os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
+
+use_cache = False
+
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train deeplab network')
+    # general
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml", type=str)
+
+    args, rest = parser.parse_known_args()
+    # update config
+    update_config(args.cfg)
+
+    # training
+    parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
+    args = parser.parse_args()
+    return args
+
+args = parse_args()
+curr_path = os.path.abspath(os.path.dirname(__file__))
+
+import shutil
+import mxnet as mx
 from mxnetgo.myutils import logger
+from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
+from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from mxnetgo.core.tester import Predictor
+from mxnetgo.myutils.seg.segmentation import predict_scaler
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.stats import MIoUStatistics
+
 from tensorpack.dataflow import imgaug
 from tensorpack.dataflow.common import BatchData
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
-from mxnetgo.myutils.config  import config, update_config
-import numpy as np
 
-
-curr_path = os.path.abspath(os.path.dirname(__file__))
-
-import pprint
-import mxnet as mx
-
-from mxnetgo.myutils.dataset import *
-from mxnetgo.core.tester import Predictor
-from mxnetgo.myutils.load_model import load_param
-from mxnetgo.myutils.stats import MIoUStatistics
-DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
 from tqdm import tqdm
-from mxnetgo.myutils.seg.segmentation import predict_scaler
+
+import numpy as np
 
 IGNORE_LABEL = 255
 
-
-
-def parse_args():
-    parser = argparse.ArgumentParser(description='Test a Deeplab Network')
-    # general
-    parser.add_argument('--cfg', help='experiment configure file name', required=True,default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml",  type=str)
-
-    args, rest = parser.parse_known_args()
-    update_config(args.cfg)
-
-    # testing
-    parser.add_argument('--vis', help='turn on visualization', action='store_true')
-    parser.add_argument('--ignore_cache', help='ignore cached results boxes', default=False, action='store_true')
-    parser.add_argument('--shuffle', help='shuffle data on visualization', action='store_true')
-    args = parser.parse_args()
-    return args
-
-args = parse_args()
 
 def get_data(name, data_dir, meta_dir, config):
     isTrain = name == 'train'
