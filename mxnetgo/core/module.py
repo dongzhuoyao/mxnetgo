@@ -1022,7 +1022,7 @@ class MutableModule(BaseModule):
             #----------------------------------------
             # evaluation on validation set
 
-            if False:
+            if True:
                 # infer shape
                 val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
                 val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
