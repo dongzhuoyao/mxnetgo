@@ -6,6 +6,8 @@ from setuptools import setup,find_packages
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+#python setup.py build_ext --inplace    TODO  in seg evaluation
+
 setup(
     name = "mxnetgo",
     version = "0.0.1",
