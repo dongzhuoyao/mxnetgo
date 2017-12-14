@@ -59,27 +59,8 @@ IGNORE_LABEL = 255
 
 
 def get_data(name, data_dir, meta_dir, config):
-    isTrain = name == 'train'
-    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
-
-
-    if isTrain:#special augmentation
-        shape_aug = [imgaug.RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
-                            aspect_ratio_thres=0.15),
-                     RandomCropWithPadding((config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH),IGNORE_LABEL),
-                     imgaug.Flip(horiz=True),
-                     ]
-    else:
-        shape_aug = []
-
-    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
-
-
-    if isTrain:
-        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES)
-        ds = PrefetchDataZMQ(ds, 1)
-    else:
-        ds = BatchData(ds, 1)
+    ds = Cityscapes(data_dir, meta_dir, name, shuffle=False)
+    ds = BatchData(ds, 1)
     return ds
 
 
