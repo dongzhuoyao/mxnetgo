@@ -34,7 +34,7 @@ def parse_args():
 
     # training
     parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
-    parser.add_argument('--view', default=True)
+    parser.add_argument('--view', action='store_true')
     args = parser.parse_args()
     return args
 
