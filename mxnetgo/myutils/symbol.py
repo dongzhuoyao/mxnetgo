@@ -47,6 +47,8 @@ class Symbol():
             logger.info("arg_params to restore from dict: {}".format(','.join(arg_params.keys())))
             logger.info("aux_params to restore from dict: {}".format(','.join(aux_params.keys())))
 
+            self.sym.list_arguments()
+
             logger.info("arg_params: ")
             logger.info("{:<30}  {:<20}".format("name", "shape"))
             logger.info("*"*55)
