@@ -4,6 +4,9 @@
 
 a  simple scaffold of MXNet, easy to customize, extremely boosting your research. more examples will be provided.
 
+[zuerich00.png](zuerich00.png)
+
+
 # Characteristics
 
 * no document, because it's very simple to use for anyone who has a basic programming skill.
