@@ -45,12 +45,13 @@ from mxnetgo.myutils.load_model import load_param
 from mxnetgo.myutils.stats import MIoUStatistics
 from tensorpack.dataflow.common import BatchData
 from tqdm import tqdm
+from mxnetgo.myutils.precheck import print_params
 import numpy as np
 
 IGNORE_LABEL = 255
 
 arg_params, aux_params = load_param("train_log/deeplabv2.train.cs.1th/mxnetgo", 80, process=True)
-
+print_params(arg_params, aux_params)
 
 def get_data(name, data_dir, meta_dir, config):
     ds = Cityscapes(data_dir, meta_dir, name, shuffle=False)
