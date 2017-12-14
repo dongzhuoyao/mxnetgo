@@ -1,7 +1,6 @@
 DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
 
 import _init_paths
-
 import argparse
 import os,sys
 import pprint
@@ -33,7 +32,6 @@ def parse_args():
 
 args = parse_args()
 
-import shutil
 import mxnet as mx
 from mxnetgo.myutils import logger
 from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
@@ -44,18 +42,13 @@ from mxnetgo.core.tester import Predictor
 from mxnetgo.myutils.seg.segmentation import predict_scaler,visualize_label
 from mxnetgo.myutils.load_model import load_param
 from mxnetgo.myutils.stats import MIoUStatistics
-
-from tensorpack.dataflow import imgaug
 from tensorpack.dataflow.common import BatchData
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
-from tensorpack.dataflow.image import AugmentImageComponents
-from tensorpack.dataflow.prefetch import PrefetchDataZMQ
-
 from tqdm import tqdm
-
 import numpy as np
 
 IGNORE_LABEL = 255
+
+arg_params, aux_params = load_param("train_log/deeplabv2.train.cs.1th/mxnetgo", 80, process=True)
 
 
 def get_data(name, data_dir, meta_dir, config):
@@ -68,8 +61,6 @@ def test_deeplab():
     logger.auto_set_dir()
     test_data = get_data("val", DATA_DIR, LIST_DIR, config)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
-
-    arg_params, aux_params = load_param("train_log/deeplabv2.train.cs.1th/mxnetgo", 78, process=True)
     logger.info('testing config:{}\n'.format(pprint.pformat(config)))
 
     # load symbol and testing data
@@ -116,10 +107,6 @@ def test_deeplab():
     logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
 
 
-def main():
+if __name__ == '__main__':
     print args
     test_deeplab()
-
-
-if __name__ == '__main__':
-    main()
