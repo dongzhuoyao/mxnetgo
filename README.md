@@ -6,11 +6,11 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 # Characteristics
 
-1. no document, because it's very simple to use for anyone who has a basic programming skill.
+* no document, because it's very simple to use for anyone who has a basic programming skill.
 
-2. a very good starter for research, all you need modify most is the network structure.
+* a very good starter for research, all you need modify most is the network structure.
 
-3. reproducible, every experient can produce the same result as the paper indicated.
+* reproducible, every experient can produce the same result as the paper indicated.
 
 ## TODO
 
