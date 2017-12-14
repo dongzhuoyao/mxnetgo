@@ -952,8 +952,8 @@ class MutableModule(BaseModule):
                         num_epoch=10)
         """
         assert num_epoch is not None, 'please specify number of epochs'
-        provide_data = [[("data",(1L, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
-        provide_label = [[("label",(1L, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
+        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
+        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
 
         self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)

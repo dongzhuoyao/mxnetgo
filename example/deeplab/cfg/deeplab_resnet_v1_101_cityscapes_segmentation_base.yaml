@@ -55,12 +55,12 @@ TRAIN:
   # whether flip image
   FLIP: false
   # size of images for each device
-  BATCH_IMAGES: 1
+  BATCH_IMAGES: 2
   # wheter crop image during training
   ENABLE_CROP: True
   # scale of cropped image during training
-  CROP_HEIGHT: 768
-  CROP_WIDTH: 1024
+  CROP_HEIGHT: 321 #768
+  CROP_WIDTH: 321 #1024
   # whether resume training
   RESUME: false
   # whether shuffle image

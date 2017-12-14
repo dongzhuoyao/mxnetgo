@@ -43,20 +43,21 @@ class Symbol():
 
 
     def check_parameter_shapes(self, arg_params, aux_params, data_shape_dict, is_train=True):
-        logger.info("arg_params to restore from dict: {}".format(','.join(arg_params.keys())))
-        logger.info("aux_params to restore from dict: {}".format(','.join(aux_params.keys())))
+        if is_train:
+            logger.info("arg_params to restore from dict: {}".format(','.join(arg_params.keys())))
+            logger.info("aux_params to restore from dict: {}".format(','.join(aux_params.keys())))
 
-        logger.info("arg_params: ")
-        logger.info("{:<30}  {:<20}".format("name", "shape"))
-        logger.info("*"*55)
-        for k in self.sym.list_arguments():
-            logger.info("{:<30}  {:<20}".format(k, str(self.arg_shape_dict[k])))
+            logger.info("arg_params: ")
+            logger.info("{:<30}  {:<20}".format("name", "shape"))
+            logger.info("*"*55)
+            for k in self.sym.list_arguments():
+                logger.info("{:<30}  {:<20}".format(k, str(self.arg_shape_dict[k])))
 
-        logger.info("aux_params: ")
-        logger.info("{:<30}  {:<20}".format("name", "shape"))
-        logger.info("*" * 55)
-        for k in self.sym.list_auxiliary_states():
-            logger.info("{:<30}  {:<20}".format(k, str(self.aux_shape_dict[k])))
+            logger.info("aux_params: ")
+            logger.info("{:<30}  {:<20}".format("name", "shape"))
+            logger.info("*" * 55)
+            for k in self.sym.list_auxiliary_states():
+                logger.info("{:<30}  {:<20}".format(k, str(self.aux_shape_dict[k])))
 
         for k in self.sym.list_arguments():
             if k in data_shape_dict or (False if is_train else 'label' in k):
