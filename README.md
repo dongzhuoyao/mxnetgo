@@ -4,7 +4,7 @@
 
 a  simple scaffold of MXNet, easy to customize, extremely boosting your research. more examples will be provided.
 
-[zuerich00.png](zuerich00.png)
+![zuerich00.png](zuerich00.png)
 
 
 # Characteristics
