@@ -11,7 +11,7 @@ DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
 import _init_paths
 
 import argparse
-import os,sys
+import os,sys,cv2
 import pprint
 
 from mxnetgo.myutils.config import config, update_config
@@ -34,6 +34,7 @@ def parse_args():
 
     # training
     parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
+    parser.add_argument('--view', default=True)
     args = parser.parse_args()
     return args
 
@@ -61,7 +62,7 @@ from tensorpack.dataflow.common import BatchData
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
-
+from mxnetgo.myutils.seg.segmentation import visualize_label
 IGNORE_LABEL = 255
 
 def get_data(name, data_dir, meta_dir, config):
@@ -188,7 +189,22 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
 
 
 
+def view_data():
+        ds = get_data("train", DATA_DIR, LIST_DIR, config)
+        ds.reset_state()
+        for ims, labels in ds.get_data():
+            for im, label in zip(ims, labels):
+                # aa = visualize_label(label)
+                # pass
+                cv2.imshow("im", im / 255.0)
+                cv2.imshow("raw-label", label)
+                cv2.imshow("color-label", visualize_label(label))
+                cv2.waitKey(0)
+
 if __name__ == '__main__':
+    if args.view == True:
+        view_data()
+
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     train_net(args, ctx, config.network.pretrained, config.network.pretrained_epoch, config.TRAIN.model_prefix,
               config.TRAIN.begin_epoch, config.TRAIN.end_epoch, config.TRAIN.lr, config.TRAIN.lr_step)

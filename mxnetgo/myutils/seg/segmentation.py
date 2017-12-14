@@ -88,6 +88,8 @@ def visualize_label(label):
     img_color = np.zeros((h, w, 3)).astype('uint8')
     for i in range(0,21):
         img_color[label == i] = label_colours[i]
+
+    img_color[label == 255] = [255,255,255]
     return img_color
 
 
