@@ -41,13 +41,15 @@ if CSUPPORT:
 CSUPPORT = False
 
 
+if not CSUPPORT:
+    logger.warn("confusion matrix c extension not found, this calculation will be very slow")
+
 def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
     if (CSUPPORT):
         # using cython
         conf_m = addToConfusionMatrix.cEvaluatePair(pred.astype(np.uint8), label.astype(np.uint8), conf_m, nb_classes)
         return conf_m
     else:
-        logger.warn("confusion matrix c extension not found, this calculation will be very slow")
         flat_pred = np.ravel(pred)
         flat_label = np.ravel(label)
 
@@ -57,7 +59,7 @@ def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
             if l < nb_classes and p < nb_classes:
                 conf_m[l, p] += 1
             else:
-                raise
+                raise "unkown exception."
         return conf_m
 
 def pad_image(img, target_size):
@@ -89,7 +91,7 @@ def visualize_label(label):
     return img_color
 
 
-def predict_slider(full_image, predictor, classes, tile_size,nbatch,val_provide_data,val_provide_label):
+def predict_slider(full_image, predictor, classes, tile_size, nbatch,val_provide_data,val_provide_label):
     overlap = 1.0/3
     stride = ceil(tile_size[0] * (1 - overlap))
     tile_rows = int(ceil((full_image.shape[0] - tile_size[0]) / stride) + 1)  # strided convolution formula
