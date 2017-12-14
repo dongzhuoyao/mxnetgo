@@ -99,6 +99,9 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     sym_instance = eval(config.symbol)()
     sym = sym_instance.get_symbol(config, is_train=True)
 
+    digraph = mx.viz.plot_network(sym, save_format='pdf')
+    digraph.render()
+
     # setup multi-gpu
     gpu_nums = len(ctx)
     input_batch_size = config.TRAIN.BATCH_IMAGES * gpu_nums
