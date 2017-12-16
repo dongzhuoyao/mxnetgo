@@ -13,6 +13,9 @@ from mxnetgo.myutils.combine_model import combine_model
 from mxnetgo.myutils.symbol import Symbol
 import numpy as np
 
+from termcolor import colored
+from tabulate import tabulate
+
 class resnet_v1_101_deeplab(Symbol):
     def __init__(self):
         """
@@ -26,7 +29,7 @@ class resnet_v1_101_deeplab(Symbol):
 
 
     def get_resnet_conv(self, data):
-        mean = mx.symbol.Variable("mean")
+        mean = mx.symbol.Variable("mean",lr_mult=0,wd_mult=0)
         data = data - mean
 
         conv1 = mx.symbol.Convolution(name='conv1', data=data, num_filter=64, pad=(3, 3), kernel=(7, 7), stride=(2, 2),

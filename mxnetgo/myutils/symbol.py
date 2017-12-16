@@ -8,6 +8,9 @@
 import numpy as np
 from mxnetgo.myutils import logger
 
+from termcolor import colored
+from tabulate import tabulate
+
 class Symbol():
     def __init__(self):
         self.arg_shape_dict = None
@@ -48,19 +51,17 @@ class Symbol():
             logger.info("arg_params to restore from dict: {}".format(','.join(arg_params.keys())))
             logger.info("aux_params to restore from dict: {}".format(','.join(aux_params.keys())))
 
-            self.sym.list_arguments()
-
-            logger.info("arg_params: ")
-            logger.info("{:<30}  {:<30} {:<30}".format("name", "shape","lr_mult"))
-            logger.info("*"*70)
+            data = []
             for k in self.sym.list_arguments():
-                logger.info("{:<30}  {:<30} {:<30}".format(k, str(self.arg_shape_dict[k]), self.sym.get_internals()[k].list_attr()["lr_mult"]  if  self.sym.get_internals()[k].list_attr().has_key("lr_mult") else "default"))
+                data.append([k, str(self.arg_shape_dict[k]), self.sym.get_internals()[k].list_attr()["lr_mult"]  if  self.sym.get_internals()[k].list_attr().has_key("lr_mult") else "default"])
+            table = tabulate(data, headers=['name', 'shape', 'lr_mult'])
+            logger.info(colored("Arg Parameters: \n", 'cyan') + table)
 
-            logger.info("aux_params: ")
-            logger.info("{:<30}  {:<30}".format("name", "shape"))
-            logger.info("*" * 70)
+            aux_data = []
             for k in self.sym.list_auxiliary_states():
-                logger.info("{:<30}  {:<30}".format(k, str(self.aux_shape_dict[k])))
+                aux_data.append([k, str(self.aux_shape_dict[k])])
+            aux_table = tabulate(aux_data, headers=['name', 'shape'])
+            logger.info(colored("Auxiliary Parameters: \n", 'cyan') + aux_table)
 
         for k in self.sym.list_arguments():
             if k in data_shape_dict or (False if is_train else 'label' in k):
