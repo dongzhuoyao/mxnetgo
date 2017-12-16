@@ -7,6 +7,7 @@
 
 import numpy as np
 from mxnetgo.myutils import logger
+
 class Symbol():
     def __init__(self):
         self.arg_shape_dict = None
@@ -50,16 +51,16 @@ class Symbol():
             self.sym.list_arguments()
 
             logger.info("arg_params: ")
-            logger.info("{:<30}  {:<20}".format("name", "shape"))
-            logger.info("*"*55)
+            logger.info("{:<30}  {:<30} {:<30}".format("name", "shape","lr_mult"))
+            logger.info("*"*70)
             for k in self.sym.list_arguments():
-                logger.info("{:<30}  {:<20}".format(k, str(self.arg_shape_dict[k])))
+                logger.info("{:<30}  {:<30} {:<30}".format(k, str(self.arg_shape_dict[k]), self.sym.get_internals()[k].list_attr()["lr_mult"]  if  self.sym.get_internals()[k].list_attr().has_key("lr_mult") else "default"))
 
             logger.info("aux_params: ")
-            logger.info("{:<30}  {:<20}".format("name", "shape"))
-            logger.info("*" * 55)
+            logger.info("{:<30}  {:<30}".format("name", "shape"))
+            logger.info("*" * 70)
             for k in self.sym.list_auxiliary_states():
-                logger.info("{:<30}  {:<20}".format(k, str(self.aux_shape_dict[k])))
+                logger.info("{:<30}  {:<30}".format(k, str(self.aux_shape_dict[k])))
 
         for k in self.sym.list_arguments():
             if k in data_shape_dict or (False if is_train else 'label' in k):
