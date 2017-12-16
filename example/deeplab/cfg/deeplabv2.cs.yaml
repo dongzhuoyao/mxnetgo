@@ -2,7 +2,7 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/cityscape"
 symbol: resnet_v1_101_deeplab
-gpus: '3'
+gpus: '0,1'
 SCALES:
 - 1024
 - 2048
@@ -37,7 +37,7 @@ TRAIN:
   lr_step: '40.336'
   model_prefix: "deeplabv2.cs"
   # size of images for each device
-  BATCH_IMAGES: 3
+  BATCH_IMAGES: 2
   # scale of cropped image during training
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024

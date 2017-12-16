@@ -14,6 +14,7 @@ from mxnet import ndarray as nd
 from mxnet.io import DataDesc
 from mxnet.executor_manager import _split_input_slice
 
+
 def _load_general(data, targets, major_axis):
     """Load a list of arrays into a list of arrays specified by slices"""
     for d_src, d_targets in zip(data, targets):

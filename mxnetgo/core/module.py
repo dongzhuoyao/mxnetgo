@@ -952,8 +952,10 @@ class MutableModule(BaseModule):
                         num_epoch=10)
         """
         assert num_epoch is not None, 'please specify number of epochs'
-        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
-        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))]]
+
+
+        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
+        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
 
         self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)
@@ -984,8 +986,9 @@ class MutableModule(BaseModule):
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
-                dl = [[mx.nd.array(data)]]
-                ll = [[mx.nd.array(label)]]
+
+                dl = [[mx.nd.array(data[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
+                ll = [[mx.nd.array(label[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
                 data_batch = mx.io.DataBatch(data=dl, label=ll,
                                     pad=0, index=nbatch,
                                     provide_data=provide_data, provide_label=provide_label)
@@ -1022,7 +1025,7 @@ class MutableModule(BaseModule):
             #----------------------------------------
             # evaluation on validation set
 
-            if True:
+            if False:
                 # infer shape
                 val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
                 val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]

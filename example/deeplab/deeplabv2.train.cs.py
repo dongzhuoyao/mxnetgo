@@ -63,7 +63,7 @@ from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.seg.segmentation import visualize_label
 IGNORE_LABEL = 255
 
-def get_data(name, data_dir, meta_dir, config):
+def get_data(name, data_dir, meta_dir, config, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
 
@@ -81,7 +81,7 @@ def get_data(name, data_dir, meta_dir, config):
 
 
     if isTrain:
-        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES)
+        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES*gpu_nums)
         ds = PrefetchDataZMQ(ds, 1)
     else:
         ds = BatchData(ds, 1)
@@ -108,8 +108,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     #pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
-    train_data = get_data("train", DATA_DIR, LIST_DIR, config)
-    test_data = get_data("val", DATA_DIR, LIST_DIR, config)
+    train_data = get_data("train", DATA_DIR, LIST_DIR, config, len(ctx))
+    test_data = get_data("val", DATA_DIR, LIST_DIR, config, len(ctx))
 
     eval_sym_instance = eval(config.symbol)()
 
@@ -207,5 +207,6 @@ if __name__ == '__main__':
         view_data()
 
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
+    assert config.TRAIN.BATCH_IMAGES%len(ctx)==0, "Batch size must can be divided by ctx_num"
     train_net(args, ctx, config.network.pretrained, config.network.pretrained_epoch, config.TRAIN.model_prefix,
               config.TRAIN.begin_epoch, config.TRAIN.end_epoch, config.TRAIN.lr, config.TRAIN.lr_step)
