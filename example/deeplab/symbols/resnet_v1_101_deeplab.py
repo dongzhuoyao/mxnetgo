@@ -11,7 +11,6 @@ import mxnet as mx
 import os, sys
 from mxnetgo.myutils.combine_model import combine_model
 from mxnetgo.myutils.symbol import Symbol
-from mxnetgo.myutils.mxutils import MyConstant
 import numpy as np
 
 class resnet_v1_101_deeplab(Symbol):

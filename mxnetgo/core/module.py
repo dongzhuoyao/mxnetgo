@@ -1034,7 +1034,6 @@ class MutableModule(BaseModule):
                 data_names = ['data']
                 label_names = ['softmax_label']
 
-
                 # create predictor
                 predictor = Predictor(eval_sym, data_names, label_names,
                                       context=self._context,
