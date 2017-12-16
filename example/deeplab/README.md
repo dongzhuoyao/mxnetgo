@@ -1,4 +1,4 @@
-# My Result
+# Result in Mxnetgo
 
 |                                   | training data              | testing data   | mIoU(official) | mIoU  |
 |-----------------------------------|----------------------------|----------------|------|-------|
