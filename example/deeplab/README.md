@@ -2,10 +2,10 @@
 
 |                                   | training data              | testing data   | mIoU(official) | mIoU  |
 |-----------------------------------|----------------------------|----------------|------|-------|
-| DeepLab, ResNet-v1-101            | Cityscapes train           | Cityscapes val | 70.3 | -- |
+| DeepLab, ResNet-v1-101            | Cityscapes train           | Cityscapes val | 70.3 | 52.6 |
 | Deformable DeepLab, ResNet-v1-101 | Cityscapes train           | Cityscapes val | 75.2 | -- |
-| DeepLab, ResNet-v1-101            | VOC 12 train (augmented) | VOC 12 val   | 70.7 | -- |
-| Deformable DeepLab, ResNet-v1-101 | VOC 12 train (augmented) | VOC 12 val   | 75.9 | -- |
+| DeepLab, ResNet-v1-101            | VOC 12 train (augmented) | VOC 12 val   | 70.7 | 69.4 |
+| Deformable DeepLab, ResNet-v1-101 | VOC 12 train (augmented) | VOC 12 val   | 75.9 | 74.2 |
 
 
 
