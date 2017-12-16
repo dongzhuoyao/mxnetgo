@@ -62,10 +62,7 @@ def test_deeplab():
     test_data = get_data("val", DATA_DIR, LIST_DIR, config)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     logger.info('testing config:{}\n'.format(pprint.pformat(config)))
-
-    # load symbol and testing data
-    from symbols import resnet_v1_101_deeplab
-    sym_instance = eval(config.symbol + '.' + config.symbol)()
+    sym_instance = eval(config.symbol)()
 
     # infer shape
     val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
