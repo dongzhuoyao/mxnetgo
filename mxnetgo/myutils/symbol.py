@@ -64,12 +64,15 @@ class Symbol():
         for k in self.sym.list_arguments():
             if k in data_shape_dict or (False if is_train else 'label' in k):
                 continue
-            assert k in arg_params, k + ' not initialized'
+            assert k in arg_params, '{} not initialized'.format(k)
             assert arg_params[k].shape == self.arg_shape_dict[k], \
-                'shape inconsistent for ' + k + ' inferred ' + str(self.arg_shape_dict[k]) + ' provided ' + str(
-                    arg_params[k].shape)
+                "shape inconsistent for '{}' inferred {} provided {}".format(k, str(self.arg_shape_dict[k]), str(
+                    arg_params[k].shape))
+
         for k in self.sym.list_auxiliary_states():
-            assert k in aux_params, k + ' not initialized'
+            assert k in aux_params, '{} not initialized'.format(k)
             assert aux_params[k].shape == self.aux_shape_dict[k], \
-                'shape inconsistent for ' + k + ' inferred ' + str(self.aux_shape_dict[k]) + ' provided ' + str(
-                    aux_params[k].shape)
+                "shape inconsistent for '{}' inferred {} provided {}".format(k, str(self.aux_shape_dict[k]), str(
+                    aux_params[k].shape))
+
+

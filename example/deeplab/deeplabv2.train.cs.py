@@ -24,7 +24,7 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml", type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplabv2.cs.yaml", type=str)
 
     args, rest = parser.parse_known_args()
     # update config
@@ -120,8 +120,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     max_label_shape = [('label', (config.TRAIN.BATCH_IMAGES, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
 
     # infer shape
-    data_shape_dict = {'data':(1L, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
-                       ,'label':(1L, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
+    data_shape_dict = {'data':(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
+                       ,'label':(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
