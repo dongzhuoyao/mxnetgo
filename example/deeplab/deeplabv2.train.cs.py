@@ -20,8 +20,6 @@ os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
-use_cache = False
-
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
