@@ -25,6 +25,8 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 * PSPNet 
 
+* Non Local Block
+
 ## Acknowledgement
 
 Some of the example codes are based on others' codes. thanks for their contributions. if this example helps you, please citate their papers.
