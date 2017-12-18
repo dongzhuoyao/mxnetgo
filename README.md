@@ -4,7 +4,7 @@
 
 a  simple scaffold of MXNet, easy to customize, extremely boosting your research. more examples will be provided.
 
-![zuerich00.jpg](zuerich00.jpg)
+![sengnv.jpg](sengnv.jpg)
 
 
 # Characteristics
@@ -17,13 +17,12 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 ## TODO
 
-* resnet101 model train
-
-* deeplab result reproduce
-
-* DUC
-
-* PSPNet 
+- [ ] resnet101 model train
+- [ ] deeplab result reproduce
+- [ ] DUC
+- [ ] PSPNet 
+- [ ] Non Local Block
+- [ ] large kernel
 
 ## Acknowledgement
 
