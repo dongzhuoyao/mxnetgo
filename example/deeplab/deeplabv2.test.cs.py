@@ -14,7 +14,7 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplab_resnet_v1_101_cityscapes_segmentation_base.yaml", type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplabv2.cs.yaml", type=str)
 
     args, rest = parser.parse_known_args()
     # update config
@@ -45,7 +45,6 @@ import numpy as np
 
 IGNORE_LABEL = 255
 
-arg_params, aux_params = load_param("train_log/deeplabv2.train.cs.1th/mxnetgo", 80, process=True)
 
 
 def get_data(name, data_dir, meta_dir, config):
@@ -68,6 +67,12 @@ def test_deeplab():
         , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
     eval_sym = sym_instance.get_symbol(config, is_train=False)
     sym_instance.infer_shape(data_shape_dict)
+
+    #logger.info('continue training from {}'.format(args.TEST.test_epoch))
+    #arg_params, aux_params = load_param(args.TRAIN.model_prefix, args.TEST.test_epoch, convert=True)
+
+    arg_params, aux_params = load_param("train_log/deeplabv2.train.cs/mxnetgo", 80, process=True)
+
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
     data_names = ['data']
     label_names = ['softmax_label']

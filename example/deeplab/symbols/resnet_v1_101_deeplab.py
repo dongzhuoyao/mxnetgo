@@ -9,7 +9,6 @@
 import cPickle
 import mxnet as mx
 import os, sys
-from mxnetgo.myutils.combine_model import combine_model
 from mxnetgo.myutils.symbol import Symbol
 import numpy as np
 
@@ -29,9 +28,9 @@ class resnet_v1_101_deeplab(Symbol):
 
 
     def get_resnet_conv(self, data):
-        mean = mx.symbol.Variable("mean",lr_mult=0,wd_mult=0)
-        data = data - mean
+        mean = mx.symbol.Variable(name="mean",lr_mult=0,wd_mult=0)
 
+        data = mx.symbol.broadcast_sub(data,mean)
         conv1 = mx.symbol.Convolution(name='conv1', data=data, num_filter=64, pad=(3, 3), kernel=(7, 7), stride=(2, 2),
                                       no_bias=True)
         bn_conv1 = mx.symbol.BatchNorm(name='bn_conv1', data=conv1, use_global_stats=True, fix_gamma=False, eps = self.eps)
@@ -841,5 +840,5 @@ class resnet_v1_101_deeplab(Symbol):
 
         m = np.array([104, 116, 122])
         m = np.resize(m,(1,3,1,1)) #NCHW
-        const_arr = np.broadcast_to(m, (cfg.TRAIN.BATCH_IMAGES, 3, cfg.TRAIN.CROP_HEIGHT, cfg.TRAIN.CROP_WIDTH))  # NCHW
-        arg_params['mean'] = mx.nd.array(const_arr.tolist())
+        #const_arr = np.broadcast_to(m, (cfg.TRAIN.BATCH_IMAGES, 3, cfg.TRAIN.CROP_HEIGHT, cfg.TRAIN.CROP_WIDTH))  # NCHW
+        arg_params['mean'] = mx.nd.array(m.tolist()) #TODO what about testing? it should't related to the cfg.TRAIN.BATCH_IMAGES
