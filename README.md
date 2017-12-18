@@ -18,15 +18,11 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 ## TODO
 
 - [ ] resnet101 model train
-
 - [ ] deeplab result reproduce
-
 - [ ] DUC
-
-- [ ]PSPNet 
-
-- [ ]Non Local Block
-- [ ]large kernel
+- [ ] PSPNet 
+- [ ] Non Local Block
+- [ ] large kernel
 
 ## Acknowledgement
 
