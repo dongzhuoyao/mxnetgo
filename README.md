@@ -13,6 +13,8 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 * a very good starter for research, all you need modify most is the network structure.
 
+* modularization for specific task, such as image segmentation, pose estimation etc. 
+
 * reproducible, every experient can produce the same result as the paper indicated.
 
 ## TODO
