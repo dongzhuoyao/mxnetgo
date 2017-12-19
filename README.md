@@ -17,6 +17,16 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 * reproducible, every experient can produce the same result as the paper indicated.
 
+# Install
+
+Dependencies:
+
+* python3
+
+* mxnet==1.0.0
+
+
+
 ## TODO
 
 - [ ] resnet101 model train
