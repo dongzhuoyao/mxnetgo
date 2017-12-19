@@ -54,7 +54,7 @@ from mxnetgo.myutils import logger
 from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
 from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
-
+import os
 from tensorpack.dataflow.common import BatchData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
