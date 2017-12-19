@@ -13,7 +13,7 @@ using shared arrays from the initial module binded with maximum shape.
 
 import time
 import logging
-import warnings,os,cPickle
+import warnings,os
 from tqdm import tqdm
 
 
@@ -954,8 +954,8 @@ class MutableModule(BaseModule):
         assert num_epoch is not None, 'please specify number of epochs'
 
 
-        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
-        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
+        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
+        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
 
         self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)
@@ -1027,10 +1027,10 @@ class MutableModule(BaseModule):
 
             if False:
                 # infer shape
-                val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
-                val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
-                data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
-                    , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
+                val_provide_data = [[("data", (1, 3, config.TEST.tile_height, config.TEST.tile_width))]]
+                val_provide_label = [[("softmax_label", (1, 1, config.TEST.tile_height, config.TEST.tile_width))]]
+                data_shape_dict = {'data': (1, 3, config.TEST.tile_height, config.TEST.tile_width)
+                    , 'softmax_label': (1, 1, config.TEST.tile_height, config.TEST.tile_width)}
                 eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
                 eval_sym_instance.infer_shape(data_shape_dict)
                 eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
@@ -1083,8 +1083,8 @@ class MutableModule(BaseModule):
                 try:
                     if cur.has_key(k) and v != cur[k]:# test data
                         shape_changed = True
-                except Exception,e:
-                    print str(e)
+                except Exception as e:
+                    print(str(e))
                     pass
 
         if shape_changed:

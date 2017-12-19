@@ -54,13 +54,15 @@ from mxnetgo.myutils import logger
 from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
 from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
-from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
-from tensorpack.dataflow import imgaug
+
 from tensorpack.dataflow.common import BatchData
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.seg.segmentation import visualize_label
+
+
 IGNORE_LABEL = 255
 
 def get_data(name, data_dir, meta_dir, config, gpu_nums):
@@ -69,10 +71,10 @@ def get_data(name, data_dir, meta_dir, config, gpu_nums):
 
 
     if isTrain:#special augmentation
-        shape_aug = [imgaug.RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
+        shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
                             aspect_ratio_thres=0.15),
                      RandomCropWithPadding((config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH),IGNORE_LABEL),
-                     imgaug.Flip(horiz=True),
+                     Flip(horiz=True),
                      ]
     else:
         shape_aug = []
@@ -120,8 +122,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     max_label_shape = [('label', (config.TRAIN.BATCH_IMAGES, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
 
     # infer shape
-    data_shape_dict = {'data':(config.TRAIN.BATCH_IMAGES, 3L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
-                       ,'label':(config.TRAIN.BATCH_IMAGES, 1L, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
+    data_shape_dict = {'data':(config.TRAIN.BATCH_IMAGES, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
+                       ,'label':(config.TRAIN.BATCH_IMAGES, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)

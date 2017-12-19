@@ -68,8 +68,8 @@ def pad_image(img, target_size):
     cols_missing = max(target_size[1] - img.shape[1], 0)
     try:
         padded_img = np.pad(img, ((0, rows_missing), (0, cols_missing), (0, 0)), 'constant')
-    except  Exception,e:
-        print str(e)
+    except  Exception as e:
+        print(str(e))
         pass
     return padded_img, [0,target_size[0]-rows_missing,0,target_size[1] - cols_missing]
 
@@ -154,7 +154,6 @@ def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf,nbat
 
 
 
-
 def dense_crf(probs, img=None, n_iters=10,
               sxy_gaussian=(1, 1), compat_gaussian=4,
               kernel_gaussian=dcrf.DIAG_KERNEL,
@@ -163,7 +162,8 @@ def dense_crf(probs, img=None, n_iters=10,
               srgb_bilateral=(13, 13, 13),
               kernel_bilateral=dcrf.DIAG_KERNEL,
               normalisation_bilateral=dcrf.NORMALIZE_SYMMETRIC):
-    """DenseCRF over unnormalised predictions.
+    """
+        DenseCRF over unnormalised predictions.
        More details on the arguments at https://github.com/lucasb-eyer/pydensecrf.
 
     Args:

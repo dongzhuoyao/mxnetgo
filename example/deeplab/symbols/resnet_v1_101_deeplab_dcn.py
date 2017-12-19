@@ -6,7 +6,6 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-import cPickle
 import mxnet as mx
 from mxnetgo.myutils.symbol import Symbol
 

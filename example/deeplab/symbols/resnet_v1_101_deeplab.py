@@ -6,7 +6,6 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-import cPickle
 import mxnet as mx
 import os, sys
 from mxnetgo.myutils.symbol import Symbol
@@ -30,7 +29,7 @@ class resnet_v1_101_deeplab(Symbol):
     def get_resnet_conv(self, data):
         mean = mx.symbol.Variable(name="mean",lr_mult=0,wd_mult=0)
 
-        data = mx.symbol.broadcast_sub(data,mean)
+        #data = mx.symbol.broadcast_sub(data,mean)
         conv1 = mx.symbol.Convolution(name='conv1', data=data, num_filter=64, pad=(3, 3), kernel=(7, 7), stride=(2, 2),
                                       no_bias=True)
         bn_conv1 = mx.symbol.BatchNorm(name='bn_conv1', data=conv1, use_global_stats=True, fix_gamma=False, eps = self.eps)
