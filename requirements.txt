@@ -10,7 +10,6 @@ matplotlib==2.1.1
 msgpack-numpy==0.4.2
 msgpack-python==0.4.8
 mxnet-cu80==1.0.0
-mxnetgo==0.0.1
 numpy==1.13.3
 opencv-python==3.3.0.10
 pyparsing==2.2.0
