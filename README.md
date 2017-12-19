@@ -21,7 +21,7 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 Dependencies:
 
-* python3
+* python2(python3 is current not compatible)
 
 * mxnet==1.0.0
 
