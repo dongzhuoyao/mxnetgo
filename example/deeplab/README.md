@@ -7,7 +7,7 @@
 | Deformable DeepLab, ResNet-v1-101 | 75.2 | 67.2%(new code) |
 
 ## Pascal 
-|                                   | mIoU(old code) | mIoU  |
+|                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
 |-----------------------------------|------|-------|------|
 | DeepLab, ResNet-v1-101            | 70.7 | 69.4 | ? |
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
