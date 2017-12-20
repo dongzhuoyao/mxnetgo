@@ -61,10 +61,10 @@ def test_deeplab():
     sym_instance = eval(config.symbol)()
 
     # infer shape
-    val_provide_data = [[("data", (1L, 3L, config.TEST.tile_height, config.TEST.tile_width))]]
-    val_provide_label = [[("softmax_label", (1L, 1L, config.TEST.tile_height, config.TEST.tile_width))]]
-    data_shape_dict = {'data': (1L, 3L, config.TEST.tile_height, config.TEST.tile_width)
-        , 'softmax_label': (1L, 1L, config.TEST.tile_height, config.TEST.tile_width)}
+    val_provide_data = [[("data", (1, 3, config.TEST.tile_height, config.TEST.tile_width))]]
+    val_provide_label = [[("softmax_label", (1, 1, config.TEST.tile_height, config.TEST.tile_width))]]
+    data_shape_dict = {'data': (1, 3, config.TEST.tile_height, config.TEST.tile_width)
+        , 'softmax_label': (1, 1, config.TEST.tile_height, config.TEST.tile_width)}
     eval_sym = sym_instance.get_symbol(config, is_train=False)
     sym_instance.infer_shape(data_shape_dict)
 

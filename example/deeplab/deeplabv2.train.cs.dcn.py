@@ -24,7 +24,7 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # general
-    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplabv2.cs.yaml", type=str)
+    parser.add_argument('--cfg', help='experiment configure file name', default="cfg/deeplabv2.cs.dcn.yaml", type=str)
 
     args, rest = parser.parse_known_args()
     # update config
