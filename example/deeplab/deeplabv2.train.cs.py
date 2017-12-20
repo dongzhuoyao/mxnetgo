@@ -31,7 +31,7 @@ def parse_args():
     update_config(args.cfg)
 
     # training
-    parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
@@ -47,7 +47,8 @@ import mxnet as mx
 import numpy as np
 from mxnetgo.core import callback, metric
 from mxnetgo.core.module import MutableModule
-from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
+from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler,StepScheduler
+from mxnet.lr_scheduler import FactorScheduler
 from mxnetgo.myutils.load_model import load_param,load_param_by_model
 
 
@@ -70,6 +71,7 @@ from mxnetgo.myutils.seg.segmentation import visualize_label
 
 
 IGNORE_LABEL = 255
+EPOCH_SCALE = 1
 
 def get_data(name, data_dir, meta_dir, config, gpu_nums):
     isTrain = name == 'train'
@@ -152,7 +154,7 @@ def test_deeplab(ctx):
     logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
 
 
-def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
+def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch):
     logger.auto_set_dir()
 
     # load symbol
@@ -226,22 +228,14 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    # decide learning rate
-    base_lr = lr
-    lr_factor = 0.1
-    lr_epoch = [float(epoch) for epoch in lr_step.split(',')]
-    lr_epoch_diff = [epoch - begin_epoch for epoch in lr_epoch if epoch > begin_epoch]
-    lr = base_lr * (lr_factor ** (len(lr_epoch) - len(lr_epoch_diff)))
-    lr_iters = [int(epoch * train_data.size() / gpu_nums) for epoch in lr_epoch_diff]
-    logger.info('lr: {}, lr_epoch_diff: {}, lr_iters: {}'.format(lr,lr_epoch_diff,lr_iters))
-
-    lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, config.TRAIN.warmup, config.TRAIN.warmup_lr, config.TRAIN.warmup_step)
+    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(config.TRAIN.BATCH_IMAGES*len(ctx)),[(2, 1e-4), (4, 1e-5), (6, 8e-6)])
+    #lr_scheduler = FactorScheduler(4,0.9)
 
     # optimizer
-    optimizer_params = {'momentum': config.TRAIN.momentum,
-                        'wd': config.TRAIN.wd,
-                        'learning_rate': lr,
-                        'lr_scheduler': lr_scheduler,
+    optimizer_params = {'momentum': 0.9,
+                        'wd': 0.0005,
+                        'learning_rate': 1e-4,
+                      'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
 
@@ -250,12 +244,12 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
-            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch)
+            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE)
 
 
 
-def view_data():
-        ds = get_data("train", DATA_DIR, LIST_DIR, config)
+def view_data(ctx):
+        ds = get_data("train", DATA_DIR, LIST_DIR, config,ctx)
         ds.reset_state()
         for ims, labels in ds.get_data():
             for im, label in zip(ims, labels):
@@ -269,11 +263,11 @@ def view_data():
 if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     if args.view:
-        view_data()
+        view_data(ctx)
 
     elif args.validation:
         test_deeplab(ctx)
     else:
         assert config.TRAIN.BATCH_IMAGES%len(ctx)==0, "Batch size must can be divided by ctx_num"
         train_net(args, ctx, config.network.pretrained, config.network.pretrained_epoch, config.TRAIN.model_prefix,
-                  config.TRAIN.begin_epoch, config.TRAIN.end_epoch, config.TRAIN.lr, config.TRAIN.lr_step)
+                  config.TRAIN.begin_epoch, config.TRAIN.end_epoch)

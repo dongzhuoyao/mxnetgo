@@ -2,12 +2,11 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/cityscape"
 symbol: resnet_v1_101_deeplab
-gpus: '2'
+gpus: '1'
 SCALES:
 - 1024
 - 2048
 default:
-  frequent: 100
   kvstore: device
 dataset:
   NUM_CLASSES: 19
@@ -27,17 +26,13 @@ network:
   pretrained: "resnet_v1_101"
   pretrained_epoch: 0
 TRAIN:
-  warmup: true
-  warmup_lr: 0.00005
-  # typically we will use 4000 warmup step for single GPU
-  warmup_step: 1000
   begin_epoch: 0
   end_epoch: 80
   lr: 0.0005
   lr_step: '40.336'
   model_prefix: "deeplabv2.cs"
   # size of images for each device
-  BATCH_IMAGES: 3
+  BATCH_IMAGES: 1
   # scale of cropped image during training
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024

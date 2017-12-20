@@ -39,7 +39,7 @@ import numpy as np
 
 from mxnetgo.myutils.stats import MIoUStatistics
 from mxnetgo.myutils.seg.segmentation import predict_scaler
-
+from tensorpack.dataflow.common import RepeatedData
 
 class Module(BaseModule):
     """Module is a basic module that wrap a `Symbol`. It is functionally the same
@@ -888,7 +888,7 @@ class MutableModule(BaseModule):
             eval_batch_end_callback=None, initializer=Uniform(0.01),
             arg_params=None, aux_params=None, allow_missing=False,
             force_rebind=False, force_init=False, begin_epoch=0, num_epoch=None,
-            validation_metric=None, monitor=None, prefix=None, state=None):
+            validation_metric=None, monitor=None, prefix=None, state=None, epoch_scale = 1):
         """Train the module parameters.
 
         Parameters
@@ -963,6 +963,7 @@ class MutableModule(BaseModule):
             self.install_monitor(monitor)
         self.init_params(initializer=initializer, arg_params=arg_params, aux_params=aux_params,
                          allow_missing=allow_missing, force_init=force_init)
+
         self.init_optimizer(kvstore=kvstore, optimizer=optimizer,
                             optimizer_params=optimizer_params)
         if state is not None:
@@ -976,21 +977,30 @@ class MutableModule(BaseModule):
         ################################################################################
         # training loop
         ################################################################################
-        for epoch in range(begin_epoch, num_epoch):
+        epoch_volumn = train_data.size()*epoch_scale/(len(self._context)*config.TRAIN.BATCH_IMAGES)
+        logger.info("epoch volumn: {}".format(epoch_volumn))
+        train_data = RepeatedData(train_data, -1)
+        train_data.reset_state()
+        epoch_index = 0
+        batch_index = 0
+        while epoch_index < num_epoch:
+            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
             tic = time.time()
             eval_metric.reset()
-            train_data.reset_state()
-            nbatch = 0
-            size = train_data.size()
             for data,label in train_data.get_data():
+                if batch_index >= epoch_volumn:
+                    batch_index = 0
+                    break
+                else:
+                    batch_index += 1
+
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
-
                 dl = [[mx.nd.array(data[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
                 ll = [[mx.nd.array(label[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
                 data_batch = mx.io.DataBatch(data=dl, label=ll,
-                                    pad=0, index=nbatch,
+                                    pad=0, index=batch_index,
                                     provide_data=provide_data, provide_label=provide_label)
                 if monitor is not None:
                     monitor.tic()
@@ -1002,30 +1012,30 @@ class MutableModule(BaseModule):
                     monitor.toc_print()
 
                 if batch_end_callback is not None:
-                    batch_end_params = BatchEndParam(epoch=epoch, nbatch=nbatch,
+                    batch_end_params = BatchEndParam(epoch=epoch_index, nbatch=batch_index,
                                                      eval_metric=eval_metric,
                                                      locals=locals())
                     for callback in _as_list(batch_end_callback):
                         callback(batch_end_params)
-                nbatch += 1
+
             # one epoch of training is finished
             for name, val in eval_metric.get_name_value():
-                logger.info('Epoch[%d] Train-%s=%f', epoch, name, val)
+                logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
             toc = time.time()
-            logger.info('Epoch[%d] Time cost=%.3f', epoch, (toc-tic))
+            logger.info('Epoch[%d] Time cost=%.3f', epoch_index, (toc-tic))
 
             # sync aux params across devices
             arg_params, aux_params = self.get_params()
             self.set_params(arg_params, aux_params)
 
+            # epoch_end_callback execute
             if epoch_end_callback is not None:
                 for callback in _as_list(epoch_end_callback):
-                    callback(epoch, self.symbol, arg_params, aux_params)
+                    callback(epoch_index, self.symbol, arg_params, aux_params)
 
             #----------------------------------------
             # evaluation on validation set
-
-            if False:
+            if True:
                 # infer shape
                 val_provide_data = [[("data", (1, 3, config.TEST.tile_height, config.TEST.tile_width))]]
                 val_provide_label = [[("softmax_label", (1, 1, config.TEST.tile_height, config.TEST.tile_width))]]
@@ -1045,20 +1055,19 @@ class MutableModule(BaseModule):
 
                 stats = MIoUStatistics(config.dataset.NUM_CLASSES)
                 eval_data.reset_state()
-                nbatch = 0
                 for data, label in tqdm(eval_data.get_data()):
                     output_all = predict_scaler(data, predictor,
                           scales=[1.0],classes=config.dataset.NUM_CLASSES,
                                                 tile_size=(config.TEST.tile_height, config.TEST.tile_width),
-                                                is_densecrf=False,nbatch =nbatch,
+                                                is_densecrf=False,nbatch =batch_index,
                                                 val_provide_data = val_provide_data,
                                                 val_provide_label = val_provide_label)
                     output_all = np.argmax(output_all, axis=0)
                     label = np.squeeze(label)
                     stats.feed(output_all,label) #very time-consuming
-                    nbatch += 1
                 logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
 
+            epoch_index += 1
 
 
     def forward(self, data_batch, is_train=None):

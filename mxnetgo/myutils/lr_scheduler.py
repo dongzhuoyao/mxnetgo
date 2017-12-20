@@ -1,14 +1,6 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Written by Yuwen Xiong
-# --------------------------------------------------------
-
-
-
+__all__ = ['WarmupMultiFactorScheduler', 'StepScheduler']
 from mxnet.lr_scheduler import LRScheduler
-
+from . import logger
 class WarmupMultiFactorScheduler(LRScheduler):
     """Reduce learning rate in factor at steps specified in a list
 
@@ -65,3 +57,47 @@ class WarmupMultiFactorScheduler(LRScheduler):
             else:
                 return self.base_lr
         return self.base_lr
+
+
+class StepScheduler(LRScheduler):
+    """Reduce the learning rate by given a list of steps.
+
+        Assume there exists *k* such that::
+
+           step[k] <= num_update and num_update < step[k+1]
+
+        Then calculate the new learning rate by::
+
+           base_lr * pow(factor, k+1)
+
+        Parameters
+        ----------
+        step: list of int
+            The list of steps to schedule a change
+        factor: float
+            The factor to change the learning rate.
+        """
+
+    def __init__(self, epoch_update_nums,steplist, factor=1):
+        super(StepScheduler, self).__init__()
+        assert isinstance(steplist, list) and len(steplist) >= 1
+        for i, _step in enumerate(steplist):
+            if i != 0 and steplist[i] <= steplist[i - 1]:
+                raise ValueError("Schedule step must be an increasing integer list")
+            if _step < 1:
+                raise ValueError("Schedule step must be greater or equal than 1 round")
+        if factor > 1.0:
+            raise ValueError("Factor must be no more than 1 to make lr reduce")
+        self.steplist = steplist
+        self.epoch_update_nums = epoch_update_nums
+        self.cur_lr = steplist[0][1]
+
+    def __call__(self, num_update):
+        #if num_update%self.epoch_update_nums == 0:
+        #    logger.info("cur lr: {}".format(self.cur_lr))
+        for (e,v) in self.steplist:
+            if num_update < self.epoch_update_nums*e:
+                self.cur_lr = v
+                return self.cur_lr
+
+        return self.cur_lr
