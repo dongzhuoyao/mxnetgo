@@ -73,6 +73,11 @@ from mxnetgo.myutils.seg.segmentation import visualize_label
 IGNORE_LABEL = 255
 EPOCH_SCALE = 1
 end_epoch = 80
+CROP_HEIGHT = 768
+CROP_WIDTH = 1024
+
+args.crop_size = (CROP_HEIGHT,CROP_WIDTH)
+
 def get_data(name, data_dir, meta_dir, config, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
@@ -81,7 +86,7 @@ def get_data(name, data_dir, meta_dir, config, gpu_nums):
     if isTrain:#special augmentation
         shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
                             aspect_ratio_thres=0.15),
-                     RandomCropWithPadding((config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH),IGNORE_LABEL),
+                     RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
     else:
@@ -181,13 +186,13 @@ def train_net(args, ctx):
 
 
     # infer max shape
-    max_scale = [(config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)]
+    max_scale = [args.crop_size]
     max_data_shape = [('data', (args.batch_size, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
     max_label_shape = [('label', (args.batch_size, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
 
     # infer shape
-    data_shape_dict = {'data':(args.batch_size, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
-                       ,'label':(args.batch_size, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
+    data_shape_dict = {'data':(args.batch_size, 3, args.crop_size[0],args.crop_size[1])
+                       ,'label':(args.batch_size, 1, args.crop_size[0],args.crop_size[1])}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)

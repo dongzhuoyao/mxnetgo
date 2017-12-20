@@ -44,7 +44,7 @@ if not CSUPPORT:
     logger.warn("confusion matrix c extension not found, this calculation will be very slow")
 
 
-def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
+def slow_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
     flat_pred = np.ravel(pred)
     flat_label = np.ravel(label)
 
@@ -58,7 +58,7 @@ def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
             conf_m[pre_l, lab_l] += num
     return conf_m
 
-def old_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
+def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
     if (CSUPPORT):
         # using cython
         conf_m = addToConfusionMatrix.cEvaluatePair(pred.astype(np.uint8), label.astype(np.uint8), conf_m, nb_classes)
