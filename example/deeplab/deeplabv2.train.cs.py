@@ -118,7 +118,7 @@ def test_deeplab(ctx):
     eval_sym = sym_instance.get_symbol(config, is_train=False)
     sym_instance.infer_shape(data_shape_dict)
 
-    arg_params, aux_params = load_param_by_model(args.load, process=True)
+    arg_params, aux_params = load_init_param(args.load, process=True)
 
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
     data_names = ['data']

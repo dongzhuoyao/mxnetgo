@@ -25,14 +25,10 @@ network:
   - beta
   pretrained: "resnet_v1_101"
 TRAIN:
-  lr: 0.0005
-  # size of images for each device
   BATCH_IMAGES: 1
   # scale of cropped image during training
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024
-  # whether resume training
-  RESUME: true
 TEST:
   # size of images for each device
   BATCH_IMAGES: 1

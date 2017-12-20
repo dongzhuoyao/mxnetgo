@@ -46,7 +46,7 @@ def load_init_param(model_name, convert=False, ctx=None, process=False):
     :param process: model should drop any test
     :return: (arg_params, aux_params)
     """
-    save_dict = mx.nd.load(model_name)
+    save_dict = mx.nd.load(model_name+".params")
     arg_params, aux_params = load_checkpoint(save_dict)
     if convert:
         if ctx is None:
