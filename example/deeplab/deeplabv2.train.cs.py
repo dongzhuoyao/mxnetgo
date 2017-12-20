@@ -72,7 +72,7 @@ from mxnetgo.myutils.seg.segmentation import visualize_label
 
 IGNORE_LABEL = 255
 EPOCH_SCALE = 1
-
+end_epoch = 80
 def get_data(name, data_dir, meta_dir, config, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
@@ -154,7 +154,7 @@ def test_deeplab(ctx):
     logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
 
 
-def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch):
+def train_net(args, ctx, pretrained):
     logger.auto_set_dir()
 
     # load symbol
@@ -193,12 +193,15 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch):
     sym_instance.infer_shape(data_shape_dict)
 
     # load and initialize params
-    if config.TRAIN.RESUME:
+    epoch_string = args.load.rsplit("-",2)[1]
+    begin_epoch = 0
+    if len(epoch_string)==4:
+        begin_epoch = int(epoch_string)
         logger.info('continue training from {}'.format(begin_epoch))
-        arg_params, aux_params = load_param(prefix, begin_epoch, convert=True)
+        arg_params, aux_params = load_param("deeplabv2.train.cs", begin_epoch, convert=True)
     else:
         logger.info(pretrained)
-        arg_params, aux_params = load_param(pretrained, epoch, convert=True)
+        arg_params, aux_params = load_param(pretrained, begin_epoch, convert=True)
         sym_instance.init_weights(config, arg_params, aux_params)
 
     # check parameter shapes
@@ -228,8 +231,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(config.TRAIN.BATCH_IMAGES*len(ctx)),[(2, 1e-4), (4, 1e-5), (6, 8e-6)])
-    #lr_scheduler = FactorScheduler(4,0.9)
+    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(config.TRAIN.BATCH_IMAGES*len(ctx)),[(3, 1e-4), (5, 1e-5), (7, 8e-6)])
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
@@ -245,8 +247,6 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch):
             batch_end_callback=batch_end_callbacks, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE)
-
-
 
 def view_data(ctx):
         ds = get_data("train", DATA_DIR, LIST_DIR, config,ctx)
@@ -269,5 +269,4 @@ if __name__ == '__main__':
         test_deeplab(ctx)
     else:
         assert config.TRAIN.BATCH_IMAGES%len(ctx)==0, "Batch size must can be divided by ctx_num"
-        train_net(args, ctx, config.network.pretrained, config.network.pretrained_epoch, config.TRAIN.model_prefix,
-                  config.TRAIN.begin_epoch, config.TRAIN.end_epoch)
+        train_net(args, ctx, config.network.pretrained)

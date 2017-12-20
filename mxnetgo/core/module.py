@@ -981,10 +981,11 @@ class MutableModule(BaseModule):
         logger.info("epoch volumn: {}".format(epoch_volumn))
         train_data = RepeatedData(train_data, -1)
         train_data.reset_state()
-        epoch_index = 0
+        epoch_index = begin_epoch
         batch_index = 0
         while epoch_index < num_epoch:
             logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
+            #BUGGY when update
             tic = time.time()
             eval_metric.reset()
             for data,label in train_data.get_data():
@@ -1007,7 +1008,7 @@ class MutableModule(BaseModule):
                 self.forward_backward(data_batch)
                 self.update()
                 self.update_metric(eval_metric, data_batch.label)
-
+                logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
                 if monitor is not None:
                     monitor.toc_print()
 

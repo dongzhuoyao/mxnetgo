@@ -24,20 +24,15 @@ network:
   - gamma
   - beta
   pretrained: "resnet_v1_101"
-  pretrained_epoch: 0
 TRAIN:
-  begin_epoch: 0
-  end_epoch: 80
   lr: 0.0005
-  lr_step: '40.336'
-  model_prefix: "deeplabv2.cs"
   # size of images for each device
   BATCH_IMAGES: 1
   # scale of cropped image during training
   CROP_HEIGHT: 768
   CROP_WIDTH: 1024
   # whether resume training
-  RESUME: false
+  RESUME: true
 TEST:
   # size of images for each device
   BATCH_IMAGES: 1
