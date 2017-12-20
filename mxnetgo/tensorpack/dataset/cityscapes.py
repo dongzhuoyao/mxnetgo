@@ -11,6 +11,8 @@ from tensorpack.dataflow.base import RNGDataFlow
 
 __all__ = ['Cityscapes']
 
+class_num = 19
+
 class Cityscapes(RNGDataFlow):
     def __init__(self, dir, meta_dir, name,
                  shuffle=None, dir_structure=None):
@@ -20,7 +22,6 @@ class Cityscapes(RNGDataFlow):
         self.reset_state()
         self.dir = dir
         self.name = name
-
         if shuffle is None:
             shuffle = name == 'train'
         self.shuffle = shuffle

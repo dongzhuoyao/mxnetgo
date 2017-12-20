@@ -881,7 +881,7 @@ class MutableModule(BaseModule):
                                          force_init=force_init)
         self.optimizer_initialized = True
 
-    def fit(self, train_data, args, config, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
+    def fit(self, train_data, args, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
             epoch_end_callback=None, batch_end_callback=None, kvstore='local',
             optimizer='sgd', optimizer_params=(('learning_rate', 0.01),),
             eval_end_callback=None,
@@ -1008,7 +1008,7 @@ class MutableModule(BaseModule):
                 self.forward_backward(data_batch)
                 self.update()
                 self.update_metric(eval_metric, data_batch.label)
-                logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
+                #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
                 if monitor is not None:
                     monitor.toc_print()
 
@@ -1038,11 +1038,11 @@ class MutableModule(BaseModule):
             # evaluation on validation set
             if True:
                 # infer shape
-                val_provide_data = [[("data", (1, 3, config.TEST.tile_height, config.TEST.tile_width))]]
-                val_provide_label = [[("softmax_label", (1, 1, config.TEST.tile_height, config.TEST.tile_width))]]
-                data_shape_dict = {'data': (1, 3, config.TEST.tile_height, config.TEST.tile_width)
-                    , 'softmax_label': (1, 1, config.TEST.tile_height, config.TEST.tile_width)}
-                eval_sym = eval_sym_instance.get_symbol(config, is_train=False)
+                val_provide_data = [[("data", (1, 3, args.tile_height, args.tile_width))]]
+                val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]
+                data_shape_dict = {'data': (1, 3, args.tile_height, args.tile_width)
+                    , 'softmax_label': (1, 1, args.tile_height, args.tile_width)}
+                eval_sym = eval_sym_instance.get_symbol(args.class_num, is_train=False)
                 eval_sym_instance.infer_shape(data_shape_dict)
                 eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
                 data_names = ['data']
@@ -1054,12 +1054,12 @@ class MutableModule(BaseModule):
                                       provide_data=val_provide_data, provide_label=val_provide_label,
                                       arg_params=arg_params, aux_params=aux_params)
 
-                stats = MIoUStatistics(config.dataset.NUM_CLASSES)
+                stats = MIoUStatistics(args.class_num)
                 eval_data.reset_state()
                 for data, label in tqdm(eval_data.get_data()):
                     output_all = predict_scaler(data, predictor,
-                          scales=[1.0],classes=config.dataset.NUM_CLASSES,
-                                                tile_size=(config.TEST.tile_height, config.TEST.tile_width),
+                          scales=[1.0],classes=args.class_num,
+                                                tile_size=(args.tile_height, args.tile_width),
                                                 is_densecrf=False,nbatch =batch_index,
                                                 val_provide_data = val_provide_data,
                                                 val_provide_label = val_provide_label)

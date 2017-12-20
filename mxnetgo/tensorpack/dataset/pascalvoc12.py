@@ -20,6 +20,7 @@ class PascalVOC12(RNGDataFlow):
         self.reset_state()
         self.dir = dir
         self.name = name
+        self.class_num = 21
 
         if shuffle is None:
             shuffle = name == 'train'

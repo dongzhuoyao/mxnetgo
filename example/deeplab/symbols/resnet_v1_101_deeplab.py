@@ -35,7 +35,7 @@ class resnet_v1_101_deeplab(Symbol):
         self.filter_list = [256, 512, 1024, 2048]
 
 
-    def get_resnet_conv(self, cfg, data):
+    def get_resnet_conv(self, data):
 
         conv1 = mx.symbol.Convolution(name='conv1', data=data, num_filter=64, pad=(3, 3), kernel=(7, 7), stride=(2, 2),
                                       no_bias=True)
@@ -744,7 +744,7 @@ class resnet_v1_101_deeplab(Symbol):
         res5c_relu = mx.symbol.Activation(name='res5c_relu', data=res5c, act_type='relu')
         return res5c_relu
 
-    def get_train_symbol(self, cfg, num_classes):
+    def get_train_symbol(self, num_classes):
         """
         get symbol for training
         :param num_classes: num of classes
@@ -754,7 +754,7 @@ class resnet_v1_101_deeplab(Symbol):
         seg_cls_gt = mx.symbol.Variable(name='label')
 
         # shared convolutional layers
-        conv_feat = self.get_resnet_conv(cfg, data)
+        conv_feat = self.get_resnet_conv(data)
 
         # subsequent fc layers by haozhi
         fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=2.0)
@@ -791,7 +791,7 @@ class resnet_v1_101_deeplab(Symbol):
 
 
         # shared convolutional layers
-        conv_feat = self.get_resnet_conv(cfg, data)
+        conv_feat = self.get_resnet_conv(data)
 
         fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=2.0)
         fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=1.0)
@@ -819,22 +819,18 @@ class resnet_v1_101_deeplab(Symbol):
 
         return softmax
 
-    def get_symbol(self, cfg, is_train=True):
+    def get_symbol(self, num_classes, is_train=True):
         """
         return a generated symbol, it also need to be assigned to self.sym
         """
-
-        # config alias for convenient
-        num_classes = cfg.dataset.NUM_CLASSES
-
         if is_train:
-            self.sym = self.get_train_symbol(cfg, num_classes=num_classes)
+            self.sym = self.get_train_symbol(num_classes=num_classes)
         else:
-            self.sym = self.get_test_symbol(cfg, num_classes=num_classes)
+            self.sym = self.get_test_symbol(num_classes=num_classes)
 
         return self.sym
 
-    def init_weights(self, cfg, arg_params, aux_params):
+    def init_weights(self, arg_params, aux_params):
         arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
         arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
         arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
@@ -844,7 +840,4 @@ class resnet_v1_101_deeplab(Symbol):
         init = mx.init.Initializer()
         init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])
 
-        #m = np.array([104, 116, 122])
-        #m = np.resize(m,(1,3,1,1)) #NCHW
-        #const_arr = np.broadcast_to(m, (cfg.TRAIN.BATCH_IMAGES, 3, cfg.TRAIN.CROP_HEIGHT, cfg.TRAIN.CROP_WIDTH))  # NCHW
-        #arg_params['mean'] = mx.nd.array(m.tolist()) #TODO what about testing? it should't related to the cfg.TRAIN.BATCH_IMAGES
+
