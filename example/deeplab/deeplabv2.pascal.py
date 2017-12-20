@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
+DATA_DIR, LIST_DIR = "/data_a/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
 
 import _init_paths
 
@@ -21,14 +21,14 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 768
-CROP_WIDTH = 1024
-tile_height = 768
-tile_width = 1024
+CROP_HEIGHT = 321
+CROP_WIDTH = 321
+tile_height = 321
+tile_width = 321
 
-EPOCH_SCALE = 1
-end_epoch = 90
-NUM_CLASSES = 19
+EPOCH_SCALE = 10
+end_epoch = 80
+NUM_CLASSES = 21
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
 symbol_str = "resnet_v1_101_deeplab"
@@ -41,7 +41,9 @@ def parse_args():
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
-    parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
+    #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
+    parser.add_argument("--load", default="resnet_v1_101-0000")
+    parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=2)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
@@ -82,6 +84,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
@@ -91,7 +94,7 @@ from mxnetgo.myutils.seg.segmentation import visualize_label
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = name == 'train'
-    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
+    ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
 
     if isTrain:#special augmentation
@@ -207,7 +210,7 @@ def train_net(args, ctx):
     # load and initialize params
     epoch_string = args.load.rsplit("-",2)[1]
     begin_epoch = 0
-    if len(epoch_string)==4:
+    if not args.scratch:
         begin_epoch = int(epoch_string)
         logger.info('continue training from {}'.format(begin_epoch))
         arg_params, aux_params = load_init_param(args.load, convert=True)

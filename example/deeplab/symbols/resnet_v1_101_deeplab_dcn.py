@@ -819,14 +819,10 @@ class resnet_v1_101_deeplab_dcn(Symbol):
 
         return softmax
 
-    def get_symbol(self, cfg, is_train=True):
+    def get_symbol(self, num_classes, is_train=True):
         """
         return a generated symbol, it also need to be assigned to self.sym
         """
-
-        # config alias for convenient
-        num_classes = cfg.dataset.NUM_CLASSES
-
         if is_train:
             self.sym = self.get_train_symbol(num_classes=num_classes)
         else:
@@ -834,7 +830,7 @@ class resnet_v1_101_deeplab_dcn(Symbol):
 
         return self.sym
 
-    def init_weights(self, cfg, arg_params, aux_params):
+    def init_weights(self, arg_params, aux_params):
         arg_params['res5a_branch2b_offset_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['res5a_branch2b_offset_weight'])
         arg_params['res5a_branch2b_offset_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['res5a_branch2b_offset_bias'])
         arg_params['res5b_branch2b_offset_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['res5b_branch2b_offset_weight'])

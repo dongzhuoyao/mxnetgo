@@ -888,7 +888,7 @@ class MutableModule(BaseModule):
             eval_batch_end_callback=None, initializer=Uniform(0.01),
             arg_params=None, aux_params=None, allow_missing=False,
             force_rebind=False, force_init=False, begin_epoch=0, num_epoch=None,
-            validation_metric=None, monitor=None, prefix=None, state=None, epoch_scale = 1):
+            validation_metric=None, monitor=None, prefix=None, state=None, epoch_scale = 1, validation_on_last = 3):
         """Train the module parameters.
 
         Parameters
@@ -1036,7 +1036,8 @@ class MutableModule(BaseModule):
 
             #----------------------------------------
             # evaluation on validation set
-            if True:
+            if epoch_index >= num_epoch - validation_on_last:
+            #if True:
                 # infer shape
                 val_provide_data = [[("data", (1, 3, args.tile_height, args.tile_width))]]
                 val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]

@@ -780,7 +780,7 @@ class resnet_v1_101_deeplab(Symbol):
 
         return softmax
 
-    def get_test_symbol(self, cfg, num_classes):
+    def get_test_symbol(self, num_classes):
         """
         get symbol for testing
         :param num_classes: num of classes
