@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
+    parser.add_argument('--batch_size', default=2)
     parser.add_argument('--vis', help='image visualization',  action="store_true")
     args = parser.parse_args()
     return args
@@ -97,7 +98,7 @@ def get_data(name, data_dir, meta_dir, config, gpu_nums):
 
     ds = MapData(ds, f)
     if isTrain:
-        ds = BatchData(ds, config.TRAIN.BATCH_IMAGES*gpu_nums)
+        ds = BatchData(ds, args.batch_size*gpu_nums)
         ds = PrefetchDataZMQ(ds, 1)
     else:
         ds = BatchData(ds, 1)
@@ -153,7 +154,7 @@ def test_deeplab(ctx):
     logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
 
 
-def train_net(args, ctx, pretrained):
+def train_net(args, ctx):
     logger.auto_set_dir()
 
     # load symbol
@@ -167,7 +168,7 @@ def train_net(args, ctx, pretrained):
 
     # setup multi-gpu
     gpu_nums = len(ctx)
-    input_batch_size = config.TRAIN.BATCH_IMAGES * gpu_nums
+    input_batch_size = args.batch_size * gpu_nums
 
     # print config
     #pprint.pprint(config)
@@ -181,12 +182,12 @@ def train_net(args, ctx, pretrained):
 
     # infer max shape
     max_scale = [(config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)]
-    max_data_shape = [('data', (config.TRAIN.BATCH_IMAGES, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
-    max_label_shape = [('label', (config.TRAIN.BATCH_IMAGES, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
+    max_data_shape = [('data', (args.batch_size, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
+    max_label_shape = [('label', (args.batch_size, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
 
     # infer shape
-    data_shape_dict = {'data':(config.TRAIN.BATCH_IMAGES, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
-                       ,'label':(config.TRAIN.BATCH_IMAGES, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
+    data_shape_dict = {'data':(args.batch_size, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)
+                       ,'label':(args.batch_size, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH)}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
@@ -200,7 +201,7 @@ def train_net(args, ctx, pretrained):
         arg_params, aux_params = load_param("train_log/deeplabv2.train.cs", begin_epoch, convert=True)
     else:
         logger.info(args.load)
-        arg_params, aux_params = load_init_param(pretrained, convert=True)
+        arg_params, aux_params = load_init_param(args.load, convert=True)
         sym_instance.init_weights(config, arg_params, aux_params)
 
     # check parameter shapes
@@ -230,7 +231,7 @@ def train_net(args, ctx, pretrained):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(config.TRAIN.BATCH_IMAGES*len(ctx)),[(3, 1e-4), (5, 1e-5), (7, 8e-6)])
+    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(args.batch_size*len(ctx)),[(3, 1e-4), (5, 1e-5), (7, 8e-6)])
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
@@ -242,7 +243,7 @@ def train_net(args, ctx, pretrained):
 
 
 
-    mod.fit(train_data=train_data, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, config=config, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=config.default.kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE)
@@ -266,5 +267,4 @@ if __name__ == '__main__':
     elif args.validation:
         test_deeplab(ctx)
     else:
-        assert config.TRAIN.BATCH_IMAGES%len(ctx)==0, "Batch size must can be divided by ctx_num"
-        train_net(args, ctx, config.network.pretrained)
+        train_net(args, ctx)

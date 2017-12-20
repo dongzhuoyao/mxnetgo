@@ -881,7 +881,7 @@ class MutableModule(BaseModule):
                                          force_init=force_init)
         self.optimizer_initialized = True
 
-    def fit(self, train_data, config, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
+    def fit(self, train_data, args, config, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
             epoch_end_callback=None, batch_end_callback=None, kvstore='local',
             optimizer='sgd', optimizer_params=(('learning_rate', 0.01),),
             eval_end_callback=None,
@@ -954,8 +954,8 @@ class MutableModule(BaseModule):
         assert num_epoch is not None, 'please specify number of epochs'
 
 
-        provide_data = [[("data",(config.TRAIN.BATCH_IMAGES, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
-        provide_label = [[("label",(config.TRAIN.BATCH_IMAGES, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
+        provide_data = [[("data",(args.batch_size, 3, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
+        provide_label = [[("label",(args.batch_size, 1, config.TRAIN.CROP_HEIGHT, config.TRAIN.CROP_WIDTH))] for i in range(len(self._context))]
 
         self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)
@@ -977,7 +977,7 @@ class MutableModule(BaseModule):
         ################################################################################
         # training loop
         ################################################################################
-        epoch_volumn = train_data.size()*epoch_scale/(len(self._context)*config.TRAIN.BATCH_IMAGES)
+        epoch_volumn = train_data.size()*epoch_scale/(len(self._context)*args.batch_size)
         logger.info("epoch volumn: {}".format(epoch_volumn))
         train_data = RepeatedData(train_data, -1)
         train_data.reset_state()
@@ -998,8 +998,8 @@ class MutableModule(BaseModule):
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
-                dl = [[mx.nd.array(data[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
-                ll = [[mx.nd.array(label[config.TRAIN.BATCH_IMAGES*i:config.TRAIN.BATCH_IMAGES*(i+1)])] for i in range(len(self._context))]
+                dl = [[mx.nd.array(data[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
+                ll = [[mx.nd.array(label[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
                 data_batch = mx.io.DataBatch(data=dl, label=ll,
                                     pad=0, index=batch_index,
                                     provide_data=provide_data, provide_label=provide_label)
