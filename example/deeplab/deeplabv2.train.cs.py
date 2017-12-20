@@ -48,8 +48,7 @@ import numpy as np
 from mxnetgo.core import callback, metric
 from mxnetgo.core.module import MutableModule
 from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler,StepScheduler
-from mxnet.lr_scheduler import FactorScheduler
-from mxnetgo.myutils.load_model import load_param,load_param_by_model
+from mxnetgo.myutils.load_model import load_param,load_init_param
 
 
 from mxnetgo.core.tester import Predictor
@@ -198,10 +197,10 @@ def train_net(args, ctx, pretrained):
     if len(epoch_string)==4:
         begin_epoch = int(epoch_string)
         logger.info('continue training from {}'.format(begin_epoch))
-        arg_params, aux_params = load_param("deeplabv2.train.cs", begin_epoch, convert=True)
+        arg_params, aux_params = load_param("train_log/deeplabv2.train.cs", begin_epoch, convert=True)
     else:
-        logger.info(pretrained)
-        arg_params, aux_params = load_param(pretrained, begin_epoch, convert=True)
+        logger.info(args.load)
+        arg_params, aux_params = load_init_param(pretrained, convert=True)
         sym_instance.init_weights(config, arg_params, aux_params)
 
     # check parameter shapes
@@ -264,7 +263,6 @@ if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
     if args.view:
         view_data(ctx)
-
     elif args.validation:
         test_deeplab(ctx)
     else:

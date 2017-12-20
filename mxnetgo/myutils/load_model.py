@@ -1,7 +1,7 @@
 import mxnet as mx
 
 
-def load_checkpoint(prefix, epoch):
+def load_checkpoint(save_dict):
     """
     Load model checkpoint from file.
     :param prefix: Prefix of model name.
@@ -12,7 +12,6 @@ def load_checkpoint(prefix, epoch):
     aux_params : dict of str to NDArray
         Model parameter, dict of name to NDArray of net's auxiliary states.
     """
-    save_dict = mx.nd.load('train_log/%s/mxnetgo-%04d.params' % (prefix,epoch))
     arg_params = {}
     aux_params = {}
     for k, v in save_dict.items():
@@ -36,10 +35,19 @@ def convert_context(params, ctx):
     return new_params
 
 
-def load_param_by_model(model_name, convert=False, ctx=None, process=False):
-    prefix = model_name.split("-")[0]
-    epoch = int(model_name.split("-")[1])
-    arg_params, aux_params = load_checkpoint(prefix, epoch)
+
+def load_init_param(model_name, convert=False, ctx=None, process=False):
+    """
+    wrapper for load checkpoint
+    :param prefix: Prefix of model name.
+    :param epoch: Epoch number of model we would like to load.
+    :param convert: reference model should be converted to GPU NDArray first
+    :param ctx: if convert then ctx must be designated.
+    :param process: model should drop any test
+    :return: (arg_params, aux_params)
+    """
+    save_dict = mx.nd.load(model_name)
+    arg_params, aux_params = load_checkpoint(save_dict)
     if convert:
         if ctx is None:
             ctx = mx.cpu()
@@ -61,7 +69,8 @@ def load_param(prefix, epoch, convert=False, ctx=None, process=False):
     :param process: model should drop any test
     :return: (arg_params, aux_params)
     """
-    arg_params, aux_params = load_checkpoint(prefix, epoch)
+    save_dict = mx.nd.load('train_log/%s/mxnetgo-%04d.params' % (prefix, epoch))
+    arg_params, aux_params = load_checkpoint(save_dict)
     if convert:
         if ctx is None:
             ctx = mx.cpu()
