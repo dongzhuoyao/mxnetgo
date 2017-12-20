@@ -3,14 +3,14 @@
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
-| DeepLab, ResNet-v1-101            | 70.3 | 52.6 |
+| DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code） |
 | Deformable DeepLab, ResNet-v1-101 | 75.2 | 67.2%(new code) |
 
 ## Pascal 
-|                                   | mIoU(official) | mIoU  |
-|-----------------------------------|------|-------|
-| DeepLab, ResNet-v1-101            | 70.7 | 69.4 |
-| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 |
+|                                   | mIoU(old code) | mIoU  |
+|-----------------------------------|------|-------|-----|
+| DeepLab, ResNet-v1-101            | 70.7 | 69.4 | --  |
+| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | --  |
 
 
 
