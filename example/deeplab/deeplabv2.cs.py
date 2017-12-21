@@ -95,8 +95,6 @@ from mxnetgo.myutils.seg.segmentation import visualize_label
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
-
-
     if isTrain:#special augmentation
         shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
                             aspect_ratio_thres=0.15),
