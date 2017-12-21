@@ -26,8 +26,9 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 10
-end_epoch = 80
+EPOCH_SCALE = 20
+end_epoch = 10
+lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -37,7 +38,7 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="0")
+    parser.add_argument("--gpu", default="3")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
@@ -243,7 +244,7 @@ def train_net(args, ctx):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(args.batch_size*len(ctx)),[(3, 1e-4), (5, 1e-5), (7, 8e-6)])
+    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(args.batch_size*len(ctx)),lr_step_list)
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
