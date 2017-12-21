@@ -6,14 +6,14 @@
 # Modified by Zheng Zhang
 # --------------------------------------------------------
 
-import logging
+
 import numpy as np
 
 from mxnet import context as ctx
 from mxnet import ndarray as nd
 from mxnet.io import DataDesc
 from mxnet.executor_manager import _split_input_slice
-
+from ..myutils import logger
 
 def _load_general(data, targets, major_axis):
     """Load a list of arrays into a list of arrays specified by slices"""
@@ -99,7 +99,7 @@ class DataParallelExecutorGroup(object):
         Can be specified globally (str) or for each argument (list, dict).
     """
     def __init__(self, symbol, contexts, workload, data_shapes, label_shapes, param_names,
-                 for_training, inputs_need_grad, shared_group=None, logger=logging,
+                 for_training, inputs_need_grad, shared_group=None, logger=logger,
                  fixed_param_names=None, grad_req='write', state_names=None):
         self.param_names = param_names
         self.arg_names = symbol.list_arguments()

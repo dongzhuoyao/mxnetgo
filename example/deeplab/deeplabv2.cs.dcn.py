@@ -37,7 +37,7 @@ symbol_str = "resnet_v1_101_deeplab_dcn"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="0")
+    parser.add_argument("--gpu", default="2")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")

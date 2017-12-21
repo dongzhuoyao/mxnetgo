@@ -12,7 +12,6 @@ using shared arrays from the initial module binded with maximum shape.
 """
 
 import time
-import logging
 import warnings,os
 from tqdm import tqdm
 
@@ -165,11 +164,11 @@ class Module(BaseModule):
         self._symbol.save('%s-symbol.json'%prefix)
         param_name = '%s-%04d.params' % (prefix, epoch)
         self.save_params(param_name)
-        logging.info('Saved checkpoint to \"%s\"', param_name)
+        logger.info('Saved checkpoint to \"%s\"', param_name)
         if save_optimizer_states:
             state_name = '%s-%04d.states' % (prefix, epoch)
             self.save_optimizer_states(state_name)
-            logging.info('Saved optimizer state to \"%s\"', state_name)
+            logger.info('Saved optimizer state to \"%s\"', state_name)
 
     def _reset_bind(self):
         """Internal function to reset binded state."""
