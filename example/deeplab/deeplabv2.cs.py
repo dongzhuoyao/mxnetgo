@@ -69,7 +69,7 @@ import mxnet as mx
 import numpy as np
 from mxnetgo.core import callback, metric
 from mxnetgo.core.module import MutableModule
-from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler,StepScheduler
+from mxnetgo.myutils.lr_scheduler import StepScheduler
 from mxnetgo.myutils.load_model import load_param,load_init_param
 
 
