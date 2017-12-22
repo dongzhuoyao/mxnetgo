@@ -11,7 +11,7 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 * no document, because it's very simple to use for anyone who has a basic programming skill.
 
-* a very good starter for research, all you need modify most is the network structure.
+* a very good starter for research, all you need write only is the network structure.
 
 * modularization for specific task, such as image segmentation, pose estimation etc. 
 
