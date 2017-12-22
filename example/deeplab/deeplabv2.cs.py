@@ -25,7 +25,7 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 20
+EPOCH_SCALE = 14
 end_epoch = 10
 lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
@@ -37,14 +37,14 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="3")
+    parser.add_argument("--gpu", default="4")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
     parser.add_argument("--load", default="resnet_v1_101-0000")
     parser.add_argument("--scratch", action="store_true" )
-    parser.add_argument('--batch_size', default=2)
+    parser.add_argument('--batch_size', default=1)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
     parser.add_argument('--end_epoch', default=end_epoch)
@@ -115,7 +115,7 @@ def get_data(name, meta_dir, gpu_nums):
     ds = MapData(ds, f)
     if isTrain:
         ds = BatchData(ds, args.batch_size*gpu_nums)
-        ds = PrefetchDataZMQ(ds, 1)
+        ds = PrefetchDataZMQ(ds, 3)
     else:
         ds = BatchData(ds, 1)
     return ds
@@ -123,7 +123,7 @@ def get_data(name, meta_dir, gpu_nums):
 
 def test_deeplab(ctx):
     #logger.auto_set_dir()
-    test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
+    test_data = get_data("val", LIST_DIR, len(ctx))
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
     sym_instance = eval(symbol_str)()
@@ -259,7 +259,7 @@ def train_net(args, ctx):
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE)
 
 def view_data(ctx):
-        ds = get_data("train", DATA_DIR, LIST_DIR, ctx)
+        ds = get_data("train", LIST_DIR, ctx)
         ds.reset_state()
         for ims, labels in ds.get_data():
             for im, label in zip(ims, labels):

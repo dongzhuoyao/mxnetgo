@@ -8,11 +8,13 @@
 
 import mxnet as mx
 import numpy as np
+from mxnetgo.myutils import logger
 
 class FCNLogLossMetric(mx.metric.EvalMetric):
     def __init__(self, show_interval):
         super(FCNLogLossMetric, self).__init__('FCNLogLoss')
         self.show_interval = show_interval
+        logger.info("start training, loss show interval = {}".format(show_interval))
         self.sum_metric = 0
         self.num_inst = 0
 
