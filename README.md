@@ -25,7 +25,10 @@ Dependencies:
 
 * mxnet==1.0.0
 
-
+```
+pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
+# or add `--user` to avoid system-wide installation.
+```
 
 ## TODO
 - [ ] hourglass
