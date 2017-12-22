@@ -5,8 +5,7 @@
 # Licensed under The Apache-2.0 License [see LICENSE for details]
 # Written by Zheng Zhang
 # --------------------------------------------------------
-
-DATA_DIR, LIST_DIR = "/data_a/dataset/cityscapes", "data/cityscapes"
+LIST_DIR = "data/cityscapes"
 
 import _init_paths
 
@@ -85,16 +84,16 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
+from tensorpack.dataflow.imgaug.misc import RandomResize,Flip,RandomCropWithPadding
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.seg.segmentation import visualize_label
 
 
 
-def get_data(name, data_dir, meta_dir, gpu_nums):
+def get_data(name, meta_dir, gpu_nums):
     isTrain = name == 'train'
-    ds = Cityscapes(data_dir, meta_dir, name, shuffle=True)
+    ds = Cityscapes(meta_dir, name, shuffle=True)
     if isTrain:#special augmentation
         shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
                             aspect_ratio_thres=0.15),
@@ -187,8 +186,8 @@ def train_net(args, ctx):
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
 
-    train_data = get_data("train", DATA_DIR, LIST_DIR, len(ctx))
-    test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
+    train_data = get_data("train", LIST_DIR, len(ctx))
+    test_data = get_data("val", LIST_DIR, len(ctx))
 
     eval_sym_instance = eval(symbol_str)()
 
