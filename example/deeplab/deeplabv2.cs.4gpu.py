@@ -251,8 +251,7 @@ def train_net(args, ctx):
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
 
-
-
+    logger.info("epoch scale = {}".format(EPOCH_SCALE))
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
