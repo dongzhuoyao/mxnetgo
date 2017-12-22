@@ -232,7 +232,7 @@ def train_net(args, ctx):
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent * gpu_nums)
+    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent)
     eval_metrics = mx.metric.CompositeEvalMetric()
 
     # rpn_eval_metric, rpn_cls_metric, rpn_bbox_metric, eval_metric, cls_metric, bbox_metric
