@@ -17,10 +17,8 @@ from tqdm import tqdm
 
 
 import mxnet as mx
-from ..myutils.PrefetchingIter import PrefetchingIter
-from ..myutils import logger
-from ..myutils.seg.segmentation import predict_scaler
 
+from mxnetgo.myutils import logger
 
 
 
@@ -31,7 +29,7 @@ from mxnet.model import _create_kvstore, _initialize_kvstore, _update_params, _u
 from mxnet import metric
 # from mxnet.module.executor_group import DataParallelExecutorGroup
 
-from .DataParallelExecutorGroup import DataParallelExecutorGroup
+from DataParallelExecutorGroup import DataParallelExecutorGroup
 from mxnet import ndarray as nd
 from mxnet import optimizer as opt
 import numpy as np
@@ -987,13 +985,8 @@ class MutableModule(BaseModule):
             #BUGGY when update
             tic = time.time()
             eval_metric.reset()
-            for data,label in train_data.get_data():
-                if batch_index >= epoch_volumn:
-                    batch_index = 0
-                    break
-                else:
-                    batch_index += 1
-
+            tmp = train_data.get_data()
+            for data,label in tqdm(train_data.get_data(),total=epoch_volumn):
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
@@ -1017,6 +1010,8 @@ class MutableModule(BaseModule):
                                                      locals=locals())
                     for callback in _as_list(batch_end_callback):
                         callback(batch_end_params)
+
+                batch_index += 1
 
             # one epoch of training is finished
             for name, val in eval_metric.get_name_value():
