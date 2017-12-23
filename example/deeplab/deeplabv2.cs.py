@@ -25,7 +25,7 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 6
+EPOCH_SCALE = 3
 end_epoch = 10
 lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
@@ -257,7 +257,7 @@ def train_net(args, ctx):
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
-            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=end_epoch)
+            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=5)
 
 def view_data(ctx):
         ds = get_data("train", LIST_DIR, ctx)

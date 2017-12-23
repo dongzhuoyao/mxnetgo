@@ -8,7 +8,7 @@ from math import ceil
 import cv2,colorsys
 import matplotlib.pyplot as plt
 import mxnet as mx
-from ...myutils import logger
+from mxnetgo.myutils import logger
 import os, sys
 
 sys.path.append( os.path.normpath( os.path.join( os.path.dirname( __file__ ) , 'mxnetgo/myutils/seg' ) ) )
@@ -163,6 +163,14 @@ def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf,nbat
     #if is_densecrf:
     #    full_probs = dense_crf(full_probs)
     return full_probs
+
+
+if __name__ == '__main__':
+    label = np.array([1,1,1,0,0,0,0])
+    pred = np.array([0,0,0,0,0,0,0])
+    cm = np.array([[0,0],[0,0]])
+    cm = update_confusion_matrix(pred,label,cm,2)
+    pass
 
 
 
