@@ -974,7 +974,9 @@ class MutableModule(BaseModule):
         ################################################################################
         # training loop
         ################################################################################
-        epoch_volumn = train_data.size()*epoch_scale/(len(self._context)*args.batch_size)
+        epoch_volumn = train_data.size()*epoch_scale
+        logger.info("data size: {}".format(train_data.size()))
+        logger.info("batch size: {}".format(args.batch_size))
         logger.info("epoch volumn: {}".format(epoch_volumn))
         train_data = RepeatedData(train_data, -1)
         epoch_index = begin_epoch
