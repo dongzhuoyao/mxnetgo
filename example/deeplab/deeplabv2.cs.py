@@ -25,7 +25,7 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 8
+EPOCH_SCALE = 6
 end_epoch = 10
 lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
@@ -37,14 +37,14 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="4")
-    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
+    parser.add_argument("--gpu", default="3")
+    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
     parser.add_argument("--load", default="resnet_v1_101-0000")
     parser.add_argument("--scratch", action="store_true" )
-    parser.add_argument('--batch_size', default=1)
+    parser.add_argument('--batch_size', default=3)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
     parser.add_argument('--end_epoch', default=end_epoch)

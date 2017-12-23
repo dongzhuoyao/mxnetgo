@@ -55,21 +55,6 @@ def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
             cur_index = i_label * nb_classes + i_pred_label
             if cur_index < len(label_count):
                 conf_m[i_label, i_pred_label] = +label_count[cur_index]  # notice here, first dimension is label,second dimension is prediction.
-
-    return conf_m
-
-def slow_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
-    flat_pred = np.ravel(pred)
-    flat_label = np.ravel(label)
-
-    for pre_l in range(nb_classes):
-        for lab_l in range(nb_classes):
-            pre_indexs = np.where(flat_pred == pre_l)
-            lab_indexs = np.where(flat_label == lab_l)
-            pre_indexs = set(pre_indexs[0].tolist())
-            lab_indexs = set(lab_indexs[0].tolist())
-            num = len(pre_indexs & lab_indexs)
-            conf_m[pre_l, lab_l] += num
     return conf_m
 
 def aaa_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):

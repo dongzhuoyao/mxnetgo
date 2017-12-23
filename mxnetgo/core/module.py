@@ -977,16 +977,18 @@ class MutableModule(BaseModule):
         epoch_volumn = train_data.size()*epoch_scale/(len(self._context)*args.batch_size)
         logger.info("epoch volumn: {}".format(epoch_volumn))
         train_data = RepeatedData(train_data, -1)
-        train_data.reset_state()
         epoch_index = begin_epoch
-        batch_index = 0
+
+        train_data.reset_state()
+        _itr = train_data.get_data()
         while epoch_index < num_epoch:
+            logger.info("{} epoch {} {}".format("*"*20, epoch_index, "*"*20))
             logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
-            #BUGGY when update
             tic = time.time()
             eval_metric.reset()
-            tmp = train_data.get_data()
-            for data,label in tqdm(train_data.get_data(),total=epoch_volumn):
+            batch_index = 0
+            for batch_index in tqdm(range(epoch_volumn)):
+                data, label = next(_itr)
                 data = np.transpose(data, (0, 3, 1, 2))
                 label = label[:,:,:,None]
                 label = np.transpose(label, (0, 3, 1, 2))
