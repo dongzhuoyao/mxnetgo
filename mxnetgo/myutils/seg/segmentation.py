@@ -54,7 +54,7 @@ def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
         for i_pred_label in range(nb_classes):
             cur_index = i_label * nb_classes + i_pred_label
             if cur_index < len(label_count):
-                conf_m[i_label, i_pred_label] = +label_count[cur_index]  # notice here, first dimension is label,second dimension is prediction.
+                conf_m[i_label, i_pred_label] += label_count[cur_index]  # notice here, first dimension is label,second dimension is prediction.
     return conf_m
 
 def aaa_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
