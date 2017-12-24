@@ -1051,7 +1051,7 @@ class MutableModule(BaseModule):
 
                 # create predictor
                 predictor = Predictor(eval_sym, data_names, label_names,
-                                      context=self._context,
+                                      context=[self._context[0]],#only use one gpu
                                       provide_data=val_provide_data, provide_label=val_provide_label,
                                       arg_params=arg_params, aux_params=aux_params)
 
@@ -1075,6 +1075,7 @@ class MutableModule(BaseModule):
     def forward(self, data_batch, is_train=None):
         assert self.binded and self.params_initialized
 
+        """
         # get current_shapes
         if self._curr_module.label_shapes is not None:
             current_shapes = [dict(self._curr_module.data_shapes[i] + self._curr_module.label_shapes[i]) for i in range(len(self._context))]
@@ -1099,6 +1100,7 @@ class MutableModule(BaseModule):
                     pass
 
         if shape_changed:
+            logger.info("shape changed!!!!")
             # self._curr_module.reshape(data_batch.provide_data, data_batch.provide_label)
             module = Module(self._symbol, self._data_names, self._label_names,
                  context=[self._context[i] for i in range(len(data_batch.provide_data))],
@@ -1108,6 +1110,7 @@ class MutableModule(BaseModule):
                         self._curr_module.inputs_need_grad, force_rebind=False,
                         shared_module=self._curr_module)
             self._curr_module = module
+        """
 
         self._curr_module.forward(data_batch, is_train=is_train)
 
