@@ -27,22 +27,6 @@ label_colours = [(0,0,0)
                 ,(0,64,0),(128,64,0),(0,192,0),(128,192,0),(0,64,128)]
                 # 16=potted plant, 17=sheep, 18=sofa, 19=train, 20=tv/monitor
 
-# C Support
-# Enable the cython support for faster evaluation
-# Only tested for Ubuntu 64bit OS
-CSUPPORT = True
-# Check if C-Support is available for better performance
-if CSUPPORT:
-    try:
-        import addToConfusionMatrix
-    except:
-        CSUPPORT = False
-CSUPPORT = False
-
-
-if not CSUPPORT:
-    logger.warn("confusion matrix c extension not found, this calculation will be very slow")
-
 
 def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
     ignore_index = label != ignore
@@ -56,24 +40,6 @@ def update_confusion_matrix(pred, label, conf_m, nb_classes, ignore=255):
             if cur_index < len(label_count):
                 conf_m[i_label, i_pred_label] += label_count[cur_index]  # notice here, first dimension is label,second dimension is prediction.
     return conf_m
-
-def aaa_update_confusion_matrix(pred, label, conf_m, nb_classes, ignore = 255):
-    if (CSUPPORT):
-        # using cython
-        conf_m = addToConfusionMatrix.cEvaluatePair(pred.astype(np.uint8), label.astype(np.uint8), conf_m, nb_classes)
-        return conf_m
-    else:
-        flat_pred = np.ravel(pred)
-        flat_label = np.ravel(label)
-
-        for p, l in zip(flat_pred, flat_label):
-            if l == ignore:
-                continue
-            if l < nb_classes and p < nb_classes:
-                conf_m[l, p] += 1
-            else:
-                raise "unkown exception."
-        return conf_m
 
 def pad_image(img, target_size):
     """Pad an image up to the target size."""
