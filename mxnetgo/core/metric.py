@@ -1,10 +1,5 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Modified by Zheng Zhang
-# --------------------------------------------------------
+
+__all__ = ['FCNLogLossMetric','SegMCELossMetric']
 
 import mxnet as mx
 import numpy as np
@@ -39,3 +34,33 @@ class FCNLogLossMetric(mx.metric.EvalMetric):
 
         self.sum_metric += cls_loss
         self.num_inst += label.shape[0]
+
+
+class SegMCELossMetric(mx.metric.EvalMetric):
+    def __init__(self):
+        super(SegMCELossMetric, self).__init__('SegMCELoss')
+        self.cls_loss = 0
+
+    def update(self, labels, preds):
+        n,c,h,w = preds.shape
+        #pred = preds[0]
+        #label = labels[0]
+
+        # label (b, p)
+        label = labels.asnumpy().astype('int32').reshape((-1))
+        # pred (b, c, p) or (b, c, h, w) --> (b, p, c) --> (b*p, c)
+        pred = preds.asnumpy().reshape((preds.shape[0], preds.shape[1], -1)).transpose((0, 2, 1))
+        pred = pred.reshape((n*h*w, -1 ))
+
+        # filter with keep_inds
+        keep_inds = np.where(label != 255)[0]
+        label = label[keep_inds]
+        cls = pred[keep_inds, label]
+
+        cls += 1e-14
+        cls_loss = -1 * np.log(cls)
+        self.cls_loss = np.mean(cls_loss)
+
+    def get(self):
+        return self.cls_loss
+

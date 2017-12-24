@@ -10,9 +10,6 @@ import matplotlib.pyplot as plt
 import mxnet as mx
 from mxnetgo.myutils import logger
 import os, sys
-
-sys.path.append( os.path.normpath( os.path.join( os.path.dirname( __file__ ) , 'mxnetgo/myutils/seg' ) ) )
-
 __all__ = ['update_confusion_matrix', 'predict_slider']
 
 # Colour map.
