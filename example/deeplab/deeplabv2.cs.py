@@ -27,7 +27,7 @@ CROP_WIDTH = 321
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 3
+EPOCH_SCALE = 9
 end_epoch = 10
 lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
@@ -39,7 +39,7 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="5")
+    parser.add_argument("--gpu", default="4")
     parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
