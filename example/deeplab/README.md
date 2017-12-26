@@ -4,6 +4,7 @@
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
 | DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code） |
+| deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
 | Deformable DeepLab, ResNet-v1-101 | 75.2 | 67.2%(new code) |
 
 ## Pascal 
