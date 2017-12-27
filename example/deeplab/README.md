@@ -10,7 +10,7 @@
 ## Pascal 
 |                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
 |-----------------------------------|------|-------|------|
-| DeepLab, ResNet-v1-101            | 70.7 | 69.4 | ? |
+| DeepLab, ResNet-v1-101(deeplabv2.pascal)            | 70.7 | 69.4 | 67.2 |
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
 
 
