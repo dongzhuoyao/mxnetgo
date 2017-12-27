@@ -246,7 +246,7 @@ def train_net(args, ctx):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE/(args.batch_size*len(ctx)),lr_step_list)
+    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
