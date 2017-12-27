@@ -3,7 +3,7 @@
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
-| DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code） |
+| DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code）??? 可信？ |
 | deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
 | deeplabv2.cs.scale8.bs2           | 70.3 | 61.5（new code） |
 |deeplabv2.cs.scale1.bs2| 70.3 | ING（new code） |
