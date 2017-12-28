@@ -15,6 +15,7 @@
 | DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)            | 70.7 | 69.4 | 67.2 |
 |deeplabv2.pascal.bs10.scale2 | 70.7 | 69.4 | 61 |
 |deeplabv2.pascal.bs10.scale4| 70.7 | 69.4 | 63.~|
+|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9|
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
 |deeplabv2.pascal.dcn.bs10.scale2| 75.9 | 74.2 | 67.0|
 
