@@ -110,7 +110,7 @@ def predict_slider(full_image, predictor, classes, tile_size, nbatch,val_provide
 
 
 def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf,nbatch,val_provide_data,val_provide_label):
-    data = np.squeeze(data) #default batch size is 1
+    data = np.squeeze(data).astype(np.int16) #default batch size is 1
 
     full_probs = np.zeros((classes, data.shape[0], data.shape[1]))
     h_ori, w_ori = data.shape[0:2]

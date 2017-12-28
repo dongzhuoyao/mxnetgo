@@ -39,7 +39,7 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="2")
+    parser.add_argument("--gpu", default="0")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
@@ -161,7 +161,7 @@ def test_deeplab(ctx):
     nbatch = 0
     for data, label in tqdm(test_data.get_data()):
         output_all = predict_scaler(data, predictor,
-                                    scales=[1.0], classes=NUM_CLASSES,
+                                    scales=[0.9,1.0,1.1], classes=NUM_CLASSES,
                                     tile_size=(tile_height, tile_width),
                                     is_densecrf=False, nbatch=nbatch,
                                     val_provide_data=val_provide_data,
