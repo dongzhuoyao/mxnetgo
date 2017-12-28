@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data_a/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
 
 import _init_paths
 
@@ -26,27 +26,27 @@ CROP_WIDTH = 321
 tile_height = 321
 tile_width = 321
 
-EPOCH_SCALE = 20
+EPOCH_SCALE = 4
 end_epoch = 10
-lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
+lr_step_list = [(3, 2.5e-4), (5, 1e-4), (7, 5e-5)]
 
 NUM_CLASSES = 21
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
-symbol_str = "resnet_v1_101_deeplab_dcn"
+symbol_str = "resnet_v1_101_deeplab"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="1")
+    parser.add_argument("--gpu", default="3")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
     parser.add_argument("--load", default="resnet_v1_101-0000")
     parser.add_argument("--scratch", action="store_true" )
-    parser.add_argument('--batch_size', default=2)
+    parser.add_argument('--batch_size', default=10)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
     parser.add_argument('--end_epoch', default=end_epoch)
@@ -249,9 +249,9 @@ def train_net(args, ctx):
     lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
 
     # optimizer
-    optimizer_params = {'momentum': 0.9,
+    optimizer_params = {#'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': 1e-4,
+                        'learning_rate': 2.5e-4,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
@@ -259,7 +259,7 @@ def train_net(args, ctx):
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
-            optimizer='sgd', optimizer_params=optimizer_params,
+            optimizer='adam', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=end_epoch)
 
 def view_data(ctx):

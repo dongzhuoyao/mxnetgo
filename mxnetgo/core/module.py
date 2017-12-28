@@ -1059,7 +1059,7 @@ class MutableModule(BaseModule):
                 eval_data.reset_state()
                 for data, label in tqdm(eval_data.get_data()):
                     output_all = predict_scaler(data, predictor,
-                          scales=[1.0],classes=args.class_num,
+                          scales=[0.9,1.0,1.1],classes=args.class_num,
                                                 tile_size=(args.tile_height, args.tile_width),
                                                 is_densecrf=False,nbatch =batch_index,
                                                 val_provide_data = val_provide_data,
