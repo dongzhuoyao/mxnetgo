@@ -3,16 +3,21 @@
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
-| DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code） |
+| DeepLab, ResNet-v1-101            | 70.3 | 67.26（new code）??? 可信？ |
 | deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
 | deeplabv2.cs.scale8.bs2           | 70.3 | 61.5（new code） |
+|deeplabv2.cs.scale1.bs2| 70.3 | 50.~（new code） |
 | Deformable DeepLab, ResNet-v1-101 | 75.2 | 67.2%(new code) |
 
 ## Pascal 
 |                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
 |-----------------------------------|------|-------|------|
-| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2)            | 70.7 | 69.4 | 67.2 |
+| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)            | 70.7 | 69.4 | 67.2 |
+|deeplabv2.pascal.bs10.scale2 | 70.7 | 69.4 | 61 |
+|deeplabv2.pascal.bs10.scale4| 70.7 | 69.4 | 63.~|
+|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9|
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
+|deeplabv2.pascal.dcn.bs10.scale2| 75.9 | 74.2 | 67.0|
 
 
 
