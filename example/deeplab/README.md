@@ -9,7 +9,8 @@
 | deeplabv2.cs.scale4.bs2.newlr.sgd| 70.3| 62.6|
 |deeplabv2.cs.scale4.bs2.officiallr| 70.3|**67.18(new code)**|
 |deeplabv2.cs.scale1.bs2| 70.3 | 50.~（new code） |
-| Deformable DeepLab, ResNet-v1-101 | 75.2 | 67.2%(new code) |
+| Deformable DeepLab, ResNet-v1-101(deeplabv2.pascal.dcn) | 75.2 | **74.7** |
+
 
 ## Pascal 
 |                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
