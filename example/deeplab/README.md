@@ -9,7 +9,7 @@
 | deeplabv2.cs.scale4.bs2.newlr.sgd| 70.3| 62.6|
 |deeplabv2.cs.scale4.bs2.officiallr| 70.3|**67.18(new code)**|
 |deeplabv2.cs.scale1.bs2| 70.3 | 50.~（new code） |
-| Deformable DeepLab, ResNet-v1-101(deeplabv2.pascal.dcn) | 75.2 | **74.7** |
+| Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
 
 ## Pascal 
@@ -21,7 +21,7 @@
 |deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9(msf:67.9)|
 |deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 | 69.4 |**70.45**|
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
-|deeplabv2.pascal.dcn.bs10.scale2| 75.9 | 74.2 | 67.0|
+|deeplabv2.pascal.dcn| 75.9 | 74.2 |  **74.7**|
 
 
 ## some notes
