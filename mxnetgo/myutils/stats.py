@@ -2,7 +2,7 @@
 # File: stats.py
 # Author: Yuxin Wu <ppwwyyxx@gmail.com>
 import numpy as np
-from .seg.segmentation import update_confusion_matrix
+from .segmentation.segmentation import update_confusion_matrix
 from . import logger
 __all__ = ['StatCounter', 'BinaryStatistics', 'RatioCounter', 'Accuracy',
            'OnlineMoments', 'MIoUStatistics']

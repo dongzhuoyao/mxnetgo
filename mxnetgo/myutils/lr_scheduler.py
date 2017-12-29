@@ -90,14 +90,14 @@ class StepScheduler(LRScheduler):
             raise ValueError("Factor must be no more than 1 to make lr reduce")
         self.steplist = steplist
         self.epoch_update_nums = epoch_update_nums
-        self.cur_lr = steplist[0][1]
+        self.base_lr = steplist[0][1]
 
     def __call__(self, num_update):
         #if num_update%self.epoch_update_nums == 0:
         #    logger.info("cur lr: {}".format(self.cur_lr))
         for (e,v) in self.steplist:
             if num_update < self.epoch_update_nums*e:
-                self.cur_lr = v
-                return self.cur_lr
+                self.base_lr = v
+                return self.base_lr
 
-        return self.cur_lr
+        return self.base_lr

@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "mxnetgo",
-    version = "0.0.1",
+    version = "0.0.2",
     author = "Tao Hu",
     author_email = "taohu620@gmail.com",
     description = ("a simple scaffold of MXNet, easy to customize, extremely boosting your research."),

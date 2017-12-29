@@ -75,7 +75,7 @@ from mxnetgo.myutils.load_model import load_param,load_init_param
 
 
 from mxnetgo.core.tester import Predictor
-from mxnetgo.myutils.seg.segmentation import predict_scaler,visualize_label
+from mxnetgo.myutils.segmentation.segmentation import predict_scaler,visualize_label
 from mxnetgo.myutils.stats import MIoUStatistics
 from tqdm import tqdm
 
@@ -90,7 +90,7 @@ from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
-from mxnetgo.myutils.seg.segmentation import visualize_label
+from mxnetgo.myutils.segmentation.segmentation import visualize_label
 
 
 

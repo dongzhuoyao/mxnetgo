@@ -25,9 +25,9 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 8
-end_epoch = 10
-lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
+EPOCH_SCALE = 4
+end_epoch = 6
+lr_step_list = [(4, 1e-3), (6, 1e-4)]
 NUM_CLASSES = 19
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -38,7 +38,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="4")
-    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=800, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
@@ -246,7 +246,7 @@ def train_net(args, ctx):
     # optimizer
     optimizer_params = {'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': 1e-4,
+                        'learning_rate': 2.5e-4,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}

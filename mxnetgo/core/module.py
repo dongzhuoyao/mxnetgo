@@ -35,7 +35,7 @@ from mxnet import optimizer as opt
 import numpy as np
 
 from mxnetgo.myutils.stats import MIoUStatistics
-from mxnetgo.myutils.seg.segmentation import predict_scaler
+from mxnetgo.myutils.segmentation.segmentation import predict_scaler
 from tensorpack.dataflow.common import RepeatedData
 
 class Module(BaseModule):
@@ -987,7 +987,7 @@ class MutableModule(BaseModule):
         _itr = train_data.get_data()
         while epoch_index < num_epoch:
             logger.info("{} epoch {} {}".format("*"*20, epoch_index, "*"*20))
-            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
+            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
             tic = time.time()
             eval_metric.reset()
             batch_index = 0
@@ -1006,7 +1006,7 @@ class MutableModule(BaseModule):
                 self.forward_backward(data_batch)
                 self.update()
                 self.update_metric(eval_metric, data_batch.label)
-                #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.cur_lr))
+                #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
                 if monitor is not None:
                     monitor.toc_print()
 

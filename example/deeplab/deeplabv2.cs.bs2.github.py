@@ -25,9 +25,9 @@ CROP_WIDTH = 1024
 tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 8
-end_epoch = 10
-lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
+EPOCH_SCALE = 4
+end_epoch = 6
+#lr_step_list = [(4, 5e-4), (6, 5e-5)]
 NUM_CLASSES = 19
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -37,8 +37,8 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="4")
-    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
+    parser.add_argument("--gpu", default="5")
+    parser.add_argument('--frequent', help='frequency of logging', default=800, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
@@ -68,7 +68,7 @@ import mxnet as mx
 import numpy as np
 from mxnetgo.core import callback, metric
 from mxnetgo.core.module import MutableModule
-from mxnetgo.myutils.lr_scheduler import StepScheduler
+from mxnetgo.myutils.lr_scheduler import StepScheduler,WarmupMultiFactorScheduler
 from mxnetgo.myutils.load_model import load_param,load_init_param
 
 
@@ -241,12 +241,22 @@ def train_net(args, ctx):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
+    # decide learning rate
+    lr = 5e-4
+    base_lr = lr
+    lr_factor = 0.1
+    standard_epoch = train_data.size() * EPOCH_SCALE
+    lr_iters = [standard_epoch*end_epoch*0.6,standard_epoch*end_epoch]
+    print 'lr', lr, 'lr_iters', lr_iters
+
+    lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, True, 0.00005,
+                                              1000)
+    #lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': 1e-4,
+                        'learning_rate': lr,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}

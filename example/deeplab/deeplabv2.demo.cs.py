@@ -38,7 +38,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.core.tester import Predictor
-from mxnetgo.myutils.seg.segmentation import predict_scaler,visualize_label
+from mxnetgo.myutils.segmentation.segmentation import predict_scaler,visualize_label
 from mxnetgo.myutils.load_model import load_param
 from mxnetgo.myutils.stats import MIoUStatistics
 from tensorpack.dataflow.common import BatchData
