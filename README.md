@@ -6,6 +6,9 @@ a  simple scaffold of MXNet, easy to customize, extremely boosting your research
 
 ![sengnv.jpg](sengnv.jpg)
 
+# Examples
+
+currently available example: [example/deeplab/README.md](example/deeplab/README.md)
 
 # Characteristics
 
