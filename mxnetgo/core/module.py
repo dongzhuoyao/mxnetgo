@@ -977,7 +977,7 @@ class MutableModule(BaseModule):
         epoch_volumn = train_data.size()*epoch_scale
         logger.info("validation_on_last: {}".format(validation_on_last))
         logger.info("data size: {}".format(train_data.size()))
-        logger.info("batch size: {}".format(args.batch_size))
+        logger.info("batch size per GPU: {}".format(args.batch_size))
         logger.info("GPU num: {}".format(len(self._context)))
         logger.info("epoch volumn: {}".format(epoch_volumn))
         train_data = RepeatedData(train_data, -1)
