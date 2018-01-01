@@ -22,6 +22,7 @@
 |deeplabv2.cs.bs2.github| 70.7|--| 65|
 |deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9(msf:67.9)|
 |deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 | 69.4 |**70.45**|
+|deeplabv2.pascal.4gpu|--|--|70.5|
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
 |deeplabv2.pascal.dcn| 75.9 | 74.2 |  **74.7**|
 
