@@ -20,14 +20,14 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 1024
+CROP_HEIGHT = 768
 CROP_WIDTH = 1024
-tile_height = 1024
+tile_height = 768
 tile_width = 1024
 
-EPOCH_SCALE = 4
+EPOCH_SCALE = 9
 end_epoch = 10
-lr_step_list = [(6, 1e-3), (10, 1e-4)]
+lr_step_list = [(3, 1e-4), (5, 1e-5), (7, 8e-6)]
 NUM_CLASSES = 19
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -38,7 +38,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="4")
-    parser.add_argument('--frequent', help='frequency of logging', default=800, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
@@ -246,7 +246,7 @@ def train_net(args, ctx):
     # optimizer
     optimizer_params = {'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': 2.5e-4,
+                        'learning_rate': 1e-4,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
@@ -257,7 +257,7 @@ def train_net(args, ctx):
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
-            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=9)
+            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=5)
 
 def view_data(ctx):
         ds = get_data("train", LIST_DIR, ctx)
