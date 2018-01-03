@@ -40,7 +40,7 @@ def train_rcnn(cfg, dataset, image_set, root_path, dataset_path,
 
     # print cfg
     pprint.pprint(cfg)
-    logger.info('training rcnn cfg:{}\n'.format(pprint.pformat(cfg)))
+    logger.info('training rcnn cfg:{}'.format(pprint.pformat(cfg)))
 
     # load dataset and prepare imdb for training
     image_sets = [iset for iset in image_set.split('+')]
