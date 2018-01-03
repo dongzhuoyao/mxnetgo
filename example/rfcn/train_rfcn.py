@@ -1,11 +1,3 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Modified by Yuwen Xiong
-# --------------------------------------------------------
-
 import _init_paths
 
 import cv2
@@ -16,7 +8,6 @@ import pprint
 import os
 import sys
 from config.config import config, update_config
-
 def parse_args():
     parser = argparse.ArgumentParser(description='Train R-FCN network')
     # general
@@ -30,19 +21,12 @@ def parse_args():
     parser.add_argument('--frequent', help='frequency of logging', default=config.default.frequent, type=int)
     args = parser.parse_args()
     return args
-
 args = parse_args()
 curr_path = os.path.abspath(os.path.dirname(__file__))
-sys.path.insert(0, os.path.join(curr_path, '../external/mxnet', config.MXNET_VERSION))
-
 import shutil
-import numpy as np
 import mxnet as mx
 
-from function.train_rpn import train_rpn
-from function.test_rpn import test_rpn
 from function.train_rcnn import train_rcnn
-from utils.combine_model import combine_model
 from mxnetgo.myutils import logger
 
 
