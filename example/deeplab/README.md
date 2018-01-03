@@ -3,7 +3,7 @@
 ## Pascal 
 |                                   | mIoU(official) |  mIoU|
 |-----------------------------------|------|------|
-|deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 |**70.45**|
+|deeplabv2.pascal| 70.7 |**70.45**|
 |deeplabv2.pascal.4gpu.scale16|--|**71.7**|
 |deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
