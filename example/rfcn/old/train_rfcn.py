@@ -43,16 +43,16 @@ from function.train_rpn import train_rpn
 from function.test_rpn import test_rpn
 from function.train_rcnn import train_rcnn
 from utils.combine_model import combine_model
-from mxnetgo.myutils import logger
+from utils.create_logger import create_logger
 
 
 def main():
-    logger.auto_set_dir()
     print ('Called with argument:', args)
     ctx = [mx.gpu(int(i)) for i in config.gpus.split(',')]
-    shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), logger.get_logger_dir())
+    logger, output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
+    shutil.copy2(os.path.join(curr_path, 'symbols', config.symbol + '.py'), output_path)
 
-    prefix = os.path.join(logger.get_logger_dir(), 'rfcn')
+    prefix = os.path.join(output_path, 'rfcn')
     logging.info('########## TRAIN rfcn WITH IMAGENET INIT AND RPN DETECTION')
     train_rcnn(config, config.dataset.dataset, config.dataset.image_set, config.dataset.root_path, config.dataset.dataset_path,
                args.frequent, config.default.kvstore, config.TRAIN.FLIP, config.TRAIN.SHUFFLE, config.TRAIN.RESUME,

@@ -122,7 +122,6 @@ def train_rcnn(cfg, dataset, image_set, root_path, dataset_path,
                         'clip_gradient': None}
 
     # train
-
     if not isinstance(train_data, PrefetchingIter):
         train_data = PrefetchingIter(train_data)
 
