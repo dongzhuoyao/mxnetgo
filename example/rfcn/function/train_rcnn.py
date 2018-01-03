@@ -12,16 +12,16 @@ import pprint
 import os
 import mxnet as mx
 
-from symbols import *
-from core import callback, metric
-from core.loader import ROIIter
-from core.module import MutableModule
+from ..symbols import *
 from bbox.bbox_regression import add_bbox_regression_targets
 from utils.load_data import load_proposal_roidb, merge_roidb, filter_roidb
 from utils.load_model import load_param
 from utils.PrefetchingIter import PrefetchingIter
-from utils.lr_scheduler import WarmupMultiFactorScheduler
 
+from mxnetgo.core import callback, metric
+#from core.loader import ROIIter
+from mxnetgo.core.module import MutableModule
+from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from mxnetgo.myutils import logger
 
 def train_rcnn(cfg, dataset, image_set, root_path, dataset_path,
