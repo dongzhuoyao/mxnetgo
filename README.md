@@ -43,6 +43,13 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 - [ ] Non Local Block
 - [ ] large kernel
 
+## Schedule
+
+*  2.14  Deeplabv2 PSPNet PascalVOC 85.4
+*  3.1   Large Kernel
+*  3.15  SENet, Hourglass
+
+
 ## Acknowledgement
 
 Some of the example codes are based on others' codes. thanks for their contributions. if this example helps you, please citate their papers.
