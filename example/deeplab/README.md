@@ -15,7 +15,7 @@
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
 
-more experimental result can be seen in [tmp/NOTE.md](tmp/NOTE.md)
+more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
 
 ## some notes
