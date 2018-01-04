@@ -9,7 +9,7 @@ the target is to make MXNet research as easy as "YiBaSuo".
 
 # Examples
 
-currently available example: [example/deeplab/README.md](example/deeplab/README.md)
+currently available example: [Deeplab](example/deeplab)
 
 # Characteristics
 
