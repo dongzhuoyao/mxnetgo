@@ -4,7 +4,8 @@
 
 a  simple scaffold of MXNet, easy to customize, extremely boosting your research. more examples will be provided.
 
-![sengnv.jpg](sengnv.jpg)
+the target is to make MXNet research as easy as "YiBaSuo".
+![yibasuo.jpg](yibasuo.jpg)
 
 # Examples
 
