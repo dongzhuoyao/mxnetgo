@@ -24,5 +24,4 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
 * large image size can bring about  nearly 1% gain in image segmentation.
 
-
-
+* how much gain dilation convolution  can bring need more experiments to explore.
