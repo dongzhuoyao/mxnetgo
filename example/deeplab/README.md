@@ -1,7 +1,7 @@
 # Result in Mxnetgo
 
 ## Pascal 
-|                                   | mIoU(official) |  mIoU|
+|                                   | mIoU(official) |  mIoU(my)|
 |-----------------------------------|------|------|
 |deeplabv2.pascal| 70.7 |**70.45**|
 |deeplabv2.pascal.4gpu.scale16|--|**71.7**|
@@ -9,7 +9,7 @@
 
 
 ## Cityscapes
-|                                   | mIoU(official) | mIoU  |
+|                                   | mIoU(official) | mIoU(my)  |
 |-----------------------------------|------|-------|
 |deeplabv2.cs|70.3|69.4|
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
