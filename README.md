@@ -42,6 +42,7 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 - [ ] PSPNet 
 - [ ] Non Local Block
 - [ ] large kernel
+- [ ] WideResNet
 
 future work: [In-Place Activated BatchNorm for Memory-Optimized Training of DNNs](https://arxiv.org/abs/1712.02616)
 
