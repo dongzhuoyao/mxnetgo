@@ -43,6 +43,8 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 - [ ] Non Local Block
 - [ ] large kernel
 
+future work: [https://github.com/mapillary/inplace_abn](https://arxiv.org/abs/1712.02616)
+
 ## Schedule
 
 *  2.14  Deeplabv2 PSPNet PascalVOC 85.4
