@@ -43,7 +43,7 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 - [ ] Non Local Block
 - [ ] large kernel
 
-future work: [https://arxiv.org/abs/1712.02616](In-Place Activated BatchNorm for Memory-Optimized Training of DNNs)
+future work: [In-Place Activated BatchNorm for Memory-Optimized Training of DNNs](https://arxiv.org/abs/1712.02616)
 
 ## Schedule
 
