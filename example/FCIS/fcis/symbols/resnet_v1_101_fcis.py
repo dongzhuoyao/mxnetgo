@@ -7,11 +7,11 @@
 
 import cPickle
 import mxnet as mx
-from utils.symbol import Symbol
-from operator_py.proposal import *
-from operator_py.proposal_annotator import *
-from operator_py.box_parser import *
-from operator_py.box_annotator_ohem import *
+from mxnetgo.myutils.symbol import Symbol
+from mxnetgo.myutils.fcis_operator_py.proposal import *
+from mxnetgo.myutils.fcis_operator_py.proposal_annotator import *
+from mxnetgo.myutils.fcis_operator_py.box_parser import *
+from mxnetgo.myutils.fcis_operator_py.box_annotator_ohem import *
 
 
 class resnet_v1_101_fcis(Symbol):

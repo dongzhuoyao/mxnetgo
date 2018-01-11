@@ -2,7 +2,8 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/fcis/voc"
 symbol: resnet_v1_101_fcis
-gpus: '0,1,2,3'
+#gpus: '0,1,2,3'
+gpus: '1'
 CLASS_AGNOSTIC: true
 SCALES:
 - 600
