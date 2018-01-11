@@ -7,10 +7,10 @@
 
 import cPickle
 import mxnet as mx
-from utils.symbol import Symbol
-from operator_py.proposal import *
-from operator_py.proposal_target import *
-from operator_py.box_annotator_ohem import *
+from mxnetgo.myutils.symbol import Symbol
+from mxnetgo.myutils.operator_py.proposal import *
+from mxnetgo.myutils.operator_py.proposal_target import *
+from mxnetgo.myutils.operator_py.box_annotator_ohem import *
 
 
 class resnet_v1_101_rfcn(Symbol):

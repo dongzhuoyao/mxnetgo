@@ -42,7 +42,7 @@ def main():
                args.frequent, config.default.kvstore, config.TRAIN.FLIP, config.TRAIN.SHUFFLE, config.TRAIN.RESUME,
                ctx, config.network.pretrained, config.network.pretrained_epoch, prefix, config.TRAIN.begin_epoch,
                config.TRAIN.end_epoch, train_shared=False, lr=config.TRAIN.lr, lr_step=config.TRAIN.lr_step,
-               proposal=config.dataset.proposal, logger=logger)
+               proposal=config.dataset.proposal)
 
 if __name__ == '__main__':
     main()

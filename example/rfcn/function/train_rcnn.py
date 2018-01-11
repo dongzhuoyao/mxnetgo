@@ -12,11 +12,11 @@ import pprint
 import os
 import mxnet as mx
 
-from ..symbols import *
-from bbox.bbox_regression import add_bbox_regression_targets
-from utils.load_data import load_proposal_roidb, merge_roidb, filter_roidb
-from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
+from symbols import *
+from mxnetgo.myutils.bbox.bbox_regression import add_bbox_regression_targets
+from mxnetgo.myutils.load_data import load_proposal_roidb, merge_roidb, filter_roidb
+from mxnetgo.myutils.load_model import load_param
+from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
 
 from mxnetgo.core import callback, metric
 #from core.loader import ROIIter

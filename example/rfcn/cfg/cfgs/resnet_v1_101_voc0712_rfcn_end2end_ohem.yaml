@@ -2,7 +2,7 @@
 MXNET_VERSION: "mxnet"
 output_path: "./output/rfcn/voc"
 symbol: resnet_v1_101_rfcn
-gpus: '0,1,2,3'
+gpus: '1'#gpus: '0,1,2,3'
 CLASS_AGNOSTIC: true
 SCALES:
 - 600
@@ -11,7 +11,7 @@ default:
   frequent: 100
   kvstore: device
 network:
-  pretrained: "./model/pretrained_model/resnet_v1_101"
+  pretrained: "resnet_v1_101"
   pretrained_epoch: 0
   PIXEL_MEANS:
   - 103.06
