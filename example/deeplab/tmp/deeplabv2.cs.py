@@ -5,10 +5,7 @@
 # Licensed under The Apache-2.0 License [see LICENSE for details]
 # Written by Zheng Zhang
 # --------------------------------------------------------
-LIST_DIR = "data/cityscapes"
-
-import _init_paths
-
+LIST_DIR = "../data/cityscapes"
 import argparse
 import os,sys,cv2
 import pprint
@@ -37,12 +34,12 @@ symbol_str = "resnet_v1_101_deeplab"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="4")
+    parser.add_argument("--gpu", default="0")
     parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
-    parser.add_argument("--load", default="resnet_v1_101-0000")
+    parser.add_argument("--load", default="../resnet_v1_101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=1)
     parser.add_argument('--class_num', default=NUM_CLASSES)

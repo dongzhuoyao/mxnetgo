@@ -1,14 +1,5 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Written by Zheng Zhang
-# --------------------------------------------------------
+
 LIST_DIR = "data/cityscapes"
-
-import _init_paths
-
 import argparse
 import os,sys,cv2
 import pprint
@@ -36,7 +27,6 @@ symbol_str = "resnet_v1_101_deeplab"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
-    # training
     parser.add_argument("--gpu", default="4")
     parser.add_argument('--frequent', help='frequency of logging', default=800, type=int)
     parser.add_argument('--view', action='store_true')
