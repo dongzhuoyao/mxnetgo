@@ -15,7 +15,6 @@ import numpy as np
 from PIL import Image
 from ..bbox.bbox_transform import bbox_overlaps
 from multiprocessing import Pool, cpu_count
-import ipdb
 def get_flipped_entry_outclass_wrapper(IMDB_instance, seg_rec):
     return IMDB_instance.get_flipped_entry(seg_rec)
 

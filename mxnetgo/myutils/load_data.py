@@ -1,5 +1,5 @@
 import numpy as np
-from dataset import *
+from dataset.pascal_voc import PascalVOC
 
 
 def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,

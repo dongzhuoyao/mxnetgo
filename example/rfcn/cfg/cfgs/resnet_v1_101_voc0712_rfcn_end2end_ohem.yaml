@@ -50,7 +50,7 @@ network:
 dataset:
   NUM_CLASSES: 21
   dataset: PascalVOC
-  dataset_path: "./data/VOCdevkit"
+  dataset_path: "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit"
   image_set: 2007_trainval+2012_trainval
   root_path: "./data"
   test_image_set: 2007_test
