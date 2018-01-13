@@ -1,5 +1,7 @@
 # Result in Mxnetgo
 
+Deeplab Paper result: MSC+Coco+Aug+ASPP+CRF=77.69% mIoU
+
 ## Pascal 
 |                                   | mIoU(official) |  mIoU(my)|
 |-----------------------------------|------|------|
@@ -8,7 +10,11 @@
 |deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
 
+
 ## Cityscapes
+
+Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
+
 |                                   | mIoU(official) | mIoU(my)  |
 |-----------------------------------|------|-------|
 |deeplabv2.cs|70.3|69.4|
