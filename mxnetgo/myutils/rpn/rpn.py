@@ -13,9 +13,9 @@ label =
 import numpy as np
 import numpy.random as npr
 
-from utils.image import get_image, tensor_vstack
+from ...myutils.image import get_image, tensor_vstack
 from generate_anchor import generate_anchors
-from bbox.bbox_transform import bbox_overlaps, bbox_transform
+from ..bbox.bbox_transform import bbox_overlaps, bbox_transform
 
 
 def get_rpn_testbatch(roidb, cfg):
