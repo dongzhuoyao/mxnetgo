@@ -1,5 +1,5 @@
 
-LIST_DIR = "data/cityscapes"
+LIST_DIR = "../data/cityscapes"
 import argparse
 import os,sys,cv2
 import pprint
@@ -27,7 +27,7 @@ symbol_str = "resnet_v1_101_deeplab"
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
-    parser.add_argument("--gpu", default="4")
+    parser.add_argument("--gpu", default="5")
     parser.add_argument('--frequent', help='frequency of logging', default=800, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
@@ -78,15 +78,18 @@ from tensorpack.dataflow.imgaug.misc import RandomResize,Flip,RandomCropWithPadd
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-
+from seg_utils import RandomResize
 
 
 def get_data(name, meta_dir, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(meta_dir, name, shuffle=True)
-    if isTrain:#special augmentation
-        shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
-                            aspect_ratio_thres=0.15),
+
+    if isTrain:
+        ds = MapData(ds, RandomResize)
+
+    if isTrain:
+        shape_aug = [
                      RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
