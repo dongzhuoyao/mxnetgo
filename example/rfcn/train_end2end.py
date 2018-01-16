@@ -37,10 +37,10 @@ from mxnetgo.core import callback, metric
 from mxnetgo.core.loader import AnchorLoader
 from mxnetgo.core.module import MutableModule
 
-from mxnetgo.myutils.load_data import load_gt_roidb, merge_roidb, filter_roidb
-from mxnetgo.myutils.load_model import load_param
-from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
-from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
+from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
+from utils.load_model import load_param
+from utils.PrefetchingIter import PrefetchingIter
+from utils.lr_scheduler import WarmupMultiFactorScheduler
 
 from mxnetgo.myutils import logger
 
