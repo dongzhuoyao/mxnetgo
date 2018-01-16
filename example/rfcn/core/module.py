@@ -567,13 +567,14 @@ class Module(BaseModule):
 
         self._params_dirty = True
         if self._update_on_kvstore:
-           # _update_params_on_kvstore(self._exec_group.param_arrays,
+            # _update_params_on_kvstore(self._exec_group.param_arrays,
             #                          self._exec_group.grad_arrays,
             #                          self._kvstore)
-           _update_params_on_kvstore(self._exec_group.param_arrays,
-                                     self._exec_group.grad_arrays,
-                                     self._kvstore,
-                                     self._param_names) # fixed by https://github.com/msracver/Deformable-ConvNets/issues/62
+            _update_params_on_kvstore(self._exec_group.param_arrays,
+                                      self._exec_group.grad_arrays,
+                                      self._kvstore,
+                                      self._param_names)  # fixed by https://github.com/msracver/Deformable-ConvNets/issues/62
+
         else:
             _update_params(self._exec_group.param_arrays,
                            self._exec_group.grad_arrays,

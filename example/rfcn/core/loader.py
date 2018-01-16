@@ -1,16 +1,9 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Modified by Yuwen Xiong
-# --------------------------------------------------------
 
 import numpy as np
 import mxnet as mx
 from mxnet.executor_manager import _split_input_slice
 
-from mxnetgo.myutils.config.config_fasterrcnn import config
+from mxnetgo.myutils.config.config_rfcn import config
 from mxnetgo.myutils.image import tensor_vstack
 from mxnetgo.myutils.rpn.rpn import get_rpn_testbatch, get_rpn_batch, assign_anchor
 from rcnn import get_rcnn_testbatch, get_rcnn_batch

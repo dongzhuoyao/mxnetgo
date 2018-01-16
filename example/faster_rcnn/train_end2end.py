@@ -16,6 +16,10 @@ import os
 import sys
 from config.config import config, update_config
 
+os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
+os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Train Faster-RCNN network')
     # general
@@ -42,7 +46,7 @@ from symbols import *
 from core import callback, metric
 from core.loader import AnchorLoader
 from core.module import MutableModule
-from utils.create_logger import create_logger
+from mxnetgo.myutils import logger
 from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
 from utils.load_model import load_param
 from utils.PrefetchingIter import PrefetchingIter
@@ -50,7 +54,8 @@ from utils.lr_scheduler import WarmupMultiFactorScheduler
 
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
-    logger, final_output_path = create_logger(config.output_path, args.cfg, config.dataset.image_set)
+    logger.auto_set_dir()
+    final_output_path = logger.get_logger_dir()
     prefix = os.path.join(final_output_path, prefix)
 
     # load symbol

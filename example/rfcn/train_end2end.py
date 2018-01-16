@@ -8,7 +8,11 @@ import logging
 import pprint
 import os
 import sys
-from config.config import config, update_config
+from mxnetgo.myutils.config.config_rfcn import config, update_config
+
+os.environ['PYTHONUNBUFFERED'] = '1'
+os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
+os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train R-FCN network')
@@ -33,9 +37,9 @@ import numpy as np
 import mxnet as mx
 
 from symbols import *
-from mxnetgo.core import callback, metric
-from mxnetgo.core.loader import AnchorLoader
-from mxnetgo.core.module import MutableModule
+from core import callback, metric
+from core.loader import AnchorLoader
+from core.module import MutableModule
 
 from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
 from utils.load_model import load_param
