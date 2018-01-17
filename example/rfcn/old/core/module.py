@@ -979,6 +979,8 @@ class MutableModule(BaseModule):
                     for callback in _as_list(batch_end_callback):
                         callback(batch_end_params)
 
+
+
             # one epoch of training is finished
             for name, val in eval_metric.get_name_value():
                 self.logger.info('Epoch[%d] Train-%s=%f', epoch, name, val)

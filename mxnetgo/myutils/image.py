@@ -3,7 +3,7 @@ import os, sys
 import cv2
 import random
 from PIL import Image
-from .bbox.bbox_transform import clip_boxes
+from ..pyx_lib.bbox.bbox_transform import clip_boxes
 
 
 # TODO: This two functions should be merged with individual data loader

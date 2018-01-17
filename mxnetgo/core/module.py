@@ -237,6 +237,7 @@ class Module(BaseModule):
 
     def init_params(self, initializer=Uniform(0.01), arg_params=None, aux_params=None,
                     allow_missing=False, force_init=False, allow_extra=False):
+        ## changed by https://github.com/msracver/FCIS/issues/107
         """Initialize the parameters and auxiliary states.
 
         Parameters

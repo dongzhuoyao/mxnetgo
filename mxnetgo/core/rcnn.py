@@ -23,8 +23,8 @@ import numpy as np
 import numpy.random as npr
 
 from mxnetgo.myutils.image import get_image, tensor_vstack
-from mxnetgo.myutils.bbox.bbox_transform import bbox_overlaps, bbox_transform
-from mxnetgo.myutils.bbox.bbox_regression import expand_bbox_regression_targets
+from mxnetgo.pyx_lib.bbox.bbox_transform import bbox_overlaps, bbox_transform
+from mxnetgo.pyx_lib.bbox.bbox_regression import expand_bbox_regression_targets
 
 
 def get_rcnn_testbatch(roidb, cfg):
