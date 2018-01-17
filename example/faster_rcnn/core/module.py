@@ -229,7 +229,7 @@ class Module(BaseModule):
         return (self._arg_params, self._aux_params)
 
     def init_params(self, initializer=Uniform(0.01), arg_params=None, aux_params=None,
-                    allow_missing=False, force_init=False,allow_extra=False):# changed by https://github.com/msracver/FCIS/issues/107
+                    allow_missing=False, force_init=False,allow_extra=True):# changed by https://github.com/msracver/FCIS/issues/107
         """Initialize the parameters and auxiliary states.
 
         Parameters
@@ -782,7 +782,7 @@ class MutableModule(BaseModule):
         return self._curr_module.get_params()
 
     def init_params(self, initializer=Uniform(0.01), arg_params=None, aux_params=None,
-                    allow_missing=False, force_init=False,allow_extra=False):# changed by https://github.com/msracver/FCIS/issues/107
+                    allow_missing=False, force_init=False,allow_extra=True):# changed by https://github.com/msracver/FCIS/issues/107
         if self.params_initialized and not force_init:
             return
         assert self.binded, 'call bind before initializing the parameters'
