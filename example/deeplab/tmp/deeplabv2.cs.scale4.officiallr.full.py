@@ -7,7 +7,6 @@
 # --------------------------------------------------------
 LIST_DIR = "data/cityscapes"
 
-import _init_paths
 
 import argparse
 import os,sys,cv2

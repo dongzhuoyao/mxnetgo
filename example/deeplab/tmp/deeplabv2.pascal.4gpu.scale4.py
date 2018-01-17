@@ -19,7 +19,9 @@ tile_width = 321
 
 EPOCH_SCALE = 4
 end_epoch = 8
-lr_step_list = [(5, 1e-3), (8, 1e-4)]
+# 4 gpu specific
+first_batch_lr = 7.5e-4
+lr_step_list = [(5, 2.5e-3), (8, 2.5e-4)]
 
 NUM_CLASSES = 21
 kvstore = "device"
@@ -242,7 +244,7 @@ def train_net(args, ctx):
     # optimizer
     optimizer_params = {'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': 2.5e-4,
+                        'learning_rate': first_batch_lr,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
