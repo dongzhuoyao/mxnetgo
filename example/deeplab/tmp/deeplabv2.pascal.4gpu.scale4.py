@@ -1,3 +1,5 @@
+
+
 DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
@@ -12,13 +14,14 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 321
-CROP_WIDTH = 321
-tile_height = 321
-tile_width = 321
+CROP_HEIGHT = 512
+CROP_WIDTH = 512
+tile_height = 512
+tile_width = 512
 
 EPOCH_SCALE = 4
 end_epoch = 8
+batch_size = 10
 # 4 gpu specific
 first_batch_lr = 7.5e-4
 lr_step_list = [(5, 2.5e-3), (8, 2.5e-4)]
@@ -39,7 +42,7 @@ def parse_args():
     #parser.add_argument("--load", default="train_log/deeplabv2.train.cs/mxnetgo-0080")
     parser.add_argument("--load", default="resnet_v1_101-0000")
     parser.add_argument("--scratch", action="store_true" )
-    parser.add_argument('--batch_size', default=10)
+    parser.add_argument('--batch_size', default=batch_size)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
     parser.add_argument('--end_epoch', default=end_epoch)
@@ -80,17 +83,16 @@ import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
+from tensorpack.dataflow.imgaug.misc import  RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-
+from seg_utils import RandomCropWithPadding
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = name == 'train'
     ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
-
 
     if isTrain:#special augmentation
         shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
@@ -120,7 +122,6 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 
 
 def test_deeplab(ctx):
-    #logger.auto_set_dir()
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
