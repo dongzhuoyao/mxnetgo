@@ -9,6 +9,7 @@
 import cPickle
 import mxnet as mx
 from mxnetgo.myutils.symbol_fasterrcnn import Symbol
+#from mxnetgo.myutils.symbol import Symbol
 from mxnetgo.myutils.fasterrcnn_operator_py.proposal import *
 from mxnetgo.myutils.fasterrcnn_operator_py.proposal_target import *
 from mxnetgo.myutils.fasterrcnn_operator_py.box_annotator_ohem import *
