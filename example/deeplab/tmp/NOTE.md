@@ -9,9 +9,8 @@
 | deeplabv2.cs.scale4.bs2.newlr.sgd| 70.3| 62.6|
 |deeplabv2.cs.scale4.bs2.officiallr| 70.3|67.18(new code)
 |deeplabv2.cs.scale4.officiallr.full|70.3| 68.95|
-|deeplabv2.cs.scale4.officiallr.full.longer|70.3|69.4|
+|deeplabv2.cs.scale4.officiallr.full.longer|70.3|**69.4**|
 |deeplabv2.cs.scale1.bs2| 70.3 | 50.~（new code） |
-deeplabv2.pascal.4gpu.scale4|70.3|**70.99**|
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
 
