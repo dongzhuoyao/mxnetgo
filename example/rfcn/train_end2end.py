@@ -2,7 +2,6 @@
 import cv2
 import time
 import argparse
-import logging
 import pprint
 import os
 import sys
@@ -38,12 +37,13 @@ from core import callback, metric
 from core.loader import AnchorLoader
 from core.module import MutableModule
 
-from utils.load_data import load_gt_roidb, merge_roidb, filter_roidb
-from utils.load_model import load_param
-from utils.PrefetchingIter import PrefetchingIter
-from utils.lr_scheduler import WarmupMultiFactorScheduler
-
+from mxnetgo.myutils.load_data import load_gt_roidb, merge_roidb, filter_roidb
+from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
+from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler
 from mxnetgo.myutils import logger
+
+
+from utils.load_model import load_param # TODO
 
 def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, lr_step):
     logger.auto_set_dir()
