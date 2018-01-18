@@ -18,7 +18,7 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
 |                                   | mIoU(official) | mIoU(my)  |
 |-----------------------------------|------|-------|
-|deeplabv2.pascal.4gpu.scale4|70.3(8GPU)|70.99(without ASPP and CRF,4GPU)|
+|deeplabv2.cs.scale4.officiallr.full.longer|70.3|**69.4**|
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
 
