@@ -4,7 +4,8 @@ import argparse
 import os
 import sys
 import time
-from config import config, update_config
+from mxnetgo.myutils.config.config_rfcn import config, update_config
+
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
