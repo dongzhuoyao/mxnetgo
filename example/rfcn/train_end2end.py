@@ -6,7 +6,7 @@ import logging
 import pprint
 import os
 import sys
-from mxnetgo.myutils.config.config_rfcn import config, update_config
+from config import config, update_config
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
