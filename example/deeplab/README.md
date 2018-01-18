@@ -3,10 +3,11 @@
 Deeplab Paper result: MSC+Coco+Aug+ASPP+CRF=77.69% mIoU
 
 ## Pascal 
-|                                   | mIoU(official) |  mIoU(my)|
+|                                   | mIoU(official,8GPU) |  mIoU(my)|
 |-----------------------------------|------|------|
 |deeplabv2.pascal| 70.7 |**70.45**(without Coco,ASPP,CRF)|
-|deeplabv2.pascal.4gpu.scale16|--|**71.7**|
+|deeplabv2.pascal.4gpu.scale4|70.7|70.99|
+|deeplabv2.pascal.4gpu.scale16|70.7|**71.7**|
 |deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
 
@@ -15,9 +16,9 @@ Deeplab Paper result: MSC+Coco+Aug+ASPP+CRF=77.69% mIoU
 
 Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
-|                                   | mIoU(official) | mIoU(my)  |
+|                                   | mIoU(official,8GPU) | mIoU(my)  |
 |-----------------------------------|------|-------|
-|deeplabv2.cs|70.3|69.4(without ASPP and CRF)|
+|deeplabv2.cs.scale4.officiallr.full.longer|70.3|**69.4**|
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
 
