@@ -14,10 +14,10 @@ import os
 import mxnet as mx
 
 from symbols import *
-from dataset import *
+from mxnetgo.myutils.dataset import *
 from core.loader import TestLoader
 from core.tester import Predictor, pred_eval
-from utils.load_model import load_param
+from mxnetgo.myutils.load_model import load_param
 
 
 def test_rcnn(cfg, dataset, image_set, root_path, dataset_path,

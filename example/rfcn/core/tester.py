@@ -13,10 +13,10 @@ import mxnet as mx
 import numpy as np
 
 from module import MutableModule
-from utils import image
-from bbox.bbox_transform import bbox_pred, clip_boxes
-from nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
-from utils.PrefetchingIter import PrefetchingIter
+from mxnetgo.myutils import image
+from mxnetgo.pyx_lib.bbox.bbox_transform import bbox_pred, clip_boxes
+from mxnetgo.pyx_lib.nms.nms import py_nms_wrapper, cpu_nms_wrapper, gpu_nms_wrapper
+from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
 
 
 class Predictor(object):
