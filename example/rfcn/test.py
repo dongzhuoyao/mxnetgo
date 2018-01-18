@@ -1,6 +1,4 @@
 
-import _init_paths
-
 import cv2
 import argparse
 import os
