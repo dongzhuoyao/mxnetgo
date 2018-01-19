@@ -33,3 +33,11 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 * how much gain dilation convolution  can bring need more experiments to explore.
 
 * RandomResize image with a nearest-neighbor interpolation can slightly increase mIoU by 0.8%???
+
+* To stable the statistics of the BatchNormormalization, the combination of the image size and batch size should tuned accuratelyas indicated in [InPlace-ABN](https://arxiv.org/abs/1712.02616), here some other method' choice as follows:
+
+|                                   | image crop size | batch size(single gpu)  |
+|-----------------------------------|------|-------|
+|deeplabv2-resnet101|321|10|
+
+
