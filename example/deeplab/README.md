@@ -47,6 +47,8 @@ here some other method' choice as follows:
 |PSPNet_Cityscapes-resnet101|713|as max as possible|
 |Inplace_ABN_Cityscapes-resnext101|672|16|
 |Inplace_ABN_CocoStuff-resnext101|600|16|
+|DeformableConvolutionNetworks-Deeplab-Cityscapes| 768*1024|1|
+|DeformableConvolutionNetworks-Deeplab-PascalVOC| 768*1024|1|
 
 
 
