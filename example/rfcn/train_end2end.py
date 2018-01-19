@@ -33,9 +33,9 @@ import numpy as np
 import mxnet as mx
 
 from symbols import *
-from core import callback, metric
-from core.loader import AnchorLoader
-from core.module import MutableModule
+from core import callback, metric# TODO
+from core.loader import AnchorLoader# TODO
+from core.module import MutableModule # TODO
 
 from mxnetgo.myutils.load_data import load_gt_roidb, merge_roidb, filter_roidb
 from mxnetgo.myutils.PrefetchingIter import PrefetchingIter
@@ -57,11 +57,10 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     feat_sym = sym.get_internals()['rpn_cls_score_output']
 
     # setup multi-gpu
-    batch_size = len(ctx)
-    input_batch_size = config.TRAIN.BATCH_IMAGES * batch_size
+    gpus = len(ctx)
+    input_batch_size = config.TRAIN.BATCH_IMAGES * gpus
 
     # print config
-    pprint.pprint(config)
     logger.info('training config:{}\n'.format(pprint.pformat(config)))
 
     # load dataset and prepare imdb for training
@@ -103,8 +102,8 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     label_names = [k[0] for k in train_data.provide_label_single]
 
     mod = MutableModule(sym, data_names=data_names, label_names=label_names,
-                        logger=logger, context=ctx, max_data_shapes=[max_data_shape for _ in range(batch_size)],
-                        max_label_shapes=[max_label_shape for _ in range(batch_size)], fixed_param_prefix=fixed_param_prefix)
+                        logger=logger, context=ctx, max_data_shapes=[max_data_shape for _ in range(gpus)],
+                        max_label_shapes=[max_label_shape for _ in range(gpus)], fixed_param_prefix=fixed_param_prefix)
 
     if config.TRAIN.RESUME:
         mod._preload_opt_states = '%s-%04d.states'%(prefix, begin_epoch)
@@ -132,7 +131,7 @@ def train_net(args, ctx, pretrained, epoch, prefix, begin_epoch, end_epoch, lr, 
     lr_epoch = [float(epoch) for epoch in lr_step.split(',')]
     lr_epoch_diff = [epoch - begin_epoch for epoch in lr_epoch if epoch > begin_epoch]
     lr = base_lr * (lr_factor ** (len(lr_epoch) - len(lr_epoch_diff)))
-    lr_iters = [int(epoch * len(roidb) / batch_size) for epoch in lr_epoch_diff]
+    lr_iters = [int(epoch * len(roidb) / gpus) for epoch in lr_epoch_diff]
     print('lr', lr, 'lr_epoch_diff', lr_epoch_diff, 'lr_iters', lr_iters)
     lr_scheduler = WarmupMultiFactorScheduler(lr_iters, lr_factor, config.TRAIN.warmup, config.TRAIN.warmup_lr, config.TRAIN.warmup_step)
     # optimizer

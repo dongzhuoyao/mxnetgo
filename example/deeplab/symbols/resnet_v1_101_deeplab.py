@@ -772,7 +772,7 @@ class resnet_v1_101_deeplab(Symbol):
 
         upsampling = mx.symbol.Deconvolution(data=score, num_filter=num_classes, kernel=(32, 32), stride=(16, 16),
                                              num_group=num_classes, no_bias=True, name='upsampling',
-                                             attr={'lr_mult': '0.0'}, workspace=self.workspace)
+                                             attr={'lr_mult': '0.0'}, workspace=self.workspace)  # upsample 16X
 
         croped_score = mx.symbol.Crop(*[upsampling, data], offset=(8, 8), name='croped_score')
         softmax = mx.symbol.SoftmaxOutput(data=croped_score, label=seg_cls_gt, normalization='valid', multi_output=True,

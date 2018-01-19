@@ -1,6 +1,6 @@
 import numpy as np
 from dataset.pascal_voc import PascalVOC
-
+import logger
 
 def load_gt_roidb(dataset_name, image_set_name, root_path, dataset_path, result_path=None,
                   flip=False):
@@ -46,7 +46,7 @@ def filter_roidb(roidb, config):
     num = len(roidb)
     filtered_roidb = [entry for entry in roidb if is_valid(entry)]
     num_after = len(filtered_roidb)
-    print 'filtered %d roidb entries: %d -> %d' % (num - num_after, num, num_after)
+    logger.info( 'filtered %d roidb entries: %d -> %d' % (num - num_after, num, num_after))
 
     return filtered_roidb
 
