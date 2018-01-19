@@ -35,6 +35,7 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 * RandomResize image with a nearest-neighbor interpolation can slightly increase mIoU by 0.8%???
 
 * To stable the statistics of the BatchNormormalization, the combination of the image size and batch size should tuned accurately as indicated in [InPlace-ABN](https://arxiv.org/abs/1712.02616)
+
 ![misc/bs-is.jpg](misc/bs-is.jpg)
 
 here some other method' choice as follows:
@@ -42,6 +43,14 @@ here some other method' choice as follows:
 |      Method                             | image crop size | batch size(single gpu)  |
 |-----------------------------------|------|-------|
 |deeplabv2-resnet101|321|10|
-|deeplabv2-resnet101|321|10|
+|PSPNet_VOC2012-resnet101|473|as max as possible|
+|PSPNet_Cityscapes-resnet101|713|as max as possible|
+|Inplace_ABN_Cityscapes-resnext101|672|16|
+|Inplace_ABN_CocoStuff-resnext101|600|16|
+|DeformableConvolutionNetworks-Deeplab-Cityscapes| 768*1024|1|
+|DeformableConvolutionNetworks-Deeplab-PascalVOC| 768*1024|1|
+
+
+
 
 
