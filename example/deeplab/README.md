@@ -34,6 +34,8 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
 * RandomResize image with a nearest-neighbor interpolation can slightly increase mIoU by 0.8%???
 
+* iteration number is important or total image numbers?
+
 * To stable the statistics of the BatchNormormalization, the combination of the image size and batch size should tuned accurately as indicated in [InPlace-ABN](https://arxiv.org/abs/1712.02616)
 
 ![misc/bs-is.jpg](misc/bs-is.jpg)
