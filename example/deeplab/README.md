@@ -6,7 +6,6 @@ Deeplab Paper result: MSC+Coco+Aug+ASPP+CRF=77.69% mIoU
 |                                   | mIoU(official,8GPU) |  mIoU(my)|
 |-----------------------------------|------|------|
 |deeplabv2.pascal| 70.7 |**70.45**(without Coco,ASPP,CRF)|
-|deeplabv2.pascal.4gpu.scale4|70.7|70.99|
 |deeplabv2.pascal.4gpu.scale16|70.7|**71.7**|
 |deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
@@ -32,3 +31,5 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 * large image size can bring about  nearly 1% gain in image segmentation.
 
 * how much gain dilation convolution  can bring need more experiments to explore.
+
+* RandomResize image with a nearest-neighbor interpolation can slightly increase mIoU by 0.8%???
