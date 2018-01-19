@@ -79,11 +79,11 @@ import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
+from tensorpack.dataflow.imgaug.misc import RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-
+from seg_utils import RandomCropWithPadding
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
