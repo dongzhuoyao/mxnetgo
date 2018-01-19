@@ -23,6 +23,10 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
+## Doubt
+
+* why tensorpack dataload speed is about 1.2items/s, while mxnetgo is only 0.3item/s 
+
 
 ## some notes
 
