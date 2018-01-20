@@ -23,6 +23,10 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
+## Doubt
+
+* why tensorpack dataload speed is about 1.2items/s, while mxnetgo is only 0.3item/s 
+
 
 ## some notes
 
@@ -33,6 +37,8 @@ more experimental result can be seen in [NOTE](tmp/NOTE.md)
 * how much gain dilation convolution  can bring need more experiments to explore.
 
 * RandomResize image with a nearest-neighbor interpolation can slightly increase mIoU by 0.8%???
+
+* iteration number is important or total image numbers?
 
 * To stable the statistics of the BatchNormormalization, the combination of the image size and batch size should tuned accurately as indicated in [InPlace-ABN](https://arxiv.org/abs/1712.02616)
 
