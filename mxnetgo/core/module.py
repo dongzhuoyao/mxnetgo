@@ -885,7 +885,7 @@ class MutableModule(BaseModule):
             eval_end_callback=None,
             eval_batch_end_callback=None, initializer=Uniform(0.01),
             arg_params=None, aux_params=None, allow_missing=False,
-            force_rebind=False, force_init=False, begin_epoch=0, num_epoch=None,
+            force_rebind=False, force_init=False, begin_epoch=1, num_epoch=None,
             validation_metric=None, monitor=None, prefix=None, state=None, epoch_scale = 1, validation_on_last = 3):
         """Train the module parameters.
 
@@ -977,10 +977,11 @@ class MutableModule(BaseModule):
         ################################################################################
         epoch_volumn = train_data.size()*epoch_scale
         logger.info("validation_on_last: {}".format(validation_on_last))
-        logger.info("data size: {}".format(train_data.size()))
-        logger.info("batch size per GPU: {}".format(args.batch_size))
+        logger.info("train_data.size(): {}".format(train_data.size()))
         logger.info("GPU num: {}".format(len(self._context)))
-        logger.info("epoch volumn: {}".format(epoch_volumn))
+
+        logger.info("batch size per GPU: {}".format(args.batch_size))
+        logger.info("epoch volume: {}*{} = {}".format(train_data.size(), args.batch_size, epoch_volumn))
         train_data = RepeatedData(train_data, -1)
         epoch_index = begin_epoch
 

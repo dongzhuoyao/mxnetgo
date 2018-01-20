@@ -3,7 +3,7 @@ LIST_DIR = "../data/cityscapes"
 import argparse
 import os,sys,cv2
 import pprint
-
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
@@ -20,7 +20,7 @@ batch_size = 7
 EPOCH_SCALE = 4
 end_epoch = 10
 lr_step_list = [(6, 1e-3), (10, 1e-4)]
-NUM_CLASSES = 19
+NUM_CLASSES = Cityscapes.class_num()
 validation_on_last = 2
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -76,19 +76,23 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
-from tensorpack.dataflow.imgaug.misc import RandomResize,Flip,RandomCropWithPadding
+from tensorpack.dataflow.imgaug.misc import RandomResize,Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
 
+from seg_utils import RandomCropWithPadding,RandomResize
 
 
 def get_data(name, meta_dir, gpu_nums):
     isTrain = name == 'train'
     ds = Cityscapes(meta_dir, name, shuffle=True)
+
+    if isTrain:
+        ds = MapData(ds, RandomResize)
+
     if isTrain:#special augmentation
-        shape_aug = [RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
-                            aspect_ratio_thres=0.15),
+        shape_aug = [
                      RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
@@ -114,7 +118,7 @@ def get_data(name, meta_dir, gpu_nums):
 
 
 def test_deeplab(ctx):
-    #logger.auto_set_dir()
+
     test_data = get_data("val", LIST_DIR, len(ctx))
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
@@ -198,7 +202,7 @@ def train_net(args, ctx):
 
     # load and initialize params
     epoch_string = args.load.rsplit("-",2)[1]
-    begin_epoch = 0
+    begin_epoch = 1
     if not args.scratch:
         begin_epoch = int(epoch_string)
         logger.info('continue training from {}'.format(begin_epoch))

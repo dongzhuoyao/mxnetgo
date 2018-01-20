@@ -34,7 +34,7 @@ class Cityscapes(RNGDataFlow):
             self.imglist.append(line.strip("\n").split(" "))
         f.close()
 
-        #self.imglist = self.imglist[:30]
+        #self.imglist = self.imglist[:50]
 
     def size(self):
         return len(self.imglist)
@@ -50,6 +50,10 @@ class Cityscapes(RNGDataFlow):
             fname = cv2.imread(fname, cv2.IMREAD_COLOR)
             flabel = cv2.imread(flabel, cv2.IMREAD_GRAYSCALE)
             yield [fname, flabel]
+
+    @staticmethod
+    def class_num():
+        return 19
 
 
 

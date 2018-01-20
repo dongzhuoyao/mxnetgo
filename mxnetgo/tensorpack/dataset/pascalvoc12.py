@@ -36,10 +36,14 @@ class PascalVOC12(RNGDataFlow):
             self.imglist.append(line.strip("\n").split(" "))
         f.close()
 
-        #self.imglist = self.imglist[:40]
+        #self.imglist = self.imglist[:50]
 
     def size(self):
         return len(self.imglist)
+
+    @staticmethod
+    def class_num():
+        return 21
 
     def get_data(self):
         idxs = np.arange(len(self.imglist))

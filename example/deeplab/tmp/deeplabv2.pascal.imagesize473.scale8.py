@@ -27,7 +27,7 @@ tile_height = 321
 tile_width = 321
 
 batch_size = 14
-EPOCH_SCALE = 4
+EPOCH_SCALE = 8
 end_epoch = 8
 lr_step_list = [(5, 1e-3), (8, 1e-4)]
 NUM_CLASSES = PascalVOC12.class_num()
