@@ -56,6 +56,7 @@ here some other method' choice as follows:
 |DeformableConvolutionNetworks-Deeplab-Cityscapes| 768*1024|1|
 |DeformableConvolutionNetworks-Deeplab-PascalVOC| 768*1024|1|
 
+* In the Cityscapes experiment, batch size=1, image size= 1024*2048, tensorflow can only train 66% result, while mxnet could train 70.45 result. why?
 
 
 
