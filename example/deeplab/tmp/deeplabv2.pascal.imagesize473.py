@@ -29,8 +29,9 @@ batch_size = 14
 EPOCH_SCALE = 4
 end_epoch = 8
 lr_step_list = [(5, 1e-3), (8, 1e-4)]
-
 NUM_CLASSES = 21
+validation_on_last = 2
+
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
 symbol_str = "resnet_v1_101_deeplab"
@@ -87,10 +88,12 @@ import os
 from tensorpack.dataflow.common import BatchData, MapData
 from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
-from tensorpack.dataflow.imgaug.misc import RandomCropWithPadding,RandomResize, Flip
+from tensorpack.dataflow.imgaug.misc import RandomResize, Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
+from seg_utils import RandomCropWithPadding
+
 
 
 
@@ -260,7 +263,7 @@ def train_net(args, ctx):
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
-            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=2)
+            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
         ds = get_data("train", DATA_DIR, LIST_DIR, ctx)
