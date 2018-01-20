@@ -1,5 +1,9 @@
 Reproduce ResNet-v2 using MXNet
 =====================================
+## Original Repo
+
+[https://github.com/tornadomeet/ResNet](https://github.com/tornadomeet/ResNet)
+
 ## Requirements
 - Install [MXNet](http://mxnet.io/get_started/install.html) on a machine with CUDA GPU, and it's better also installed with [cuDNN v5](https://developer.nvidia.com/cudnn)
 - Please fix the randomness if you want to train your own model and using this [pull request](https://github.com/dmlc/mxnet/pull/3001/files)
