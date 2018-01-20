@@ -55,7 +55,7 @@ future work: [In-Place Activated BatchNorm for Memory-Optimized Training of DNNs
 
 ## Acknowledgement
 
-Some of the example codes are based on others' codes. thanks for their contributions. if this example helps you, please citate their papers.
+Some of the example codes are based on others' codes. thanks for their contributions. if this example helps you, please cite their papers.
 
 
 
