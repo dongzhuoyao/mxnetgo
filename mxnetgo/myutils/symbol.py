@@ -48,9 +48,6 @@ class Symbol():
 
     def check_parameter_shapes(self, arg_params, aux_params, data_shape_dict, is_train=True):
         if is_train:
-            logger.info("arg_params to restore from dict: {}".format(','.join(sorted(arg_params.keys()))))
-            logger.info("aux_params to restore from dict: {}".format(','.join(sorted(aux_params.keys()))))
-
             data = []
             for k in self.sym.list_arguments():
                 data.append([k, str(self.arg_shape_dict[k]), self.sym.get_internals()[k].list_attr()["lr_mult"]  if  self.sym.get_internals()[k].list_attr().has_key("lr_mult") else "default"])

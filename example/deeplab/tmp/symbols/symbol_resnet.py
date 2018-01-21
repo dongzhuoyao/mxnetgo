@@ -4,7 +4,7 @@ Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Identity Mappings in Deep Re
 '''
 import mxnet as mx
 from mxnetgo.myutils.symbol import Symbol
-
+from mxnetgo.myutils import logger
 
 
 class resnet101_deeplab_new(Symbol):
@@ -49,9 +49,8 @@ class resnet101_deeplab_new(Symbol):
                                            pad=(1, 1),
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
             else:
-                #TODO Buggy, stride=2, dilation=2, pad=?
-                conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,#modifide by dongzhuoyao, original is stride=stride
-                                           pad=(1, 1), dilate=(dilation, dilation),
+                conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
+                                           pad=(2, 2), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
 
             bn3 = mx.sym.BatchNorm(data=conv2, fix_gamma=False, eps=2e-5, momentum=bn_mom, name=name + '_bn3')
@@ -85,13 +84,11 @@ class resnet101_deeplab_new(Symbol):
                                               workspace=workspace, name=name + '_sc')
             if memonger:
                 shortcut._set_attr(mirror_stage='True')
+
             return conv2 + shortcut
 
 
-    def set_sym(self,sym):
-        self.sym = sym
-
-    def resnet(self, num_class, is_train, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048], bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
+    def get_symbol(self, num_class, is_train, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048], bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
         """Return ResNet symbol of cifar10 and imagenet
         Parameters
         ----------
@@ -122,7 +119,7 @@ class resnet101_deeplab_new(Symbol):
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
 
-        dilation = [1,1,1,1]
+        dilation = [1,1,2,1]
         for i in range(num_stage):
             body = self.residual_unit(body, filter_list[i+1], (1 if i==0 or i==3 else 2, 1 if i==0 or i==3 else 2), False,
                                       dilation=dilation[i],name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck,
@@ -160,14 +157,23 @@ class resnet101_deeplab_new(Symbol):
             softmax = mx.symbol.SoftmaxOutput(data=croped_score, normalization='valid', multi_output=True, use_ignore=True,
                                           ignore_label=255, name="softmax")
 
+        self.sym = softmax
         return softmax
 
     def init_weights(self, arg_params, aux_params):
+        origin_arg_params = arg_params.copy()
+        origin_aux_params = aux_params.copy()
+
         arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
         arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
         #arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
         #arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
         arg_params['upsampling_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['upsampling_weight'])
-
         init = mx.init.Initializer()
         init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])
+
+        delta_arg_params = list(set(arg_params.keys()) - set(origin_arg_params.keys()))
+        delta_aux_params = list(set(aux_params.keys()) - set(origin_aux_params.keys()))
+
+        logger.info("arg_params initialize manually: {}".format(','.join(sorted(delta_arg_params))))
+        logger.info("aux_params initialize manually: {}".format(','.join(sorted(delta_aux_params))))

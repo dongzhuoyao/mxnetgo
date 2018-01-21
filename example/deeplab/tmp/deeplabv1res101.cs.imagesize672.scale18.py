@@ -26,6 +26,13 @@ validation_on_last = 2
 
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
+# conv1: fix res1
+# bn_conv1: fix res1's bn
+# res2: fix res2
+# bn2: fix res2's bn
+# gamma: fix all bn's gamma
+# beta: fix all bn's beta
+
 symbol_str = "resnet_v1_101_deeplab"
 
 

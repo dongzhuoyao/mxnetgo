@@ -21,17 +21,17 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 512#473
-CROP_WIDTH = 512#473
+CROP_HEIGHT = 473
+CROP_WIDTH = 473
 tile_height = 321
 tile_width = 321
 
-batch_size = 14
+batch_size = 11
 EPOCH_SCALE = 8
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = PascalVOC12.class_num()
-validation_on_last = 2
+validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
@@ -189,8 +189,7 @@ def train_net(args, ctx):
     shutil.copy2(os.path.join(curr_path, 'symbols', 'symbol_resnet.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
 
     sym_instance = resnet101_deeplab_new()
-    sym = sym_instance.resnet(NUM_CLASSES, is_train=True)
-    sym_instance.set_sym(sym)
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,memonger=False)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()

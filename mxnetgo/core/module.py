@@ -753,6 +753,7 @@ class MutableModule(BaseModule):
                     if prefix in name:
                         fixed_param_names.append(name)
         self._fixed_param_names = fixed_param_names
+        logger.info("fixed param names: {}".format(",".join(sorted(fixed_param_names))))
         self._preload_opt_states = None
 
     def _reset_bind(self):

@@ -1,5 +1,5 @@
 import mxnet as mx
-
+from mxnetgo.myutils import logger
 
 def load_checkpoint(save_dict):
     """
@@ -57,6 +57,10 @@ def load_init_param(model_name, convert=False, ctx=None, process=False):
         tests = [k for k in arg_params.keys() if '_test' in k]
         for test in tests:
             arg_params[test.replace('_test', '')] = arg_params.pop(test)
+
+    logger.info("arg_params to restore from dict: {}".format(','.join(sorted(arg_params.keys()))))
+    logger.info("aux_params to restore from dict: {}".format(','.join(sorted(aux_params.keys()))))
+
     return arg_params, aux_params
 
 def load_param(prefix, epoch, convert=False, ctx=None, process=False):
