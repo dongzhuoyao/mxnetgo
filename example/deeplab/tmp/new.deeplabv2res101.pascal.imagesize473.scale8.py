@@ -34,7 +34,7 @@ NUM_CLASSES = PascalVOC12.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
-fixed_param_prefix = ["conv1", "bn_conv1", "res2", "bn2", "gamma", "beta"]
+fixed_param_prefix = []#just unfreeze all variable, because our batch size is large enough.
 symbol_str = "symbol_resnet"
 
 
