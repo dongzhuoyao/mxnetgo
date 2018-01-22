@@ -51,7 +51,7 @@ PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |                     Method      | mIoU| my|
 |-----------------------------------|------|-------|
 |new.deeplabv2res101.pascal.imagesize473.scale8|70.7|59.64|
-
+|newmodel.deeplabv2res101.pascal.imagesize473.scale4.lr1e-4|70.7|56|
 
 ## some notes
 
