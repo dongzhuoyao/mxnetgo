@@ -21,20 +21,20 @@
 
 
 ## Pascal 
-|                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
-|-----------------------------------|------|-------|------|
-| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)            | 70.7 | 69.4 | 67.2 |
-|deeplabv2.pascal.bs10.scale2 | 70.7 | 69.4 | 61 |
-|deeplabv2.pascal.bs10.scale4| 70.7 | 69.4 | 63.~|
-|deeplabv2.cs.bs2.github| 70.7|--| 65|
-|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9(msf:67.9)|
-|deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 | 69.4 |**70.45**|
-|deeplabv1res101.pascal.imagesize473.scale8|70.7|..|69.3|
-|deeplabv2.pascal.4gpu|--|--|70.5|
-|deeplabv2.pascal.4gpu.scale4--|--|70.99|
-|deeplabv2.pascal.4gpu.scale16|--|--|71.7|
-| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
-|deeplabv2.pascal.dcn| 75.9 | 74.2 |  **74.7**|
+|                                   | mIoU(official) | mIoU|
+|-----------------------------------|------|------|
+| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)| 70.7 | 67.2 |
+|deeplabv2.pascal.bs10.scale2 | 70.7  | 61 |
+|deeplabv2.pascal.bs10.scale4| 70.7| 63.~|
+|deeplabv2.cs.bs2.github| 70.7| 65|
+|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7  | 66.9(msf:67.9)|
+|deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 |**70.45**|
+|deeplabv1res101.pascal.imagesize473.scale8|70.7|69.3|
+|deeplabv2.pascal.4gpu|--|70.5|
+|deeplabv2.pascal.4gpu.scale4|.|70.99|
+|deeplabv2.pascal.4gpu.scale16|--|71.7|
+| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 |
+|deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
 
 |                     Method      | mIoU| my|
