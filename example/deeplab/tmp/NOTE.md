@@ -4,7 +4,8 @@
 
 |                                   | mIoU,acc(official) | mIoU(my)  |
 |-----------------------------------|------|-------|
-|PSPNet,ResNet269+DA+AL+PSP+MS,validation set|70.3|44.94/81.69|?|
+|PSPNet,ResNet50+DA+AL+PSP+MS,validation set(from PSPNet github)|42.78/80.76|?|
+|PSPNet,ResNet269+DA+AL+PSP+MS,validation set|44.94/81.69|?|
 
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
