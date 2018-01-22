@@ -29,10 +29,13 @@
 |deeplabv2.pascal.4gpu|--|--|70.5|
 |deeplabv2.pascal.4gpu.scale4--|--|70.99|
 |deeplabv2.pascal.4gpu.scale16|--|--|71.7|
-|-----------------------------------|------|-------|------|
-|new.deeplabv2res101.pascal.imagesize473.scale8|70.7||59.64|
 | Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
 |deeplabv2.pascal.dcn| 75.9 | 74.2 |  **74.7**|
+
+
+|                     Method      | mIoU| my|
+|-----------------------------------|------|-------|
+|new.deeplabv2res101.pascal.imagesize473.scale8|70.7|59.64|
 
 
 ## some notes
