@@ -34,6 +34,12 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 # or add `--user` to avoid system-wide installation.
 ```
 
+## Devil Checklist
+* data preprocess code
+* lr rate, optimizer, lr_multiplier
+* epoch scale
+* evaluation code 
+
 ## TODO
 - [ ] hourglass
 - [ ] resnet101 model train
