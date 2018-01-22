@@ -108,8 +108,10 @@ class resnet101_deeplab_new(Symbol):
         num_unit = len(units)
         self.is_train = is_train
         self.use_global_stats = True
-        logger.info("is_train: {}".format(self.is_train))
-        logger.info("use_global_stats: {}".format(self.use_global_stats))
+
+        if self.is_train:
+            logger.info("is_train: {}".format(self.is_train))
+            logger.info("use_global_stats: {}".format(self.use_global_stats))
 
         assert(num_unit == num_stage)
         data = mx.sym.Variable(name='data')
