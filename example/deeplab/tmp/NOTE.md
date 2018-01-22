@@ -12,6 +12,7 @@
 |deeplabv2.cs.scale4.officiallr.full.longer|70.3|**69.4**|
 |deeplabv2.cs.scale1.bs2| 70.3 | 50.~（new code） |
 |deeplabv2.cs.imagesize672(size:672,epoch_scale=4)|70.3|65,because epoch_scale is too small, it should be 18, however, the dataload speed is too slow in mxnetgo|
+|deeplabv1res101.cs.imagesize672.scale18.adam|70.3|44.99 in epoch 6, stopped because of OOM|
 |deeplabv1res101.cs.imagesize672.scale18|70.3|48.4|
 | Deformable DeepLab, ResNet-v1-101 | 75.2 |-- |
 
