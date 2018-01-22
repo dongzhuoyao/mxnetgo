@@ -5,6 +5,7 @@
 |-----------------------------------|------|-------|
 |PSPNet,fine set|78.4||
 |PSPNet,fine+coarse set|80.2||
+|-----------------------------------|------|-------|
 | DeepLab, ResNet-v1-101            | 70.3 | -- |
 | deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
 | deeplabv2.cs.scale8.bs2           | 70.3 | 61.5（new code） |
