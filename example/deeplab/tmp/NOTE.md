@@ -32,6 +32,7 @@
 |-----------------------------------|------|------|
 PSPNet,ResNet101, test result|82.6||
 PSPNet,ResNet101,,coco pretrain, test result|85.4||
+|Deeplabv3,without coco pretrain, val result|79.77||
 |-----------------------------------|------|------|
 | DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)| 70.7 | 67.2 |
 |deeplabv2.pascal.bs10.scale2 | 70.7  | 61 |
