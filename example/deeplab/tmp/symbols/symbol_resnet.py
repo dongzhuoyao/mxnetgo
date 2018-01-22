@@ -88,7 +88,7 @@ class resnet101_deeplab_new(Symbol):
             return conv2 + shortcut
 
 
-    def get_symbol(self, num_class, is_train, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048], bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
+    def get_symbol(self, num_class, is_train, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048],b_lr_mult=2.0,w_lr_mult=1.0, bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
         """Return ResNet symbol of cifar10 and imagenet
         Parameters
         ----------
@@ -138,8 +138,8 @@ class resnet101_deeplab_new(Symbol):
 
 
 
-        fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=2.0)
-        fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=1.0)
+        fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=b_lr_mult)
+        fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
         fc6 = mx.symbol.Convolution(
             data=relu1, kernel=(1, 1), pad=(0, 0),dilate=(6,6), num_filter=num_class, name="fc6", bias=fc6_bias, weight=fc6_weight,

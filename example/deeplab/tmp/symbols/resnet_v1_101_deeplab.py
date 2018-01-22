@@ -744,7 +744,7 @@ class resnet_v1_101_deeplab(Symbol):
         res5c_relu = mx.symbol.Activation(name='res5c_relu', data=res5c, act_type='relu')
         return res5c_relu
 
-    def get_train_symbol(self, num_classes):
+    def get_train_symbol(self, num_classes,w_lr_mult=1.0,b_lr_mult=2.0):
         """
         get symbol for training
         :param num_classes: num of classes
@@ -757,15 +757,15 @@ class resnet_v1_101_deeplab(Symbol):
         conv_feat = self.get_resnet_conv(data)
 
         # subsequent fc layers by haozhi
-        fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=2.0)
-        fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=1.0)
+        fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=b_lr_mult)
+        fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
         fc6 = mx.symbol.Convolution(data=conv_feat, kernel=(1, 1), pad=(0, 0), num_filter=1024, name="fc6",
                                     bias=fc6_bias, weight=fc6_weight, workspace=self.workspace)
         relu_fc6 = mx.sym.Activation(data=fc6, act_type='relu', name='relu_fc6')
 
-        score_bias = mx.symbol.Variable('score_bias', lr_mult=2.0)
-        score_weight = mx.symbol.Variable('score_weight', lr_mult=1.0)
+        score_bias = mx.symbol.Variable('score_bias', lr_mult=b_lr_mult)
+        score_weight = mx.symbol.Variable('score_weight', lr_mult=w_lr_mult)
 
         score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), pad=(0, 0), num_filter=num_classes, name="score",
                                       bias=score_bias, weight=score_weight, workspace=self.workspace)
