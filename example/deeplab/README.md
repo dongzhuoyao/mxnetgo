@@ -21,6 +21,13 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 | Deformable DeepLab, ResNet-v1-101(resnet101) | 75.2 |-- |
 
 
+
+## ADE20K
+|                                   | mIoU,acc(official) | mIoU(my)  |
+|-----------------------------------|------|-------|
+|PSPNet,ResNet269+DA+AL+PSP+MS,validation set|70.3|44.94/81.69|?|
+
+
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
 ## Doubt
