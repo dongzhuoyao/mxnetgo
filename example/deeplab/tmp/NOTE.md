@@ -1,5 +1,11 @@
 # Result in Mxnetgo
 
+## ADE20K
+
+|                                   | mIoU,acc(official) | mIoU(my)  |
+|-----------------------------------|------|-------|
+|PSPNet,ResNet269+DA+AL+PSP+MS,validation set|70.3|44.94/81.69|?|
+
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
