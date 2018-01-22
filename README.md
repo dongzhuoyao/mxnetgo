@@ -38,7 +38,7 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 * data preprocess code
 * lr rate, optimizer, lr_multiplier
 * epoch scale
-* bn use_global_stat choice
+* bn use_global_stat choice; fix beta,gamma
 * weight freeze choice
 * evaluation code 
 
