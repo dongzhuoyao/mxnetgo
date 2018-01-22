@@ -3,8 +3,8 @@
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
 |-----------------------------------|------|-------|
-|PSPNet,fine set|78.4||
-|PSPNet,fine+coarse set|80.2||
+|PSPNet,ResNet101,fine set,test result|78.4||
+|PSPNet,ResNet101,fine+coarse set,test result|80.2||
 |-----------------------------------|------|-------|
 | DeepLab, ResNet-v1-101            | 70.3 | -- |
 | deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
@@ -22,6 +22,9 @@
 
 ## Pascal 
 |                                   | mIoU(official) | mIoU|
+|-----------------------------------|------|------|
+PSPNet,ResNet101, test result|82.6||
+PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |-----------------------------------|------|------|
 | DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)| 70.7 | 67.2 |
 |deeplabv2.pascal.bs10.scale2 | 70.7  | 61 |
