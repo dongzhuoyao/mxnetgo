@@ -53,6 +53,7 @@ here some other method' choice as follows:
 |      Method                             | image crop size | batch size(single gpu)  |
 |-----------------------------------|------|-------|
 |deeplabv2-resnet101|321|10|
+|deeplabv3-resnet101|513x513|as max as possible|
 |PSPNet_VOC2012-resnet101|473|as max as possible|
 |PSPNet_Cityscapes-resnet101|713|as max as possible|
 |Inplace_ABN_Cityscapes-resnext101|672|16|
