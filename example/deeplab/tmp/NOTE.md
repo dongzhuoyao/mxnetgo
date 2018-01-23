@@ -52,6 +52,7 @@ PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |-----------------------------------|------|-------|
 |new.deeplabv2res101.pascal.imagesize473.scale8|70.7|59.64|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.lr1e-4|70.7|56|
+|newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|70.7|4 in epoch1,2,3, stopped|
 
 ## some notes
 
