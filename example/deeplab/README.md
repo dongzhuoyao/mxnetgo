@@ -21,6 +21,10 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 | Deformable DeepLab, ResNet-v1-101(resnet101) | 75.2 |-- |
 
 
+
+
+
+
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
 ## Doubt
@@ -49,6 +53,7 @@ here some other method' choice as follows:
 |      Method                             | image crop size | batch size(single gpu)  |
 |-----------------------------------|------|-------|
 |deeplabv2-resnet101|321|10|
+|deeplabv3-resnet101|513x513|as max as possible|
 |PSPNet_VOC2012-resnet101|473|as max as possible|
 |PSPNet_Cityscapes-resnet101|713|as max as possible|
 |Inplace_ABN_Cityscapes-resnext101|672|16|
@@ -58,6 +63,10 @@ here some other method' choice as follows:
 
 * In the Cityscapes experiment, batch size=1, image size= 1024*2048, tensorflow can only train 66% result, while mxnet could train 70.45 result. why?
 
+* In Deformable paper, the Pascal VOC is 30K iters, Cityscapes is 45 iters. However in PSPNet paper, the Pascal VOC is 30 iters, Cityscapes is 90 iters.
 
-
+* In PSPNet, ADE20K dataset, with the same setting, increasing the depth
+of ResNet from 50 to 269 can improve the score of (Mean
+IoU + Pixel Acc.) / 2 (%) from 60.86 to 62.35, with 1.49 absolute
+improvement.(from 100 to 269 can bring 1.05% gain)
 

@@ -1,7 +1,17 @@
 # Result in Mxnetgo
 
+## ADE20K
+
+|                                   | mIoU,acc(official) | mIoU(my)  |
+|-----------------------------------|------|-------|
+|PSPNet,ResNet50+DA+AL+PSP+MS,validation set(from PSPNet github)|42.78/80.76|?|
+|PSPNet,ResNet269+DA+AL+PSP+MS,validation set|44.94/81.69|?|
+
 ## Cityscapes
 |                                   | mIoU(official) | mIoU  |
+|-----------------------------------|------|-------|
+|PSPNet,ResNet101,fine set,test result|78.4||
+|PSPNet,ResNet101,fine+coarse set,test result|80.2||
 |-----------------------------------|------|-------|
 | DeepLab, ResNet-v1-101            | 70.3 | -- |
 | deeplabv2.cs.scale5           | 70.3 | 62.25（new code） |
@@ -18,26 +28,30 @@
 
 
 ## Pascal 
-|                                   | mIoU(official) | mIoU(old code)  | mIoU(new code)  |
-|-----------------------------------|------|-------|------|
-| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)            | 70.7 | 69.4 | 67.2 |
-|deeplabv2.pascal.bs10.scale2 | 70.7 | 69.4 | 61 |
-|deeplabv2.pascal.bs10.scale4| 70.7 | 69.4 | 63.~|
-|deeplabv2.cs.bs2.github| 70.7|--| 65|
-|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7 | 69.4 | 66.9(msf:67.9)|
-|deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 | 69.4 |**70.45**|
-|deeplabv1res101.pascal.imagesize473.scale8|70.7|..|69.3|
-|deeplabv2.pascal.4gpu|--|--|70.5|
-|deeplabv2.pascal.4gpu.scale4--|--|70.99|
-|deeplabv2.pascal.4gpu.scale16|--|--|71.7|
-| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 | ? |
-|deeplabv2.pascal.dcn| 75.9 | 74.2 |  **74.7**|
+|                                   | mIoU(official) | mIoU|
+|-----------------------------------|------|------|
+PSPNet,ResNet101, test result|82.6||
+PSPNet,ResNet101,,coco pretrain, test result|85.4||
+|Deeplabv3,without coco pretrain, val result|79.77||
+|-----------------------------------|------|------|
+| DeepLab, ResNet-v1-101(deeplabv2.pascal:bs2,scale5)| 70.7 | 67.2 |
+|deeplabv2.pascal.bs10.scale2 | 70.7  | 61 |
+|deeplabv2.pascal.bs10.scale4| 70.7| 63.~|
+|deeplabv2.cs.bs2.github| 70.7| 65|
+|deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7  | 66.9(msf:67.9)|
+|deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 |**70.45**|
+|deeplabv1res101.pascal.imagesize473.scale8|70.7|69.3|
+|deeplabv2.pascal.4gpu|--|70.5|
+|deeplabv2.pascal.4gpu.scale4|.|70.99|
+|deeplabv2.pascal.4gpu.scale16|--|71.7|
+| Deformable DeepLab, ResNet-v1-101 | 75.9 | 74.2 |
+|deeplabv2.pascal.dcn| 75.9 |  **74.7**|
 
 
 |                     Method      | mIoU| my|
 |-----------------------------------|------|-------|
 |new.deeplabv2res101.pascal.imagesize473.scale8|70.7|59.64|
-
+|newmodel.deeplabv2res101.pascal.imagesize473.scale4.lr1e-4|70.7|56|
 
 ## some notes
 
