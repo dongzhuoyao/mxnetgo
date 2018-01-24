@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
@@ -26,7 +26,7 @@ CROP_WIDTH = 473
 tile_height = 321
 tile_width = 321
 
-batch_size = 14
+batch_size = 10
 EPOCH_SCALE = 4
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
@@ -34,14 +34,14 @@ NUM_CLASSES = PascalVOC12.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
-fixed_param_prefix = ['conv0_weight','stage1','beta','gamma',]
+fixed_param_prefix = ['conv0_weight','stage1_*_conv*','stage2_*_conv*',]
 symbol_str = "symbol_resnet_deeplabv1"
 
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="1")
+    parser.add_argument("--gpu", default="2")
     parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
