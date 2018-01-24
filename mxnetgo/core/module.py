@@ -982,7 +982,7 @@ class MutableModule(BaseModule):
         logger.info("GPU num: {}".format(len(self._context)))
 
         logger.info("batch size per GPU: {}".format(args.batch_size))
-        logger.info("epoch volume: {}*{} = {}".format(train_data.size(), args.batch_size, epoch_volumn))
+        logger.info("epoch volume: {}*{} = {}".format(train_data.size(), epoch_scale, epoch_volumn))
         train_data = RepeatedData(train_data, -1)
         epoch_index = begin_epoch
 
