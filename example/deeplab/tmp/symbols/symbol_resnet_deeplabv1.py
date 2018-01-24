@@ -41,7 +41,6 @@ class resnet101_deeplab_new(Symbol):
             bn2 = mx.sym.BatchNorm(data=conv1, fix_gamma=False, eps=2e-5,use_global_stats=self.use_global_stats, momentum=bn_mom, name=name + '_bn2')
             act2 = mx.sym.Activation(data=bn2, act_type='relu', name=name + '_relu2')
 
-
             if dilation <= 1:
                 conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
                                            pad=(1, 1),
@@ -124,7 +123,7 @@ class resnet101_deeplab_new(Symbol):
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
 
-        dilation = [1,1,2,2]
+        dilation = [1,1,1,2]
         for i in range(num_stage):
             body = self.residual_unit(body, filter_list[i+1], (1 if i==0 or i==3 else 2, 1 if i==0 or i==3 else 2), False,
                                       dilation=dilation[i],name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck,
@@ -137,19 +136,22 @@ class resnet101_deeplab_new(Symbol):
         #end  of resnet
 
 
-
         fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=b_lr_mult)
         fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
-        fc6 = mx.symbol.Convolution(
-            data=relu1, kernel=(1, 1), pad=(0, 0),dilate=(6,6), num_filter=num_class, name="fc6", bias=fc6_bias, weight=fc6_weight,
-            workspace=workspace)
+        fc6 = mx.symbol.Convolution(data=relu1, kernel=(1, 1), pad=(0, 0), num_filter=1024, name="fc6",
+                                    bias=fc6_bias, weight=fc6_weight, workspace=self.workspace)
         relu_fc6 = mx.sym.Activation(data=fc6, act_type='relu', name='relu_fc6')
 
+        score_bias = mx.symbol.Variable('score_bias', lr_mult=b_lr_mult)
+        score_weight = mx.symbol.Variable('score_weight', lr_mult=w_lr_mult)
+
+        score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), pad=(0, 0), num_filter=num_class, name="score",
+                                      bias=score_bias, weight=score_weight, workspace=self.workspace)
 
         upsamle_scale = 16# upsample 4X
         croped_score = mx.symbol.Deconvolution(
-            data=relu_fc6, num_filter=num_class, kernel=(upsamle_scale*2, upsamle_scale*2), stride=(upsamle_scale, upsamle_scale), num_group=num_class, no_bias=True,
+            data=score, num_filter=num_class, kernel=(upsamle_scale*2, upsamle_scale*2), stride=(upsamle_scale, upsamle_scale), num_group=num_class, no_bias=True,
             name='upsampling', attr={'lr_mult': '0.0'}, workspace=workspace)
 
         #magic Cropping
@@ -171,8 +173,8 @@ class resnet101_deeplab_new(Symbol):
 
         arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
         arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
-        #arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
-        #arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
+        arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
+        arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
         arg_params['upsampling_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['upsampling_weight'])
         init = mx.init.Initializer()
         init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])
