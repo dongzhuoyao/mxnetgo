@@ -1035,13 +1035,11 @@ class MutableModule(BaseModule):
             # epoch_end_callback execute
             if epoch_end_callback is not None:
                 for callback in _as_list(epoch_end_callback):
-                    callback(epoch_index, self.symbol, arg_params, aux_params)
+                    callback(epoch_index-1, self.symbol, arg_params, aux_params) # epoch number align
 
             #----------------------------------------
             # evaluation on validation set
             if epoch_index >= num_epoch - validation_on_last:
-            #if True:
-                # infer shape
                 val_provide_data = [[("data", (1, 3, args.tile_height, args.tile_width))]]
                 val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]
                 data_shape_dict = {'data': (1, 3, args.tile_height, args.tile_width)
