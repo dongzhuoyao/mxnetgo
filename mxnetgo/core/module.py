@@ -950,9 +950,8 @@ class MutableModule(BaseModule):
                         optimizer_params={'learning_rate':0.01, 'momentum': 0.9},
                         num_epoch=10)
         """
+
         assert num_epoch is not None, 'please specify number of epochs'
-
-
         provide_data = [[("data",(args.batch_size, 3, args.crop_size[0],args.crop_size[1]))] for i in range(len(self._context))]
         provide_label = [[("label",(args.batch_size, 1, args.crop_size[0], args.crop_size[1]))] for i in range(len(self._context))]
 
