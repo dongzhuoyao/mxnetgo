@@ -55,6 +55,9 @@ PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|70.7|4 in epoch1,2,3, stopped|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze|70.7|59.5|
 newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
+newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|70.7|56.2
+newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|70.7|62
+newmodel.deeplabv1res101.pascal.imagesize473.scale4.freeze|70.7|52.19|
 ## some notes
 
 lr schedule is very important, in most tensorflow framework, the lr schedule is [(3, 1e-4), (5, 1e-5), (7, 8e-6)], however, in mxnet, as paper indicated. the lr schedule is [(4, 1e-3), (6, 1e-4)](total 30k iterations).
