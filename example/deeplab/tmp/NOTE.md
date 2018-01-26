@@ -40,6 +40,7 @@ PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |deeplabv2.cs.bs2.github| 70.7| 65|
 |deeplabv2.pascal.bs10.scale4.newlr.sgd| 70.7  | 66.9(msf:67.9)|
 |deeplabv2.pascal.bs10.scale4.officiallr(MSF)| 70.7 |**70.45**|
+deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|--|
 |deeplabv1res101.pascal.imagesize473.scale8|70.7|69.3|
 |deeplabv2.pascal.4gpu|--|70.5|
 |deeplabv2.pascal.4gpu.scale4|.|70.99|
@@ -55,12 +56,14 @@ PSPNet,ResNet101,,coco pretrain, test result|85.4||
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|70.7|4 in epoch1,2,3, stopped|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze|70.7|59.5|
 newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
+|newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|--
 |-----------------------------------|------|-------|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|70.7|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|70.7|62
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freeze|70.7|52.19|
-newmodel.deeplabv1res101.pascal.imagesize473.scale4|70.7|--
+newmodel.deeplabv1res101.pascal.imagesize473.scale4|70.7|63.9|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|70.7|--
+
 ## some notes
 
 lr schedule is very important, in most tensorflow framework, the lr schedule is [(3, 1e-4), (5, 1e-5), (7, 8e-6)], however, in mxnet, as paper indicated. the lr schedule is [(4, 1e-3), (6, 1e-4)](total 30k iterations).

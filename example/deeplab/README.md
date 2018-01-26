@@ -27,9 +27,6 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
-## Doubt
-
-
 
 
 ## some notes
