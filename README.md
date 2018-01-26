@@ -18,7 +18,7 @@ currently available example: [Deeplab](example/deeplab)
 
 * a very good starter for research, all you need write only is the network structure.
 
-* modularization for specific task, such as image segmentation, pose estimation etc, data preprocess and evaluation are also modularized. 
+* data preprocess，result evaluation are  modularized. once coded, you can apply it into other DL framework too.
 
 * reproducible, every experient can produce the same result as the paper indicated.
 
