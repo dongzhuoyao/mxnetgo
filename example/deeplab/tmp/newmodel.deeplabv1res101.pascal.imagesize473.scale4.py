@@ -188,7 +188,7 @@ def train_net(args, ctx):
     shutil.copy2(os.path.join(curr_path, 'symbols', 'symbol_resnet.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
 
     sym_instance = resnet101_deeplab_new()
-    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,memonger=False)
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True, memonger=False)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()

@@ -31,7 +31,7 @@ EPOCH_SCALE = 8
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = PascalVOC12.class_num()
-validation_on_last = 2
+validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = []

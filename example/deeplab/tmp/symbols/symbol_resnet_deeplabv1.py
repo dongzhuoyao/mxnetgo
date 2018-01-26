@@ -104,7 +104,7 @@ class resnet101_deeplab_new(Symbol):
         """
         num_unit = len(units)
         self.is_train = is_train
-        self.use_global_stats = True
+        self.use_global_stats = not is_train
 
         if self.is_train:
             logger.info("is_train: {}".format(self.is_train))
