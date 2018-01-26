@@ -20,7 +20,7 @@ currently available example: [Deeplab](example/deeplab)
 
 * data preprocess，result evaluation are  modularized. once coded, you can apply it into other DL framework too.
 
-* reproducible, every experient can produce the same result as the paper indicated.
+* reproducible, every experiment can produce nearly the same result as the paper indicated.
 
 # Install
 
