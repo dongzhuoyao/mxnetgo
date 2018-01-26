@@ -56,13 +56,14 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|--|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|70.7|4 in epoch1,2,3, stopped|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze|70.7|59.5|
 newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
-|newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|--
+|newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|60.3
 |-----------------------------------|------|-------|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|70.7|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|70.7|62
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freeze|70.7|52.19|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4|70.7|63.9|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|70.7|--
+
 
 ## some notes
 

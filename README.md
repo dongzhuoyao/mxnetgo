@@ -18,9 +18,9 @@ currently available example: [Deeplab](example/deeplab)
 
 * a very good starter for research, all you need write only is the network structure.
 
-* modularization for specific task, such as image segmentation, pose estimation etc, data preprocess and evaluation are also modularized. 
+* data preprocess，result evaluation are  modularized. once coded, you can apply it into other DL framework too.
 
-* reproducible, every experient can produce the same result as the paper indicated.
+* reproducible, every experiment can produce nearly the same result as the paper indicated.
 
 # Install
 
@@ -39,7 +39,7 @@ pip install -U git+https://github.com/dongzhuoyao/tensorpack.git
 * data preprocess code
 * lr rate, optimizer, lr_multiplier
 * epoch scale
-* bn use_global_stat choice; fix beta,gamma
+* bn use_global_stat(use_local_stat) choice; fix beta,gamma
 * weight freeze choice
 * evaluation code 
 
