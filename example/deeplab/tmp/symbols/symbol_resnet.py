@@ -48,7 +48,7 @@ class resnet101_deeplab_new(Symbol):
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
             else:
                 conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
-                                           pad=(2, 2), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
+                                           pad=(dilation, dilation), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
 
             bn3 = mx.sym.BatchNorm(data=conv2, fix_gamma=False, eps=2e-5,use_global_stats=self.use_global_stats, momentum=bn_mom, name=name + '_bn3')
@@ -124,10 +124,10 @@ class resnet101_deeplab_new(Symbol):
         body = mx.sym.Activation(data=body, act_type='relu', name='relu0')
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
 
-        dilation = [1,1,2,2]
+        dilation = [1,1,2,4]
         for i in range(num_stage):
             body = self.residual_unit(body, filter_list[i+1], (1 if i==0 or i==3 else 2, 1 if i==0 or i==3 else 2), False,
-                                      dilation=dilation[i],name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck,
+                                      dilation=1,name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck,
                                       workspace=workspace, memonger=memonger)
             for j in range(units[i]-1):
                 body = self.residual_unit(body, filter_list[i+1], (1,1), True, dilation=dilation[i], name='stage%d_unit%d' % (i + 1, j + 2),
