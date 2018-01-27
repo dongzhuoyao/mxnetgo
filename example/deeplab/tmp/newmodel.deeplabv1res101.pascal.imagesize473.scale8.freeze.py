@@ -6,15 +6,13 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
 import os,sys,cv2
 import pprint
 from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
-
-from symbols.resnext_deeplabv1 import resnext
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -28,7 +26,7 @@ CROP_WIDTH = 473
 tile_height = 321
 tile_width = 321
 
-batch_size = 8 #8 is max in resnext with image size 473
+batch_size = 11
 EPOCH_SCALE = 8
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
@@ -36,16 +34,18 @@ NUM_CLASSES = PascalVOC12.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
-fixed_param_prefix = []
+fixed_param_prefix = ['conv0_weight','beta','gamma',]
+symbol_str = "symbol_resnet_deeplabv1"
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="5")
-    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
+    parser.add_argument("--gpu", default="4")
+    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
-    parser.add_argument("--load", default="resnext-101-0000")
+    parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=batch_size)
     parser.add_argument('--class_num', default=NUM_CLASSES)
@@ -130,15 +130,65 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     return ds
 
 
+def test_deeplab(ctx):
+    #logger.auto_set_dir()
+    test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
+    ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
+
+    sym_instance = eval(symbol_str)()
+    # infer shape
+    val_provide_data = [[("data", (1, 3, tile_height, tile_width))]]
+    val_provide_label = [[("softmax_label", (1, 1, tile_height, tile_width))]]
+    data_shape_dict = {'data': (1, 3, tile_height, tile_width)
+        , 'softmax_label': (1, 1, tile_height, tile_width)}
+    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False)
+    sym_instance.infer_shape(data_shape_dict)
+
+    arg_params, aux_params = load_init_param(args.load, process=True)
+
+    sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
+    data_names = ['data']
+    label_names = ['softmax_label']
+
+    # create predictor
+    predictor = Predictor(eval_sym, data_names, label_names,
+                          context=ctx,
+                          provide_data=val_provide_data, provide_label=val_provide_label,
+                          arg_params=arg_params, aux_params=aux_params)
+
+    if args.vis:
+        from mxnetgo.myutils.fs import mkdir_p
+        vis_dir = os.path.join(logger.get_logger_dir(),"vis")
+        mkdir_p(vis_dir)
+    stats = MIoUStatistics(NUM_CLASSES)
+    test_data.reset_state()
+    nbatch = 0
+    for data, label in tqdm(test_data.get_data()):
+        output_all = predict_scaler(data, predictor,
+                                    scales=[0.9,1.0,1.1], classes=NUM_CLASSES,
+                                    tile_size=(tile_height, tile_width),
+                                    is_densecrf=False, nbatch=nbatch,
+                                    val_provide_data=val_provide_data,
+                                    val_provide_label=val_provide_label)
+        output_all = np.argmax(output_all, axis=0)
+        label = np.squeeze(label)
+        if args.vis:
+            cv2.imwrite(os.path.join(vis_dir,"{}.jpg".format(nbatch)),visualize_label(output_all))
+        stats.feed(output_all, label)  # very time-consuming
+        nbatch += 1
+    logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
+
 
 def train_net(args, ctx):
     logger.auto_set_dir()
 
+    from symbols.symbol_resnet import resnet101_deeplab_new
 
-    train_sym_instance = resnext()
-    eval_sym_instance = resnext()
+    # load symbol
+    shutil.copy2(os.path.join(curr_path, 'symbols', 'symbol_resnet.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
 
-    sym = train_sym_instance.get_symbol(NUM_CLASSES, is_train=True)
+    sym_instance = resnet101_deeplab_new()
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,memonger=False)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()
@@ -160,7 +210,11 @@ def train_net(args, ctx):
                        ,'label':(args.batch_size, 1, args.crop_size[0],args.crop_size[1])}
 
     pprint.pprint(data_shape_dict)
-    train_sym_instance.infer_shape(data_shape_dict)
+    sym_instance.infer_shape(data_shape_dict)
+
+
+    eval_sym_instance = resnet101_deeplab_new()
+
 
     # load and initialize params
     epoch_string = args.load.rsplit("-",2)[1]
@@ -172,10 +226,10 @@ def train_net(args, ctx):
     else:
         logger.info(args.load)
         arg_params, aux_params = load_init_param(args.load, convert=True)
-        train_sym_instance.init_weights(arg_params, aux_params)
+        sym_instance.init_weights(arg_params, aux_params)
 
     # check parameter shapes
-    train_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict)
+    sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict)
 
     data_names = ['data']
     label_names = ['label']
@@ -230,5 +284,7 @@ if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
     if args.view:
         view_data(ctx)
+    elif args.validation:
+        test_deeplab(ctx)
     else:
         train_net(args, ctx)
