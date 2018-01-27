@@ -41,7 +41,7 @@ class resnet101_deeplab_new(Symbol):
         data = mx.sym.Variable(name='data')
         if self.is_train:
             seg_cls_gt = mx.symbol.Variable(name='label')
-        data = mx.sym.BatchNorm(data=data, fix_gamma=True, use_global_stats=self.use_global_stats, eps=2e-5, momentum=bn_mom, name='bn_data')
+        data = mx.sym.BatchNorm(data=data, fix_gamma=True, use_global_stats=self.use_global_stats, eps=2e-5, momentum=bn_mom, name='bn_data',cudnn_off=True)
 
         ## body for imagenet, note that cifar is another different body
         body = mx.sym.Convolution(data=data, num_filter=filter_list[0], kernel=(7, 7), stride=(2,2), pad=(3, 3),
