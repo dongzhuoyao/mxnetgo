@@ -41,7 +41,7 @@ symbol_str = "tiny"
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="3")
+    parser.add_argument("--gpu", default="1")
     parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
