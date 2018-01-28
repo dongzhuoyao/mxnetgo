@@ -155,5 +155,8 @@ def get_logger_dir():
     """
     return LOG_DIR
 
+def get_experiment_dir():
+    return os.path.basename(LOG_DIR)
+
 
 
