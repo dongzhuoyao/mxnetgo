@@ -1,6 +1,6 @@
 # Author: Tao Hu <taohu620@gmail.com>
 
-DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
 
 
 from tensorpack.dataflow.common import BatchData, MapData

@@ -136,8 +136,6 @@ class resnet101_deeplab_new(Symbol):
         relu1 = mx.sym.Activation(data=bn1, act_type='relu', name='relu1')
         #end  of resnet
 
-
-
         fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=b_lr_mult)
         fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
