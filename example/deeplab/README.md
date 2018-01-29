@@ -5,7 +5,7 @@ Deeplab Paper result: MSC+Coco+Aug+ASPP+CRF=77.69% mIoU
 ## Pascal 
 |                                   | mIoU(official,8GPU) |  mIoU(my)|
 |-----------------------------------|------|------|
-|deeplabv1.pascal(resnet101)| 70.7 |**70.45**(without Coco,ASPP,CRF)|
+|deeplabv1.pascal(resnet101)| 70.7 |**73.7**(without Coco,ASPP,CRF)|
 |deeplabv1.pascal.4gpu.scale16(resnet101)|70.7|**71.7**|
 |deeplabv1.pascal.dcn(resnet101)| 75.9 |  **74.7**|
 
