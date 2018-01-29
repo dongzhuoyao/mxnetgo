@@ -140,14 +140,14 @@ class resnet101_deeplab_new(Symbol):
         fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
         fc6 = mx.symbol.Convolution(data=relu1, kernel=(1, 1), pad=(0, 0), num_filter=1024, name="fc6",
-                                    bias=fc6_bias, weight=fc6_weight, workspace=self.workspace)
+                                    bias=fc6_bias, weight=fc6_weight, workspace=workspace)
         relu_fc6 = mx.sym.Activation(data=fc6, act_type='relu', name='relu_fc6')
 
         score_bias = mx.symbol.Variable('score_bias', lr_mult=b_lr_mult)
         score_weight = mx.symbol.Variable('score_weight', lr_mult=w_lr_mult)
 
         score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), pad=(0, 0), num_filter=num_class, name="score",
-                                      bias=score_bias, weight=score_weight, workspace=self.workspace)
+                                      bias=score_bias, weight=score_weight, workspace=workspace)
 
         upsamle_scale = 16# upsample 4X
         croped_score = mx.symbol.Deconvolution(

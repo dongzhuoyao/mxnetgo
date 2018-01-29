@@ -35,7 +35,6 @@ validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = []
-symbol_str = "symbol_resnet"
 
 
 def parse_args():
@@ -134,10 +133,8 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 def train_net(args, ctx):
     logger.auto_set_dir()
 
-    from symbols.symbol_resnet import resnet101_deeplab_new
+    from symbols.symbol_resnet_deeplabv2 import resnet101_deeplab_new
 
-    # load symbol
-    shutil.copy2(os.path.join(curr_path, 'symbols', 'symbol_resnet.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
 
     sym_instance = resnet101_deeplab_new()
     sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,memonger=False)
