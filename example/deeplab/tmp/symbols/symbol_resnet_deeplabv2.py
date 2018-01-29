@@ -139,26 +139,33 @@ class resnet101_deeplab_new(Symbol):
         fc6_bias = mx.symbol.Variable('fc6_bias', lr_mult=b_lr_mult)
         fc6_weight = mx.symbol.Variable('fc6_weight', lr_mult=w_lr_mult)
 
-        fc6 = mx.symbol.Convolution(
-            data=relu1, kernel=(1, 1), pad=(0, 0),dilate=(6,6), num_filter=num_class, name="fc6", bias=fc6_bias, weight=fc6_weight,
-            workspace=workspace)
+        fc6 = mx.symbol.Convolution(data=relu1, kernel=(1, 1), pad=(0, 0), num_filter=1024, name="fc6",
+                                    bias=fc6_bias, weight=fc6_weight, workspace=workspace)
         relu_fc6 = mx.sym.Activation(data=fc6, act_type='relu', name='relu_fc6')
 
+        score_bias = mx.symbol.Variable('score_bias', lr_mult=b_lr_mult)
+        score_weight = mx.symbol.Variable('score_weight', lr_mult=w_lr_mult)
 
-        upsamle_scale = 16# upsample 4X
+        score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), pad=(0, 0),dilate=(6,6), num_filter=num_class, name="score",
+                                      bias=score_bias, weight=score_weight, workspace=workspace)
+
+        upsamle_scale = 16  # upsample 4X
         croped_score = mx.symbol.Deconvolution(
-            data=relu_fc6, num_filter=num_class, kernel=(upsamle_scale*2, upsamle_scale*2), stride=(upsamle_scale, upsamle_scale), num_group=num_class, no_bias=True,
+            data=score, num_filter=num_class, kernel=(upsamle_scale * 2, upsamle_scale * 2),
+            stride=(upsamle_scale, upsamle_scale), num_group=num_class, no_bias=True,
             name='upsampling', attr={'lr_mult': '0.0'}, workspace=workspace)
 
-        #magic Cropping
+        # magic Cropping
         croped_score = mx.symbol.Crop(*[croped_score, data], offset=(8, 8), name='croped_score')
 
         if is_train:
-            softmax = mx.symbol.SoftmaxOutput(data=croped_score, label=seg_cls_gt, normalization='valid', multi_output=True,
+            softmax = mx.symbol.SoftmaxOutput(data=croped_score, label=seg_cls_gt, normalization='valid',
+                                              multi_output=True,
                                               use_ignore=True, ignore_label=255, name="softmax")
         else:
-            softmax = mx.symbol.SoftmaxOutput(data=croped_score, normalization='valid', multi_output=True, use_ignore=True,
-                                          ignore_label=255, name="softmax")
+            softmax = mx.symbol.SoftmaxOutput(data=croped_score, normalization='valid', multi_output=True,
+                                              use_ignore=True,
+                                              ignore_label=255, name="softmax")
 
         self.sym = softmax
         return softmax
@@ -169,8 +176,8 @@ class resnet101_deeplab_new(Symbol):
 
         arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
         arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
-        #arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
-        #arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
+        arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
+        arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
         arg_params['upsampling_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['upsampling_weight'])
         init = mx.init.Initializer()
         init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])

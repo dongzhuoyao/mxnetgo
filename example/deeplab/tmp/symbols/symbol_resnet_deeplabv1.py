@@ -47,7 +47,7 @@ class resnet101_deeplab_new(Symbol):
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
             else:
                 conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
-                                           pad=(2, 2), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
+                                           pad=(dilation, dilation), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
                                            no_bias=True, workspace=workspace, name=name + '_conv2')
 
             bn3 = mx.sym.BatchNorm(data=conv2, fix_gamma=False, eps=2e-5,use_global_stats=self.use_global_stats, momentum=bn_mom, name=name + '_bn3')
