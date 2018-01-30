@@ -58,9 +58,9 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|67|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze|70.7|60|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|60.3
-|newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix||**epoch7:72,got stuck**,second time: :question:|
+|newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix||epoch7:72,got stuck,second time: **73.2**|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18||stopped, no use|
-newmodel.deeplabv2res101.cs.imagesize673.scale18.freeze||:question:|
+newmodel.deeplabv2res101.cs.imagesize673.scale18.freeze||**73.3**|
 |-----------------------------------|--|--|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|70.7|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|70.7|62
