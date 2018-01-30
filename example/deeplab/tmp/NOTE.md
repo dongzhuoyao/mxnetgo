@@ -72,7 +72,7 @@ newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|70.7|55.31|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|70.7|68.65|
 |-----------------------------------|--|--|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix||70.1|
-resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze||:question:|
+resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze||**71.8**|
 
 ## some notes
 
