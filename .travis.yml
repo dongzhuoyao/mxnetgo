@@ -9,5 +9,5 @@ install:
     - pip install -r requirements.txt
 script:
     - echo "hello world"
-    - sh $TRAVIS_BUILD_DIR/test/run-test.sh
-    - cd $TRAVIS_BUILD_DIR
+    #- sh $TRAVIS_BUILD_DIR/test/run-test.sh
+    #- cd $TRAVIS_BUILD_DIR
