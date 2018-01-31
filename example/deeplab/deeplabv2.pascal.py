@@ -8,8 +8,6 @@
 
 DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
 
-import _init_paths
-
 import argparse
 import os,sys,cv2
 import pprint

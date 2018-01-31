@@ -1,11 +1,3 @@
-# --------------------------------------------------------
-# Deformable Convolutional Networks
-# Copyright (c) 2016 by Contributors
-# Copyright (c) 2017 Microsoft
-# Licensed under The Apache-2.0 License [see LICENSE for details]
-# Modified by Zheng Zhang
-# --------------------------------------------------------
-
 
 import numpy as np
 
@@ -363,7 +355,7 @@ class DataParallelExecutorGroup(object):
             if data_batch.label:
                 _load_label(data_batch, self.label_arrays, self.label_layouts)
 
-        for exec_ in self.execs:
+        for exec_ in self.execs:#TODO dongzhuoyao!
             exec_.forward(is_train=is_train)
 
     def get_outputs(self, merge_multi_context=True):

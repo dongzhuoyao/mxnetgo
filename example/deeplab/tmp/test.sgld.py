@@ -201,20 +201,21 @@ def train_net(args, ctx):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
+    from mxnet.lr_scheduler import FactorScheduler
+    lr_scheduler = FactorScheduler(800)
 
     # optimizer
-    optimizer_params = {'momentum': 0.9,
+    optimizer_params = {
                         'wd': 0.0005,
-                        'learning_rate': 2.5e-4,
-                      'lr_scheduler': lr_scheduler,
+                        'learning_rate': 2.5e-2,
+                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
 
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
     mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
-            optimizer='sgd', optimizer_params=optimizer_params,
+            optimizer='sgld', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):

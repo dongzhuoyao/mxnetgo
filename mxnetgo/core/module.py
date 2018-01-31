@@ -27,7 +27,6 @@ from mxnet.initializer import Uniform, InitDesc
 from mxnet.module.base_module import BaseModule, _check_input_names, _parse_data_desc, _as_list
 from mxnet.model import _create_kvstore, _initialize_kvstore, _update_params, _update_params_on_kvstore, load_checkpoint, BatchEndParam
 from mxnet import metric
-# from mxnet.module.executor_group import DataParallelExecutorGroup
 
 from DataParallelExecutorGroup import DataParallelExecutorGroup
 from mxnet import ndarray as nd
@@ -505,6 +504,7 @@ class Module(BaseModule):
         self._optimizer = optimizer
         self._kvstore = kvstore
         self._update_on_kvstore = update_on_kvstore
+        logger.info("update_on_kvstore: {}".format(update_on_kvstore))
         self._updater = None
 
         if kvstore:
@@ -976,6 +976,7 @@ class MutableModule(BaseModule):
         # training loop
         ################################################################################
         epoch_volumn = train_data.size()*epoch_scale
+        logger.info("kvstore: {}".format(kvstore))
         logger.info("validation_on_last: {}".format(validation_on_last))
         logger.info("train_data.size(): {}".format(train_data.size()))
         logger.info("GPU num: {}".format(len(self._context)))
@@ -989,7 +990,8 @@ class MutableModule(BaseModule):
         _itr = train_data.get_data()
         while epoch_index < num_epoch:
             logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
-            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
+            #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
+            #TODO dongzhuoyao
             tic = time.time()
             eval_metric.reset()
             batch_index = 0
@@ -1151,4 +1153,4 @@ class Predictor(object):
     def predict(self, data_batch):
         self._mod.forward(data_batch)
         return [dict(zip(self._mod.output_names, _)) for _ in
-                zip(*self._mod.get_outputs(merge_multi_context=False))]
+                zip(*self._mod.get_outputs(merge_multi_context=False))] #multi-GPU predict is of no use when prediction.
