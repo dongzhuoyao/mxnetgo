@@ -62,6 +62,7 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|67|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu||**74.1**|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu||74.3|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18||stopped, no use|
+newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix||53.4|
 |-----------------------------------|--|--|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|70.7|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|70.7|62
@@ -72,6 +73,7 @@ newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|70.7|55.31|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|70.7|68.65|
 |-----------------------------------|--|--|
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze||53.26,second time: OOM|
+newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam||:question:|
 |-----------------------------------|--|--|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix||70.1|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze||**71.8**|
