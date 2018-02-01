@@ -981,6 +981,8 @@ class MutableModule(BaseModule):
         logger.info("train_data.size(): {}".format(train_data.size()))
         logger.info("GPU num: {}".format(len(self._context)))
         logger.info("validation crop size: {}x{}".format(args.tile_height, args.tile_width))
+        logger.info("optimizer: {}".format(optimizer))
+
 
         logger.info("batch size per GPU: {}".format(args.batch_size))
         logger.info("epoch volume: {}*{} = {}".format(train_data.size(), epoch_scale, epoch_volumn))
