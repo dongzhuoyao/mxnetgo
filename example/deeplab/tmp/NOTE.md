@@ -56,9 +56,11 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|67|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|70.7|4 in epoch1,2,3, stopped|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze|70.7|59.5|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze|70.7|60,second time **73.3**|
+newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze|:question:||
 |newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|60.3
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix||epoch7:72,got stuck,second time: **73.2**|
+newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4||:question:|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu||**74.1**|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu||74.3|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18||stopped, no use|
@@ -75,7 +77,7 @@ newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|70.7|68.65|
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze||53.26,second time: OOM|
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam||epoch1:11.46,terminated|
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-4||:question:|
-newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2||:question:|
+newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2||epoch1:3.3,terminated|
 |-----------------------------------|--|--|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix||70.1|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze||**71.8**|
