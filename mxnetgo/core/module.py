@@ -1077,44 +1077,6 @@ class MutableModule(BaseModule):
 
     def forward(self, data_batch, is_train=None):
         assert self.binded and self.params_initialized
-
-        """
-        # get current_shapes
-        if self._curr_module.label_shapes is not None:
-            current_shapes = [dict(self._curr_module.data_shapes[i] + self._curr_module.label_shapes[i]) for i in range(len(self._context))]
-        else:
-            current_shapes = [dict(self._curr_module.data_shapes[i]) for i in range(len(self._context))]
-
-        # get input_shapes
-        if is_train:
-            input_shapes = [dict(data_batch.provide_data[i] + data_batch.provide_label[i]) for i in range(len(self._context))]
-        else:
-            input_shapes = [dict(data_batch.provide_data[i]) for i in range(len(data_batch.provide_data))]
-
-        # decide if shape changed
-        shape_changed = len(current_shapes) != len(input_shapes)
-        for pre, cur in zip(current_shapes, input_shapes):
-            for k, v in pre.items():
-                try:
-                    if cur.has_key(k) and v != cur[k]:# test data
-                        shape_changed = True
-                except Exception as e:
-                    print(str(e))
-                    pass
-
-        if shape_changed:
-            logger.info("shape changed!!!!")
-            # self._curr_module.reshape(data_batch.provide_data, data_batch.provide_label)
-            module = Module(self._symbol, self._data_names, self._label_names,
-                 context=[self._context[i] for i in range(len(data_batch.provide_data))],
-                            work_load_list=self._work_load_list,
-                            fixed_param_names=self._fixed_param_names)
-            module.bind(data_batch.provide_data, data_batch.provide_label, self._curr_module.for_training,
-                        self._curr_module.inputs_need_grad, force_rebind=False,
-                        shared_module=self._curr_module)
-            self._curr_module = module
-        """
-
         self._curr_module.forward(data_batch, is_train=is_train)
 
     def backward(self, out_grads=None):
