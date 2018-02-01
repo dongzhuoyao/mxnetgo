@@ -29,8 +29,8 @@ tile_width = 1025
 batch_size = 11
 EPOCH_SCALE = 15
 end_epoch = 9
-init_lr = 1e-3
-lr_step_list = [(6, 1e-3), (9, 2.5e-4)]
+init_lr = 1e-4
+lr_step_list = [(6, 1e-4), (9, 1e-5)]
 NUM_CLASSES = Aerial.class_num()
 validation_on_last = end_epoch
 
@@ -41,7 +41,7 @@ from symbol_resnet_deeplabv2 import resnet101_deeplab_new
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="5")
+    parser.add_argument("--gpu", default="2")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")

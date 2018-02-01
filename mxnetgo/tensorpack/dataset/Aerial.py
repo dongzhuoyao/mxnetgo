@@ -42,12 +42,12 @@ class Aerial(RNGDataFlow):
                 self.imglist.append(line.strip("\n"))
             f.close()
 
-        """
+
         if name=="train":
             self.imglist = self.imglist[:20]
         if name=="val":
             self.imglist = self.imglist[:1]
-        """
+
 
 
 
