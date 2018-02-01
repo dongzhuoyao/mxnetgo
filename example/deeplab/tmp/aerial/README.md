@@ -18,5 +18,5 @@ Arch|Val mIoU | Test mIoU
 ------------ | -------------| -------------
 deeplabv2res101.4gpu | 321x321:86.67||
 deeplabv2res101|321x321:86.91;1025x1025:86.8||
-deeplabv2res101.adam.1e-4|:question:||
+deeplabv2res101.adam.1e-4|promising :question:||
 deeplabv2res101.adam|:question:||
