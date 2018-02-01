@@ -60,6 +60,7 @@ newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze|:question:||
 |newmodel.deeplabv2res101.pascal.imagesize473.scale12|70.7|57.7% in epoch 7,stucked|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4|70.7|60.3
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix||epoch7:72,got stuck,second time: **73.2**|
+newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4||:question:|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu||**74.1**|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu||74.3|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18||stopped, no use|
