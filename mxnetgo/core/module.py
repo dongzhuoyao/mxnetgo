@@ -997,9 +997,9 @@ class MutableModule(BaseModule):
             batch_index = 0
             for batch_index in tqdm(range(epoch_volumn)):
                 data, label = next(_itr)
-                data = np.transpose(data, (0, 3, 1, 2))
+                data = np.transpose(data, (0, 3, 1, 2)) # NCHW
                 label = label[:,:,:,None]
-                label = np.transpose(label, (0, 3, 1, 2))
+                label = np.transpose(label, (0, 3, 1, 2)) # NCHW
                 dl = [[mx.nd.array(data[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
                 ll = [[mx.nd.array(label[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
                 data_batch = mx.io.DataBatch(data=dl, label=ll,
