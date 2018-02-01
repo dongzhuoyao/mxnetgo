@@ -27,6 +27,9 @@ Deeplab Paper result: Full+Aug+ASPP+CRF=71.4% mIoU
 
 more experimental result can be seen in [NOTE](tmp/NOTE.md)
 
+Aerial Image experimental result can be seen in [Aerial Image Note](tmp/aerial/README.md)
+
+
 
 
 ## some notes

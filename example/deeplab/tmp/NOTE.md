@@ -73,7 +73,9 @@ newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|70.7|55.31|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|70.7|68.65|
 |-----------------------------------|--|--|
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze||53.26,second time: OOM|
-newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam||:question:|
+newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam||epoch1:11.46,terminated|
+newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-4||:question:|
+newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2||:question:|
 |-----------------------------------|--|--|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix||70.1|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze||**71.8**|
