@@ -23,8 +23,8 @@ IGNORE_LABEL = 255
 
 CROP_HEIGHT = 473
 CROP_WIDTH = 473
-tile_height = 1025
-tile_width = 1025
+tile_height = 513
+tile_width = 513
 
 batch_size = 11
 EPOCH_SCALE = 15
