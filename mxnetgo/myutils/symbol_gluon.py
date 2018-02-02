@@ -60,7 +60,7 @@ class Symbol():
             aux_table = tabulate(aux_data, headers=['name', 'shape'])
             logger.info(colored("Auxiliary Parameters: \n", 'cyan') + aux_table)
 
-
+        """ # temporarily removed by dongzhuoyao
         for k in self.sym.list_arguments():
             if k in data_shape_dict or (False if is_train else 'label' in k):
                 continue
@@ -74,6 +74,6 @@ class Symbol():
             assert aux_params[k].shape == self.aux_shape_dict[k], \
                 "shape inconsistent for '{}' inferred {} provided {}".format(k, str(self.aux_shape_dict[k]), str(
                     aux_params[k].shape))
-
+        """
 
 
