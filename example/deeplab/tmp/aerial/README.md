@@ -20,5 +20,6 @@ deeplabv2res101.4gpu | 321x321:86.67||
 deeplabv2res101|321x321:86.91;1025x1025:86.8||
 deeplabv2res101.adam.1e-4|**87.53**||
 deeplabv2res101.adam.1e-4.scale4|86.7||
+deeplabv2res101.adam.1e-4.scale10|87.5||
 deeplabv2res101.adam.1e-4.scale4.freeze|86.7||
 deeplabv2res101.adam|epoch1:64.39,terminated||
