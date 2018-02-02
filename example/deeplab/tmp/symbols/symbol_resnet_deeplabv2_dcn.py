@@ -11,7 +11,7 @@ class resnet101_deeplab_new(Symbol):
     def __init__(self):
         pass
 
-    def residual_unit(self, data, num_filter, stride, dim_match, dilation, name, bottle_neck=True, bn_mom=0.9, workspace=512,
+    def residual_unit(self, data, num_filter, stride, dim_match, dilation, name, bottle_neck=True,deformable = False, bn_mom=0.9, workspace=512,
                       memonger=False):
         """Return ResNet Unit symbol for building ResNet
         Parameters
@@ -41,15 +41,28 @@ class resnet101_deeplab_new(Symbol):
             bn2 = mx.sym.BatchNorm(data=conv1, fix_gamma=False, eps=2e-5,use_global_stats=self.use_global_stats, momentum=bn_mom, name=name + '_bn2')
             act2 = mx.sym.Activation(data=bn2, act_type='relu', name=name + '_relu2')
 
-
-            if dilation <= 1:
-                conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
-                                           pad=(1, 1),
-                                           no_bias=True, workspace=workspace, name=name + '_conv2')
+            if deformable:
+                res5c_branch2b_offset_weight = mx.symbol.Variable(name +'_offset_weight', lr_mult=1.0)
+                res5c_branch2b_offset_bias = mx.symbol.Variable(name +'_offset_bias', lr_mult=2.0)
+                res5c_branch2b_offset = mx.symbol.Convolution(name=name +'_offset', data=act2,
+                                                              num_filter=18, pad=(1, 1), kernel=(3, 3), stride=(1, 1),
+                                                              weight=res5c_branch2b_offset_weight,
+                                                              bias=res5c_branch2b_offset_bias)
+                conv2 = mx.contrib.symbol.DeformableConvolution(name=name + '_conv2',
+                                                                         data=act2,
+                                                                         offset=res5c_branch2b_offset,
+                                                                         num_filter=int(num_filter * 0.25), pad=(2, 2), kernel=(3, 3),
+                                                                         num_deformable_group=1,
+                                                                         stride=(1, 1), dilate=(2, 2), no_bias=True)
             else:
-                conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
-                                           pad=(dilation, dilation), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
-                                           no_bias=True, workspace=workspace, name=name + '_conv2')
+                if dilation <= 1:
+                    conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
+                                               pad=(1, 1),
+                                               no_bias=True, workspace=workspace, name=name + '_conv2')
+                else:
+                    conv2 = mx.sym.Convolution(data=act2, num_filter=int(num_filter * 0.25), kernel=(3, 3), stride=stride,
+                                               pad=(dilation, dilation), dilate=(dilation, dilation), # here we need padding =(2,2),when dilate=2 and stride=2
+                                               no_bias=True, workspace=workspace, name=name + '_conv2')
 
             bn3 = mx.sym.BatchNorm(data=conv2, fix_gamma=False, eps=2e-5,use_global_stats=self.use_global_stats, momentum=bn_mom, name=name + '_bn3')
             act3 = mx.sym.Activation(data=bn3, act_type='relu', name=name + '_relu3')
@@ -125,13 +138,14 @@ class resnet101_deeplab_new(Symbol):
         body = mx.symbol.Pooling(data=body, kernel=(3, 3), stride=(2,2), pad=(1,1), pool_type='max')
 
         dilation = [1,1,2,4]
+        deformable = [False, False, False, True]
         for i in range(num_stage):
             body = self.residual_unit(body, filter_list[i+1], (1 if i==0 or i==3 else 2, 1 if i==0 or i==3 else 2), False,
                                       dilation=1,name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck,
-                                      workspace=workspace, memonger=memonger)
+                                      deformable=deformable[i],workspace=workspace, memonger=memonger)
             for j in range(units[i]-1):
                 body = self.residual_unit(body, filter_list[i+1], (1,1), True, dilation=dilation[i], name='stage%d_unit%d' % (i + 1, j + 2),
-                                     bottle_neck=bottle_neck, workspace=workspace, memonger=memonger)
+                                     deformable=deformable[i],bottle_neck=bottle_neck, workspace=workspace, memonger=memonger)
         bn1 = mx.sym.BatchNorm(data=body, fix_gamma=False, use_global_stats=self.use_global_stats, eps=2e-5, momentum=bn_mom, name='bn1')
         relu1 = mx.sym.Activation(data=bn1, act_type='relu', name='relu1')
         #end  of resnet
@@ -155,26 +169,7 @@ class resnet101_deeplab_new(Symbol):
                 score_weight_i = mx.symbol.Variable('score_weight{}'.format(i+1), lr_mult=w_lr_mult)
                 sum_ = sum_ + mx.symbol.Convolution(data=input_sym, kernel=(1, 1), pad=(0, 0),dilate=(6*(i+1),6*(i+1)), num_filter=num_class, name="score",
                                           bias=score_bias_i, weight=score_weight_i, workspace=workspace)
-
-            """Image Pooling
-            See ParseNet: Looking Wider to See Better
-            """
-            tmp = mx.symbol.mean(input_sym,axis=(2,3),keepdims=True)
-            score_bias_pool = mx.symbol.Variable('score_bias_pool', lr_mult=b_lr_mult)
-            score_weight__pool = mx.symbol.Variable('score_weight_pool', lr_mult=w_lr_mult)
-            tmp = mx.symbol.Convolution(data=tmp, kernel=(1, 1), pad=(0, 0), num_filter=num_class, name="score",
-                                          bias=score_bias_pool, weight=score_weight__pool, workspace=workspace)
-
-            upsamle_scale = 16  # upsample 4X
-            tmp = mx.symbol.Deconvolution(
-                data=tmp, num_filter=num_class, kernel=(upsamle_scale * 2, upsamle_scale * 2),
-                stride=(upsamle_scale, upsamle_scale), num_group=num_class, no_bias=True,
-                name='pool_upsampling', attr={'lr_mult': '0.0'}, workspace=workspace)
-            # magic Cropping
-            tmp = mx.symbol.Crop(*[tmp, data], offset=(8, 8), name='croped_score')
-            #sum_ = sum_ + tmp
             return sum_
-
 
         score = aspp(relu_fc6)
 
@@ -203,8 +198,17 @@ class resnet101_deeplab_new(Symbol):
         origin_arg_params = arg_params.copy()
         origin_aux_params = aux_params.copy()
 
-        arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
-        arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
+        arg_params['stage4_unit1_offset_weight'] = mx.nd.zeros(
+            shape=self.arg_shape_dict['stage4_unit1_offset_weight'])
+        arg_params['stage4_unit1_offset_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['stage4_unit1_offset_bias'])
+
+        arg_params['stage4_unit2_offset_weight'] = mx.nd.zeros(
+            shape=self.arg_shape_dict['stage4_unit2_offset_weight'])
+        arg_params['stage4_unit2_offset_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['stage4_unit2_offset_bias'])
+
+        arg_params['stage4_unit3_offset_weight'] = mx.nd.zeros(
+            shape=self.arg_shape_dict['stage4_unit3_offset_weight'])
+        arg_params['stage4_unit3_offset_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['stage4_unit3_offset_bias'])
 
         arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
         arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
@@ -215,13 +219,15 @@ class resnet101_deeplab_new(Symbol):
         arg_params['score_weight3'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight3'])
         arg_params['score_bias3'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias3'])
 
+        arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
+        arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
 
         arg_params['upsampling_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['upsampling_weight'])
         init = mx.init.Initializer()
         init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])
 
-
         delta_arg_params = list(set(arg_params.keys()) - set(origin_arg_params.keys()))
         delta_aux_params = list(set(aux_params.keys()) - set(origin_aux_params.keys()))
+
         logger.info("arg_params initialize manually: {}".format(','.join(sorted(delta_arg_params))))
         logger.info("aux_params initialize manually: {}".format(','.join(sorted(delta_aux_params))))
