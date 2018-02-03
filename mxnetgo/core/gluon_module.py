@@ -993,8 +993,7 @@ class MutableModule(BaseModule):
         _itr = train_data.get_data()
         while epoch_index <= num_epoch:
             logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
-            #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
-            #TODO dongzhuoyao
+            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
             tic = time.time()
             eval_metric.reset()
             batch_index = 0
@@ -1030,7 +1029,7 @@ class MutableModule(BaseModule):
             for name, val in eval_metric.get_name_value():
                 logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
             toc = time.time()
-            logger.info('Epoch[%d] Time cost=%.3f', epoch_index, (toc-tic))
+            logger.info('Epoch[%d] Time cost=%.3f mins', epoch_index, (toc-tic)/60)
 
             # sync aux params across devices
             arg_params, aux_params = self.get_params()

@@ -982,6 +982,8 @@ class MutableModule(BaseModule):
         logger.info("GPU num: {}".format(len(self._context)))
         logger.info("validation crop size: {}x{}".format(args.tile_height, args.tile_width))
         logger.info("optimizer: {}".format(optimizer))
+        logger.info("allow_missing: {}".format(allow_missing))
+        logger.info('force_rebind: {}'.format(force_rebind))
 
 
         logger.info("batch size per GPU: {}".format(args.batch_size))
@@ -1029,7 +1031,7 @@ class MutableModule(BaseModule):
             for name, val in eval_metric.get_name_value():
                 logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
             toc = time.time()
-            logger.info('Epoch[%d] Time cost=%.3f', epoch_index, (toc-tic))
+            logger.info('Epoch[%d] Time cost=%.3f mins', epoch_index, (toc - tic) / 60)
 
             # sync aux params across devices
             arg_params, aux_params = self.get_params()
