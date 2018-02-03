@@ -991,7 +991,7 @@ class MutableModule(BaseModule):
 
         train_data.reset_state()
         _itr = train_data.get_data()
-        while epoch_index < num_epoch:
+        while epoch_index <= num_epoch:
             logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
             logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
             tic = time.time()
