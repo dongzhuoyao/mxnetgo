@@ -23,3 +23,4 @@ deeplabv2res101.adam.1e-4.scale4|86.7||
 deeplabv2res101.adam.1e-4.scale10|87.5||
 deeplabv2res101.adam.1e-4.scale4.freeze|86.7||
 deeplabv2res101.adam|epoch1:64.39,terminated||
+deeplabv2res101.adam.1e-4.scale15.4gpu|88.3||
