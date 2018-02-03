@@ -880,7 +880,7 @@ class MutableModule(BaseModule):
                                          force_init=force_init)
         self.optimizer_initialized = True
 
-    def fit(self, train_data, args, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
+    def fit(self, train_data, args, eval_sym, eval_sym_instance=None, eval_data=None, eval_imdb=None, eval_metric='acc',
             epoch_end_callback=None, batch_end_callback=None, kvstore='local',
             optimizer='sgd', optimizer_params=(('learning_rate', 0.01),),
             eval_end_callback=None,
@@ -1047,7 +1047,6 @@ class MutableModule(BaseModule):
                 val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]
                 data_shape_dict = {'data': (1, 3, args.tile_height, args.tile_width)
                     , 'softmax_label': (1, 1, args.tile_height, args.tile_width)}
-                eval_sym = eval_sym_instance.get_symbol(args.class_num, is_train=False)
                 eval_sym_instance.infer_shape(data_shape_dict)
                 eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
                 data_names = ['data']
