@@ -993,8 +993,7 @@ class MutableModule(BaseModule):
         _itr = train_data.get_data()
         while epoch_index < num_epoch:
             logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
-            #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
-            #TODO dongzhuoyao
+            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
             tic = time.time()
             eval_metric.reset()
             batch_index = 0

@@ -161,7 +161,6 @@ def train_net(args, ctx):
 
 
     # load and initialize params
-    epoch_string = args.load.rsplit("-",2)[1]
     begin_epoch = 1
     if not args.scratch:
         if args.begin_epoch == -1:
