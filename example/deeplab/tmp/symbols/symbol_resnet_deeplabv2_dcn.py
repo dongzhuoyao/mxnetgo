@@ -99,7 +99,7 @@ class resnet101_deeplab_new(Symbol):
             return conv2 + shortcut
 
 
-    def get_symbol(self, num_class, is_train, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048],b_lr_mult=2.0,w_lr_mult=1.0, bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
+    def get_symbol(self, num_class, is_train, use_global_stats, units=[3, 4, 23, 3], num_stage=4, filter_list=[64, 256, 512, 1024, 2048],b_lr_mult=2.0,w_lr_mult=1.0, bottle_neck=True, bn_mom=0.9, workspace=512, memonger=False):
         """Return ResNet symbol of cifar10 and imagenet
         Parameters
         ----------
@@ -118,7 +118,7 @@ class resnet101_deeplab_new(Symbol):
         """
         num_unit = len(units)
         self.is_train = is_train
-        self.use_global_stats = not is_train
+        self.use_global_stats = use_global_stats
 
         if self.is_train:
             logger.info("is_train: {}".format(self.is_train))

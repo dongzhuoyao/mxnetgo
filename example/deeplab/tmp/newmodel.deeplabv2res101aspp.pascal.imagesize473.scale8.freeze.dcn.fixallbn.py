@@ -6,46 +6,46 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/", "../../data/aerial"
+DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
 import os,sys,cv2
 import pprint
-from mxnetgo.tensorpack.dataset.Aerial import Aerial
+from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
 os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
+from symbols.symbol_resnet_deeplabv2_dcn import resnet101_deeplab_new
 
 IGNORE_LABEL = 255
 
 CROP_HEIGHT = 473
 CROP_WIDTH = 473
-tile_height = 513
-tile_width = 513
+tile_height = 321
+tile_width = 321
 
 batch_size = 11
-EPOCH_SCALE = 10
+EPOCH_SCALE = 8
 end_epoch = 9
-init_lr = 1e-4
-lr_step_list = [(6, 1e-4), (9, 1e-5)]
-NUM_CLASSES = Aerial.class_num()
+lr_step_list = [(6, 1e-3), (9, 1e-4)]
+NUM_CLASSES = PascalVOC12.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
-fixed_param_prefix = []
-from symbol_resnet_deeplabv2_dcn import resnet101_deeplab_new
+fixed_param_prefix = ['conv0_weight','beta','gamma',]
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="2")
+    parser.add_argument("--gpu", default="4")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
-    parser.add_argument("--load", default="../tornadomeet-resnet-101-0000")
+    parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=batch_size)
     parser.add_argument('--class_num', default=NUM_CLASSES)
@@ -85,16 +85,20 @@ from mxnetgo.myutils import logger
 
 import os
 from tensorpack.dataflow.common import BatchData, MapData
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 from tensorpack.dataflow.imgaug.misc import  Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-from mxnetgo.myutils.seg_utils import RandomCropWithPadding,RandomResize
+from seg_utils import RandomCropWithPadding,RandomResize
+
+
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = name == 'train'
-    ds = Aerial(meta_dir, name, shuffle=True)
+    ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
 
     if isTrain:
@@ -129,9 +133,11 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 
 def train_net(args, ctx):
     logger.auto_set_dir()
-
     sym_instance = resnet101_deeplab_new()
-    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True)
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True, use_global_stats=True)
+
+    eval_sym_instance = resnet101_deeplab_new()
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False, use_global_stats=True)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()
@@ -156,7 +162,6 @@ def train_net(args, ctx):
     sym_instance.infer_shape(data_shape_dict)
 
 
-    eval_sym_instance = resnet101_deeplab_new()
 
 
     # load and initialize params
@@ -198,17 +203,17 @@ def train_net(args, ctx):
     lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
 
     # optimizer
-    optimizer_params = {
+    optimizer_params = {'momentum': 0.9,
                         'wd': 0.0005,
-                        'learning_rate': init_lr,
+                        'learning_rate': 2.5e-4,
                       'lr_scheduler': lr_scheduler,
                         'rescale_grad': 1.0,
                         'clip_gradient': None}
 
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
-    mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_data, args = args,eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
-            optimizer='adam', optimizer_params=optimizer_params,
+            optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):

@@ -730,8 +730,7 @@ class MutableModule(BaseModule):
     max_label_shapes : list of (name, shape) tuple, designating inputs whose shape vary
     fixed_param_prefix : list of str, indicating fixed parameters
     """
-    def __init__(self, symbol, data_names, label_names, context=ctx.cpu(), work_load_list=None,
-                 max_data_shapes=None, max_label_shapes=None, fixed_param_prefix=None):
+    def __init__(self, symbol, data_names, label_names, context=ctx.cpu(), work_load_list=None, fixed_param_prefix=None):
         super(MutableModule, self).__init__()
         self._symbol = symbol
         self._data_names = data_names
@@ -740,8 +739,6 @@ class MutableModule(BaseModule):
         self._work_load_list = work_load_list
 
         self._curr_module = None
-        #self._max_data_shapes = max_data_shapes
-        #self._max_label_shapes = max_label_shapes
         self._max_data_shapes = None
         self._max_label_shapes = None
         self._fixed_param_prefix = fixed_param_prefix

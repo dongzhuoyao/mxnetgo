@@ -28,9 +28,9 @@ tile_width = 513
 
 batch_size = 11
 EPOCH_SCALE = 10
-end_epoch = 9
-init_lr = 1e-4
-lr_step_list = [(6, 1e-4), (9, 1e-5)]
+end_epoch = 13
+init_lr = 7.5e-4
+lr_step_list = [(2, 7.5e-4), (6, 2.5e-4), (9, 2.5e-5),(12,1e-6)]
 NUM_CLASSES = Aerial.class_num()
 validation_on_last = end_epoch
 
@@ -41,7 +41,7 @@ from symbol_resnet_deeplabv2_dcn import resnet101_deeplab_new
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="2")
+    parser.add_argument("--gpu", default="0,1,3,5")
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
@@ -133,6 +133,9 @@ def train_net(args, ctx):
     sym_instance = resnet101_deeplab_new()
     sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True)
 
+    eval_sym_instance = resnet101_deeplab_new()
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False)
+
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()
 
@@ -143,20 +146,12 @@ def train_net(args, ctx):
     train_data = get_data("train", DATA_DIR, LIST_DIR, len(ctx))
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
-    # infer max shape
-    max_scale = [args.crop_size]
-    max_data_shape = [('data', (args.batch_size, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
-    max_label_shape = [('label', (args.batch_size, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
-
     # infer shape
     data_shape_dict = {'data':(args.batch_size, 3, args.crop_size[0],args.crop_size[1])
                        ,'label':(args.batch_size, 1, args.crop_size[0],args.crop_size[1])}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
-
-
-    eval_sym_instance = resnet101_deeplab_new()
 
 
     # load and initialize params
@@ -177,8 +172,7 @@ def train_net(args, ctx):
     data_names = ['data']
     label_names = ['label']
 
-    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, max_data_shapes=[max_data_shape for _ in xrange(gpu_nums)],
-                        max_label_shapes=[max_label_shape for _ in xrange(gpu_nums)], fixed_param_prefix=fixed_param_prefix)
+    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, fixed_param_prefix=fixed_param_prefix)
 
     # decide training params
     # metric
@@ -206,7 +200,7 @@ def train_net(args, ctx):
                         'clip_gradient': None}
 
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
-    mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_data, args = args,eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='adam', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
