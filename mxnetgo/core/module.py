@@ -987,12 +987,13 @@ class MutableModule(BaseModule):
         logger.info("allow_missing: {}".format(allow_missing))
         logger.info('force_rebind: {}'.format(force_rebind))
         logger.info('number_of_epoch: {}'.format(num_epoch))
-        if epoch_index > 1:
-            logger.warn("continue from {}-th snapshot..".format(epoch_index))
-
 
         logger.info("batch size per GPU: {}".format(args.batch_size))
         logger.info("epoch volume: {}*{} = {}".format(train_data.size(), epoch_scale, epoch_volumn))
+
+        if epoch_index > 1:
+            logger.warn("continue from {}-th snapshot..".format(epoch_index-1))
+
         train_data = RepeatedData(train_data, -1)
 
 
