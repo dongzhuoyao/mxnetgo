@@ -50,10 +50,11 @@ def parse_args():
     parser.add_argument('--batch_size', default=batch_size)
     parser.add_argument('--class_num', default=NUM_CLASSES)
     parser.add_argument('--kvstore', default=kvstore)
-    parser.add_argument('--end_epoch', default=end_epoch)
-    parser.add_argument('--epoch_scale', default=EPOCH_SCALE)
-    parser.add_argument('--tile_height', default=tile_height)
-    parser.add_argument('--tile_width', default=tile_width)
+    parser.add_argument('--begin_epoch', type=int, default=-1)
+    parser.add_argument('--end_epoch', type=int, default=end_epoch)
+    parser.add_argument('--epoch_scale', type=int,default=EPOCH_SCALE)
+    parser.add_argument('--tile_height', type=int,default=tile_height)
+    parser.add_argument('--tile_width', type=int,default=tile_width)
 
     parser.add_argument('--vis', help='image visualization',  action="store_true")
     args = parser.parse_args()
@@ -159,15 +160,13 @@ def train_net(args, ctx):
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
 
-
-    eval_sym_instance = resnet101_deeplab_new()
-
-
     # load and initialize params
-    epoch_string = args.load.rsplit("-",2)[1]
     begin_epoch = 1
     if not args.scratch:
-        begin_epoch = int(epoch_string)
+        if args.begin_epoch == -1:
+            logger.info("begin_epoch must be initialized when fine tuning")
+            exit()
+        begin_epoch = args.begin_epoch
         logger.info('continue training from {}'.format(begin_epoch))
         arg_params, aux_params = load_init_param(args.load, convert=True)
     else:

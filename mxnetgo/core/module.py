@@ -976,6 +976,8 @@ class MutableModule(BaseModule):
         # training loop
         ################################################################################
         epoch_volumn = train_data.size()*epoch_scale
+        epoch_index = begin_epoch
+
         logger.info("kvstore: {}".format(kvstore))
         logger.info("validation_on_last: {}".format(validation_on_last))
         logger.info("train_data.size(): {}".format(train_data.size()))
@@ -984,12 +986,15 @@ class MutableModule(BaseModule):
         logger.info("optimizer: {}".format(optimizer))
         logger.info("allow_missing: {}".format(allow_missing))
         logger.info('force_rebind: {}'.format(force_rebind))
+        logger.info('number_of_epoch: {}'.format(num_epoch))
+        if epoch_index > 1:
+            logger.warn("continue from {}-th snapshot..".format(epoch_index))
 
 
         logger.info("batch size per GPU: {}".format(args.batch_size))
         logger.info("epoch volume: {}*{} = {}".format(train_data.size(), epoch_scale, epoch_volumn))
         train_data = RepeatedData(train_data, -1)
-        epoch_index = begin_epoch
+
 
         train_data.reset_state()
         _itr = train_data.get_data()

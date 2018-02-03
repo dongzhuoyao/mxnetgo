@@ -54,6 +54,7 @@ class Aerial(RNGDataFlow):
 
 
 
+
     def size(self):
         return len(self.imglist)
 
