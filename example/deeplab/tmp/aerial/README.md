@@ -25,3 +25,5 @@ deeplabv2res101.adam.1e-4.scale4.freeze|86.7||
 deeplabv2res101.adam|epoch1:64.39,terminated||
 deeplabv2res101.adam.1e-4.scale15.4gpu|**88.3**,longer time can reach 88.6||
 deeplabv2res101.adam.1e-4.scale10.dcn|87.3||
+deeplabv2res101.adam.1e-4.scale10.image673.fixallbn|84.57||
+deeplabv2res101.adam.1e-4.scale10.dcn.4gpu|87.3||
