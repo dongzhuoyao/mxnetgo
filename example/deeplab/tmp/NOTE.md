@@ -1,5 +1,12 @@
 # Result in Mxnetgo
 
+## Camvid
+
+|                                   | mIoU,acc(official) | mIoU(my)  |
+|-----------------------------------|------|-------|
+|baseline.camvid.imagesize473.full.scale16.bsfull.fixnone|55.44|?|
+
+
 ## ADE20K
 
 |                                   | mIoU,acc(official) | mIoU(my)  |
