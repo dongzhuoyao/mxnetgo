@@ -97,7 +97,7 @@ from seg_utils import RandomCropWithPadding,RandomResize
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
-    isTrain = name == 'train'
+    isTrain = True if 'train' in name else False
     ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
 
@@ -182,7 +182,7 @@ def test_deeplab(ctx):
 def train_net(args, ctx):
     logger.auto_set_dir()
 
-    from symbols.symbol_resnet import resnet101_deeplab_new
+    from symbols.symbol_resnet_deeplabv1 import resnet101_deeplab_new
 
     # load symbol
     shutil.copy2(os.path.join(curr_path, 'symbols', 'symbol_resnet.py'), logger.get_logger_dir())#copy file to logger dir for debug convenience
@@ -197,7 +197,7 @@ def train_net(args, ctx):
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
 
-    train_data = get_data("train", DATA_DIR, LIST_DIR, len(ctx))
+    train_data = get_data("train_aug", DATA_DIR, LIST_DIR, len(ctx))
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
     # infer max shape
@@ -269,7 +269,7 @@ def train_net(args, ctx):
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
-        ds = get_data("train", DATA_DIR, LIST_DIR, ctx)
+        ds = get_data("train_aug", DATA_DIR, LIST_DIR, ctx)
         ds.reset_state()
         for ims, labels in ds.get_data():
             for im, label in zip(ims, labels):

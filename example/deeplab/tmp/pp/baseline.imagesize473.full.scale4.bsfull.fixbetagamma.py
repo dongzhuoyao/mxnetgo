@@ -21,8 +21,8 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 472
-CROP_WIDTH = 472
+CROP_HEIGHT = 473
+CROP_WIDTH = 473
 tile_height = 321
 tile_width = 321
 
@@ -35,7 +35,7 @@ validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','beta','gamma',]
-symbol_str = "symbol_resnet_deeplabv1"
+
 
 from symbols.symbol_resnet_deeplabv1 import resnet101_deeplab_new
 
@@ -131,54 +131,6 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     return ds
 
 
-def test_deeplab(ctx):
-    #logger.auto_set_dir()
-    test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
-    ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
-
-    sym_instance = eval(symbol_str)()
-    # infer shape
-    val_provide_data = [[("data", (1, 3, tile_height, tile_width))]]
-    val_provide_label = [[("softmax_label", (1, 1, tile_height, tile_width))]]
-    data_shape_dict = {'data': (1, 3, tile_height, tile_width)
-        , 'softmax_label': (1, 1, tile_height, tile_width)}
-    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False)
-    sym_instance.infer_shape(data_shape_dict)
-
-    arg_params, aux_params = load_init_param(args.load, process=True)
-
-    sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
-    data_names = ['data']
-    label_names = ['softmax_label']
-
-    # create predictor
-    predictor = Predictor(eval_sym, data_names, label_names,
-                          context=ctx,
-                          provide_data=val_provide_data, provide_label=val_provide_label,
-                          arg_params=arg_params, aux_params=aux_params)
-
-    if args.vis:
-        from mxnetgo.myutils.fs import mkdir_p
-        vis_dir = os.path.join(logger.get_logger_dir(),"vis")
-        mkdir_p(vis_dir)
-    stats = MIoUStatistics(NUM_CLASSES)
-    test_data.reset_state()
-    nbatch = 0
-    for data, label in tqdm(test_data.get_data()):
-        output_all = predict_scaler(data, predictor,
-                                    scales=[0.9,1.0,1.1], classes=NUM_CLASSES,
-                                    tile_size=(tile_height, tile_width),
-                                    is_densecrf=False, nbatch=nbatch,
-                                    val_provide_data=val_provide_data,
-                                    val_provide_label=val_provide_label)
-        output_all = np.argmax(output_all, axis=0)
-        label = np.squeeze(label)
-        if args.vis:
-            cv2.imwrite(os.path.join(vis_dir,"{}.jpg".format(nbatch)),visualize_label(output_all))
-        stats.feed(output_all, label)  # very time-consuming
-        nbatch += 1
-    logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU, stats.mean_accuracy, stats.accuracy))
-
 
 def train_net(args, ctx):
     logger.auto_set_dir()
@@ -202,9 +154,6 @@ def train_net(args, ctx):
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
-
-
-
 
 
     # load and initialize params
@@ -274,7 +223,5 @@ if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
     if args.view:
         view_data(ctx)
-    elif args.validation:
-        test_deeplab(ctx)
     else:
         train_net(args, ctx)

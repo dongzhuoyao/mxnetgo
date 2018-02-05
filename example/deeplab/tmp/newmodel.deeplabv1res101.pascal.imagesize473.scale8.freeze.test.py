@@ -134,7 +134,7 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 
 
 def proceed_test():
-    ds = PascalVOC12(TEST_DATA_DIR, LIST_DIR, "test", shuffle=True)
+    ds = PascalVOC12(TEST_DATA_DIR, LIST_DIR, "test", shuffle=False)
     imagelist = ds.imglist
     ds = BatchData(ds,1)
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
@@ -181,8 +181,9 @@ def proceed_test():
                                     is_densecrf=False, nbatch=nbatch,
                                     val_provide_data=val_provide_data,
                                     val_provide_label=val_provide_label)
-        output_all = np.argmax(output_all, axis=0)
-        cv2.imwrite(os.path.join(vis_dir,"{}.png".format(filename)),output_all)
+        output_all = np.argmax(output_all, axis=0).astype(np.uint8)
+        result = output_all[:,:,None]
+        cv2.imwrite(os.path.join(vis_dir,"{}.png".format(filename)),result)
         cv2.imwrite(os.path.join(check_dir,"{}.png".format(filename)),np.concatenate((data[0][0], visualize_label(output_all)), axis=1))
         nbatch += 1
 
