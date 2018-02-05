@@ -133,6 +133,15 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 def proceed_test():
     ds = PascalVOC12(TEST_DATA_DIR, LIST_DIR, "test", shuffle=False)
     imagelist = ds.imglist
+
+    def f(ds):
+        image = ds
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,1,3))  # NCHW
+        image = image - const_arr
+        return image
+
+    ds = MapData(ds, f)
     ds = BatchData(ds,1)
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 

@@ -136,6 +136,15 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
 def proceed_test():
     ds = PascalVOC12(TEST_DATA_DIR, LIST_DIR, "test", shuffle=False)
     imagelist = ds.imglist
+
+    def f(ds):
+        image = ds
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,1,3))  # NCHW
+        image = image - const_arr
+        return image
+
+    ds = MapData(ds, f)
     ds = BatchData(ds,1)
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
@@ -161,7 +170,7 @@ def proceed_test():
 
 
     from mxnetgo.myutils.fs import mkdir_p
-    vis_dir = "test_result"
+    vis_dir = "deeplabv1freeze_test_result"
     check_dir = os.path.join(vis_dir,"check")
     import shutil
     shutil.rmtree(vis_dir, ignore_errors=True)
@@ -186,6 +195,7 @@ def proceed_test():
         cv2.imwrite(os.path.join(vis_dir,"{}.png".format(filename)),result)
         cv2.imwrite(os.path.join(check_dir,"{}.png".format(filename)),np.concatenate((data[0][0], visualize_label(output_all)), axis=1))
         nbatch += 1
+
 
 
 def train_net(args, ctx):
