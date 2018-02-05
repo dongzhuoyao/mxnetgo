@@ -137,7 +137,7 @@ def train_net(args, ctx):
 
 
     sym_instance = resnet101_deeplab_new()
-    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True, use_global_stats=False)
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True, use_global_stats=True)
 
     eval_sym_instance = resnet101_deeplab_new()
     eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False, use_global_stats=True)

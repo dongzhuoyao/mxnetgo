@@ -6,12 +6,13 @@ import numpy as np
 from mxnetgo.myutils import logger
 
 class FCNLogLossMetric(mx.metric.EvalMetric):
-    def __init__(self, show_interval):
+    def __init__(self, show_interval, class_num):
         super(FCNLogLossMetric, self).__init__('FCNLogLoss')
         self.show_interval = show_interval
         logger.info("start training, loss show interval = {}".format(show_interval))
         self.sum_metric = 0
         self.num_inst = 0
+        self.class_num = class_num
 
     def update(self, labels, preds):
         pred = preds[0]
@@ -24,7 +25,7 @@ class FCNLogLossMetric(mx.metric.EvalMetric):
         pred = pred.reshape((label.shape[0], -1))
 
         # filter with keep_inds
-        keep_inds = np.where(label != 255)[0]
+        keep_inds = np.where(label < self.class_num)[0]#keep_inds = np.where(label != 255)[0]
         label = label[keep_inds]
         cls = pred[keep_inds, label]
 

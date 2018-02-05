@@ -23,7 +23,7 @@ class Camvid(RNGDataFlow):
         self.name = name
 
         if shuffle is None:
-            shuffle = (name == 'train' or name == 'train_aug')
+            shuffle = (name == 'train')
         self.shuffle = shuffle
         self.imglist = []
 
@@ -37,7 +37,7 @@ class Camvid(RNGDataFlow):
             raise
 
         for line in f.readlines():
-            self.imglist.append(line.strip("\n"))
+            self.imglist.append(line.strip("\n").split(" "))
         f.close()
 
         #self.imglist = self.imglist[:20]
@@ -47,7 +47,7 @@ class Camvid(RNGDataFlow):
 
     @staticmethod
     def class_num():
-        return 11#webdemo have 12 classes
+        return 12#webdemo have 12 classes
 
     def get_data(self):
         idxs = np.arange(len(self.imglist))

@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
 
 
 import argparse
@@ -27,23 +27,23 @@ tile_height = 321
 tile_width = 321
 
 batch_size = 11
-EPOCH_SCALE = 8
+EPOCH_SCALE = 4
 end_epoch = 9
-lr_step_list = [(6, 1e-3), (9, 1e-4)]
+lr_step_list = [(6, 1e-4), (9, 1e-5)]
 NUM_CLASSES = PascalVOC12.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','beta','gamma',]
+symbol_str = "symbol_resnet_deeplabv1"
 
-from symbols.symbol_resnet_deeplabv1_no1024 import resnet101_deeplab_new
-
+from symbols.symbol_resnet_deeplabv1 import resnet101_deeplab_new
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="4")
-    parser.add_argument('--frequent', help='frequency of logging', default=200, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=10, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
@@ -92,7 +92,7 @@ from tensorpack.dataflow.imgaug.misc import  Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-from seg_utils import RandomCropWithPadding,RandomResize
+from mxnetgo.myutils.seg_utils import RandomCropWithPadding,RandomResize
 
 
 
@@ -136,19 +136,21 @@ def test_deeplab(ctx):
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
-    sym_instance = resnet101_deeplab_new()
+    sym_instance = eval(symbol_str)()
     # infer shape
     val_provide_data = [[("data", (1, 3, tile_height, tile_width))]]
     val_provide_label = [[("softmax_label", (1, 1, tile_height, tile_width))]]
     data_shape_dict = {'data': (1, 3, tile_height, tile_width)
         , 'softmax_label': (1, 1, tile_height, tile_width)}
-    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False,use_global_stats=True)
+    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False)
     sym_instance.infer_shape(data_shape_dict)
+
     arg_params, aux_params = load_init_param(args.load, process=True)
 
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
     data_names = ['data']
     label_names = ['softmax_label']
+
     # create predictor
     predictor = Predictor(eval_sym, data_names, label_names,
                           context=ctx,
@@ -183,11 +185,10 @@ def train_net(args, ctx):
 
 
     sym_instance = resnet101_deeplab_new()
-    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,use_global_stats=False)
+    sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True, use_global_stats=False)
 
     eval_sym_instance = resnet101_deeplab_new()
-    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=True,use_global_stats=True)
-
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False, use_global_stats=True)
     # setup multi-gpu
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
@@ -195,13 +196,15 @@ def train_net(args, ctx):
     train_data = get_data("train_aug", DATA_DIR, LIST_DIR, len(ctx))
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
-
     # infer shape
     data_shape_dict = {'data':(args.batch_size, 3, args.crop_size[0],args.crop_size[1])
                        ,'label':(args.batch_size, 1, args.crop_size[0],args.crop_size[1])}
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
+
+
+
 
 
     # load and initialize params
@@ -222,13 +225,15 @@ def train_net(args, ctx):
     data_names = ['data']
     label_names = ['label']
 
-    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx,  fixed_param_prefix=fixed_param_prefix)
+    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, fixed_param_prefix=fixed_param_prefix)
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,PascalVOC12.class_num())
+    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent)
     eval_metrics = mx.metric.CompositeEvalMetric()
-    eval_metrics.add(fcn_loss_metric)
+
+    for child_metric in [fcn_loss_metric]:
+        eval_metrics.add(child_metric)
 
     # callback
     batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]
@@ -250,7 +255,7 @@ def train_net(args, ctx):
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
     mod.fit(train_data=train_data, args = args,eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
-            optimizer='sgd', optimizer_params=optimizer_params,
+            optimizer='nag', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
