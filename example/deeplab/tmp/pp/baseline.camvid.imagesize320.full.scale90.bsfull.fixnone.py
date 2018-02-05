@@ -6,13 +6,13 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/SegNet-Tutorial", "data/camvid"
 
 
 import argparse
 import os,sys,cv2
 import pprint
-from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
+from mxnetgo.tensorpack.dataset.camvid import Camvid
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -21,20 +21,20 @@ os.environ['MXNET_ENABLE_GPU_P2P'] = '0'
 
 IGNORE_LABEL = 255
 
-CROP_HEIGHT = 473
-CROP_WIDTH = 473
+CROP_HEIGHT = 320
+CROP_WIDTH = 320
 tile_height = 321
 tile_width = 321
 
-batch_size = 11
-EPOCH_SCALE = 4
+batch_size = 23
+EPOCH_SCALE = 90
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
-NUM_CLASSES = PascalVOC12.class_num()
+NUM_CLASSES = Camvid.class_num()
 validation_on_last = end_epoch
 
 kvstore = "device"
-fixed_param_prefix = ['conv0_weight','beta','gamma',]
+fixed_param_prefix = []
 symbol_str = "symbol_resnet_deeplabv1"
 
 from symbols.symbol_resnet_deeplabv1 import resnet101_deeplab_new
@@ -86,26 +86,25 @@ from mxnetgo.myutils import logger
 
 import os
 from tensorpack.dataflow.common import BatchData, MapData
-from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
-from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
-from tensorpack.dataflow.imgaug.misc import  Flip,RandomResize
+from tensorpack.dataflow.imgaug.misc import  Flip
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-from mxnetgo.myutils.seg_utils import RandomCropWithPadding
-
+from mxnetgo.myutils.seg_utils import RandomCropWithPadding,RandomResize
 
 
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = True if 'train' in name else False
-    ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
+    ds = Camvid(data_dir, meta_dir, name, shuffle=True)
+
+
+    if isTrain:
+        ds = MapData(ds, RandomResize)
 
     if isTrain:
         shape_aug = [
-                     RandomResize(xrange=(0.7, 1.5), yrange=(0.7, 1.5),
-                         aspect_ratio_thres=0.15,interp=cv2.INTER_NEAREST),
                      RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
@@ -192,7 +191,7 @@ def train_net(args, ctx):
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
 
-    train_data = get_data("train_aug", DATA_DIR, LIST_DIR, len(ctx))
+    train_data = get_data("train", DATA_DIR, LIST_DIR, len(ctx))
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
     # infer shape
@@ -228,9 +227,11 @@ def train_net(args, ctx):
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,PascalVOC12.class_num())
+    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,Camvid.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
-    eval_metrics.add(fcn_loss_metric)
+
+    for child_metric in [fcn_loss_metric]:
+        eval_metrics.add(child_metric)
 
     # callback
     batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]
@@ -256,7 +257,7 @@ def train_net(args, ctx):
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
-        ds = get_data("train_aug", DATA_DIR, LIST_DIR, ctx)
+        ds = get_data("train", DATA_DIR, LIST_DIR, ctx)
         ds.reset_state()
         for ims, labels in ds.get_data():
             for im, label in zip(ims, labels):
