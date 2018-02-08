@@ -139,13 +139,13 @@ def test_deeplab(ctx):
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
 
-    sym_instance = eval(symbol_str)()
+    sym_instance = resnet101_deeplab_new()
     # infer shape
     val_provide_data = [[("data", (1, 3, tile_height, tile_width))]]
     val_provide_label = [[("softmax_label", (1, 1, tile_height, tile_width))]]
     data_shape_dict = {'data': (1, 3, tile_height, tile_width)
         , 'softmax_label': (1, 1, tile_height, tile_width)}
-    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False)
+    eval_sym = sym_instance.get_symbol(NUM_CLASSES, is_train=False,use_global_stats=True)
     sym_instance.infer_shape(data_shape_dict)
 
     arg_params, aux_params = load_init_param(args.load, process=True)
@@ -169,7 +169,7 @@ def test_deeplab(ctx):
     nbatch = 0
     for data, label in tqdm(test_data.get_data()):
         output_all = predict_scaler(data, predictor,
-                                    scales=[0.9,1.0,1.1], classes=NUM_CLASSES,
+                                    scales=[0.5,0.75,1.0,1.25,1.5], classes=NUM_CLASSES,
                                     tile_size=(tile_height, tile_width),
                                     is_densecrf=False, nbatch=nbatch,
                                     val_provide_data=val_provide_data,
@@ -205,9 +205,6 @@ def train_net(args, ctx):
 
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
-
-
-
 
 
     # load and initialize params
