@@ -44,7 +44,6 @@ def parse_args():
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
-    parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=batch_size)
     parser.add_argument('--class_num', default=NUM_CLASSES)
@@ -92,7 +91,7 @@ from seg_utils import RandomCropWithPadding,RandomResize
 
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
-    isTrain = name == 'train'
+    isTrain = True if 'train' in name else False
     ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
 
@@ -142,7 +141,7 @@ def train_net(args, ctx):
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
 
-    train_data = get_data("train", DATA_DIR, LIST_DIR, len(ctx))
+    train_data = get_data("train_aug", DATA_DIR, LIST_DIR, len(ctx))
     test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
     # infer max shape
@@ -157,24 +156,27 @@ def train_net(args, ctx):
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
 
-
     eval_sym_instance = resnet101_deeplab_new()
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False)
 
 
     # load and initialize params
-    epoch_string = args.load.rsplit("-",2)[1]
     begin_epoch = 1
+    """
     if not args.scratch:
         begin_epoch = int(epoch_string)
         logger.info('continue training from {}'.format(begin_epoch))
         arg_params, aux_params = load_init_param(args.load, convert=True)
     else:
-        logger.info(args.load)
-        arg_params, aux_params = load_init_param(args.load, convert=True)
-        sym_instance.init_weights(arg_params, aux_params)
+        #logger.info(args.load)
+        #arg_params, aux_params = load_init_param(args.load, convert=True)
+        #sym_instance.init_weights(arg_params, aux_params)
+        pass
+    """
 
     # check parameter shapes
-    sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict)
+    #arg_params, aux_params = sym_instance.get_params()
+    #sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict) useless in gluon.
 
     data_names = ['data']
     label_names = ['label']
@@ -184,7 +186,7 @@ def train_net(args, ctx):
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent)
+    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,PascalVOC12.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
 
     for child_metric in [fcn_loss_metric]:
@@ -214,7 +216,7 @@ def train_net(args, ctx):
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
-        ds = get_data("train", DATA_DIR, LIST_DIR, ctx)
+        ds = get_data("train_aug", DATA_DIR, LIST_DIR, ctx)
         ds.reset_state()
         for ims, labels in ds.get_data():
             for im, label in zip(ims, labels):
