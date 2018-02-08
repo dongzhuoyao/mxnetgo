@@ -123,9 +123,8 @@ def train_net(args, ctx):
     logger.auto_set_dir()
 
     from symbols.symbol_resnet_deeplabv2 import resnet101_deeplab_new
-
-
     sym_instance = resnet101_deeplab_new()
+
     sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True,memonger=False)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
