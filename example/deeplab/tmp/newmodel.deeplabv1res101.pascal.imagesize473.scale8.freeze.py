@@ -164,7 +164,7 @@ def test_deeplab(ctx):
     nbatch = 0
     for data, label in tqdm(test_data.get_data()):
         output_all = predict_scaler(data, predictor,
-                                    scales=[0.9,1.0,1.1], classes=NUM_CLASSES,
+                                    scales=[0.5,0.75,1.0,1.25, 1.5], classes=NUM_CLASSES,
                                     tile_size=(tile_height, tile_width),
                                     is_densecrf=False, nbatch=nbatch,
                                     val_provide_data=val_provide_data,
