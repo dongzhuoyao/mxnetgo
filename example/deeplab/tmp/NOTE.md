@@ -81,6 +81,8 @@ newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|62
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freeze|52.19|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze(second time)(fix beta,gamma;use_global_stats = not is_train)|**73.7** :smile:|
+newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze(third time)|66.4|
+newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze.conv1024|71.2??????|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4|63.9|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|55.31|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|68.65|
