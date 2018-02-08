@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
