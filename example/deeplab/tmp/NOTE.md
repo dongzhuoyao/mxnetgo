@@ -95,6 +95,7 @@ newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2|epoch1:3.3,term
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix|70.1|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.8**|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze.adam1e-4|epoch6:47, terminated|
+resnext.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.68**|
 
 ## some notes
 
