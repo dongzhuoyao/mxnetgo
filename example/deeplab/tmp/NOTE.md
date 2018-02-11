@@ -59,7 +59,7 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|67|
 |                     Method      | mIoU|
 |-----------------------------------|------|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze|60,second time **73.3**|
-|newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu|74.3, test result:[73.86]
+|newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu|74.3, test result:[73.86](http://host.robots.ox.ac.uk:8080/anonymous/RDXEOF.html)|
 |newmodel.deeplabv2res101**aspp**.pascal.imagesize473.scale8.freeze|**73.5**|
 |new.deeplabv2res101.pascal.imagesize473.scale8|59.64|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.lr1e-4|56|
@@ -74,7 +74,6 @@ newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn.fixallbn|:que
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4|65.25|
 newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e-4|:question:|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74.1**|
-(http://host.robots.ox.ac.uk:8080/anonymous/RDXEOF.html)|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
 |-----------------------------------|--
@@ -95,8 +94,9 @@ newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2|epoch1:3.3,term
 |-----------------------------------|--
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix|70.1|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.8**|
-resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze.adam1e-4|epoch6:47, terminated|
 resnext.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.68**|
+resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze.adam1e-4|epoch6:47, terminated|
+
 
 ## some notes
 
