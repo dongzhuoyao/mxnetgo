@@ -58,12 +58,13 @@ deeplabv2res101.pascal.imagesize473.scale8.unfreeze|70.7|67|
 
 |                     Method      | mIoU|
 |-----------------------------------|------|
+|newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze|60,second time **73.3**|
+|newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu|74.3, test result:[73.86]
+|newmodel.deeplabv2res101**aspp**.pascal.imagesize473.scale8.freeze|**73.5**|
 |new.deeplabv2res101.pascal.imagesize473.scale8|59.64|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.lr1e-4|56|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|4 in epoch1,2,3, stopped|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze|59.5|
-|newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze|60,second time **73.3**|
-newmodel.deeplabv2res101**aspp**.pascal.imagesize473.scale8.freeze|**73.5**|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.adam1e-4|epoch7:58,terminated|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn|72|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn.fixallbn|:question:|
@@ -73,16 +74,16 @@ newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn.fixallbn|:que
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4|65.25|
 newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e-4|:question:|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74.1**|
-newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.4gpu|74.3, test result:[73.86](http://host.robots.ox.ac.uk:8080/anonymous/RDXEOF.html)|
+(http://host.robots.ox.ac.uk:8080/anonymous/RDXEOF.html)|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
 |-----------------------------------|--
+newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze.conv1024|**71.2**|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|56.2
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage12|62
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freeze|52.19|
 ~~newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze(second time)(fix beta,gamma;use_global_stats = not is_train),dilation=[1,1,2,4], so actually it's deeplabv2~~|~~**73.7** :smile:~~|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze(third time)|66.4|
-newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze.conv1024|**71.2**|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4|63.9|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freezestage1|55.31|
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.bnfix|68.65|
