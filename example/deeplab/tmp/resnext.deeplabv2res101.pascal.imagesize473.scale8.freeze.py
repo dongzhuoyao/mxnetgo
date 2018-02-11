@@ -124,7 +124,7 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     ds = MapData(ds, f)
     if isTrain:
         ds = BatchData(ds, args.batch_size*gpu_nums)
-        ds = PrefetchDataZMQ(ds, 1)
+        #ds = PrefetchDataZMQ(ds, 1)
     else:
         ds = BatchData(ds, 1)
     return ds
@@ -183,7 +183,6 @@ def train_net(args, ctx):
     # metric
     fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,PascalVOC12.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
-    eval_metrics.add(fcn_loss_metric)
 
     # callback
     batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]

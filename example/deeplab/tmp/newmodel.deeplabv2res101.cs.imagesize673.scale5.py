@@ -16,14 +16,14 @@ CROP_HEIGHT = 673
 CROP_WIDTH = 673
 tile_height = 673
 tile_width = 673
-batch_size = 5 #was 7; 6 will OOM
+batch_size = 5 #was 7; 6 will cause evaluation OOM
 
 EPOCH_SCALE = 5
 end_epoch = 9
 init_lr = 2.5e-4
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = Cityscapes.class_num()
-validation_on_last = 1
+validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','beta','gamma']
@@ -112,7 +112,7 @@ def get_data(name, meta_dir, gpu_nums):
     ds = MapData(ds, f)
     if isTrain:
         ds = BatchData(ds, args.batch_size*gpu_nums)
-        ds = PrefetchDataZMQ(ds, 1)
+        #ds = PrefetchDataZMQ(ds, 1)
     else:
         ds = BatchData(ds, 1)
     return ds
@@ -172,8 +172,6 @@ def train_net(args, ctx):
     fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,Cityscapes.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
 
-    for child_metric in [fcn_loss_metric]:
-        eval_metrics.add(child_metric)
 
     # callback
     batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]

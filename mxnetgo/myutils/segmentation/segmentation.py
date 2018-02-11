@@ -6,7 +6,6 @@
 import numpy as np
 from math import ceil
 import cv2,colorsys
-import matplotlib.pyplot as plt
 import mxnet as mx
 from mxnetgo.myutils import logger
 import os, sys

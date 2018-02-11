@@ -979,6 +979,7 @@ class MutableModule(BaseModule):
         logger.info("validation_on_last: {}".format(validation_on_last))
         logger.info("train_data.size(): {}".format(train_data.size()))
         logger.info("GPU num: {}".format(len(self._context)))
+        logger.info("training crop size: {}x{}".format(args.crop_size[0],args.crop_size[1]))
         logger.info("validation crop size: {}x{}".format(args.tile_height, args.tile_width))
         logger.info("optimizer: {}".format(optimizer))
         logger.info("allow_missing: {}".format(allow_missing))
@@ -1021,18 +1022,22 @@ class MutableModule(BaseModule):
                 if monitor is not None:
                     monitor.toc_print()
 
-                if batch_end_callback is not None:
+
+                if batch_end_callback is not None:# caution! this part would greatly slow down the training process~
                     batch_end_params = BatchEndParam(epoch=epoch_index, nbatch=batch_index,
                                                      eval_metric=eval_metric,
                                                      locals=locals())
                     for callback in _as_list(batch_end_callback):
                         callback(batch_end_params)
 
+
                 batch_index += 1
 
             # one epoch of training is finished
+
             for name, val in eval_metric.get_name_value():
                 logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
+
             toc = time.time()
             logger.info('Epoch[%d] Time cost=%.3f mins', epoch_index, (toc - tic) / 60)
 

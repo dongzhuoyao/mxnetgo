@@ -5,7 +5,7 @@ import mxnet as mx
 import numpy as np
 from mxnetgo.myutils import logger
 
-class FCNLogLossMetric(mx.metric.EvalMetric):
+class FCNLogLossMetric(mx.metric.EvalMetric): #slow implementation!!!!
     def __init__(self, show_interval, class_num):
         super(FCNLogLossMetric, self).__init__('FCNLogLoss')
         self.show_interval = show_interval
