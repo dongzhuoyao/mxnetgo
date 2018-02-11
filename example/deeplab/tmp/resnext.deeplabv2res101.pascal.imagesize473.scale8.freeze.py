@@ -6,7 +6,7 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data2/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
@@ -42,7 +42,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="5")
-    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=300, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--load", default="resnext-101-0000")
@@ -138,8 +138,8 @@ def train_net(args, ctx):
     train_sym_instance = resnext()
     eval_sym_instance = resnext()
 
-    sym = train_sym_instance.get_symbol(NUM_CLASSES, is_train=True)
-    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False)
+    sym = train_sym_instance.get_symbol(NUM_CLASSES, is_train=True, use_global_stats=False)
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False,use_global_stats=True)
 
     #digraph = mx.viz.plot_network(sym, save_format='pdf')
     #digraph.render()

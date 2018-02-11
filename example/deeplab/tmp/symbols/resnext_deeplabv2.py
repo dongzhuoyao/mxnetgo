@@ -120,10 +120,8 @@ class resnext(Symbol):
             eltwise = bn2 + shortcut
             return mx.sym.Activation(data=eltwise, act_type='relu', name=name + '_relu')
 
-    def resnext(self, units, num_stages, filter_list, num_classes, is_train, num_group, bottle_neck=True,b_lr_mult=2.0,w_lr_mult=1.0, bn_mom=0.9, workspace=256,  memonger=False):
+    def resnext(self, units, num_stages, filter_list, num_classes, is_train,use_global_stats, num_group, bottle_neck=True,b_lr_mult=2.0,w_lr_mult=1.0, bn_mom=0.9, workspace=256,  memonger=False):
 
-
-        use_global_stats = not is_train
 
         if is_train:
             logger.info("is_train: {}".format(is_train))
@@ -149,7 +147,7 @@ class resnext(Symbol):
         dilation = [1, 1, 2, 4]
         for i in range(num_stages):
             body = self.residual_unit(body, filter_list[i+1], (1 if i==0 or i==3 else 2, 1 if i==0 or i==3 else 2), False,use_global_stats=use_global_stats,
-                                      dilation=dilation[i], name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck, num_group=num_group,
+                                      dilation=1, name='stage%d_unit%d' % (i + 1, 1), bottle_neck=bottle_neck, num_group=num_group,
                                  bn_mom=bn_mom, workspace=workspace, memonger=memonger)
             for j in range(units[i]-1):
                 body = self.residual_unit(body, filter_list[i+1], (1,1), True,dilation=dilation[i],  name='stage%d_unit%d' % (i + 1, j + 2),use_global_stats=use_global_stats,
@@ -165,7 +163,7 @@ class resnext(Symbol):
         score_bias = mx.symbol.Variable('score_bias', lr_mult=b_lr_mult)
         score_weight = mx.symbol.Variable('score_weight', lr_mult=w_lr_mult)
 
-        score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), pad=(0, 0), num_filter=num_classes, name="score",
+        score = mx.symbol.Convolution(data=relu_fc6, kernel=(1, 1), dilate=(6,6), pad=(0, 0), num_filter=num_classes, name="score",
                                       bias=score_bias, weight=score_weight, workspace=workspace)
 
         upsamle_scale = 16  # upsample 4X
@@ -189,7 +187,7 @@ class resnext(Symbol):
         self.sym = softmax
         return softmax
 
-    def get_symbol(self, num_classes, is_train, num_layers=101, num_group=32, conv_workspace=256, **kwargs):
+    def get_symbol(self, num_classes, is_train, use_global_stats,  num_layers=101, num_group=32, conv_workspace=256, **kwargs):
         """
         Adapted from https://github.com/tornadomeet/ResNet/blob/master/train_resnet.py
         Original author Wei Wu
@@ -221,6 +219,7 @@ class resnext(Symbol):
         return self.resnext(units      = units,
                             num_stages  = num_stages,
                             is_train=is_train,
+                            use_global_stats = use_global_stats,
                             filter_list = filter_list,
                             num_classes = num_classes,
                             num_group   = num_group,
