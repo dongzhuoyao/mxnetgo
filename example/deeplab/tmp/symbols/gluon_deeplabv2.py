@@ -92,7 +92,6 @@ class resnet101_deeplab_new(Symbol):
     def __init__(self):
         pass
 
-
     def get_symbol(self,class_num, is_train, pretrained=True):
 
         self.is_train = is_train
@@ -140,23 +139,3 @@ class resnet101_deeplab_new(Symbol):
         return softmax
 
 
-    def init_weights(self, arg_params, aux_params):
-        """
-        origin_arg_params = arg_params.copy()
-        origin_aux_params = aux_params.copy()
-
-        arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
-        arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
-        arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])
-        arg_params['score_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['score_bias'])
-        arg_params['upsampling_weight'] = mx.nd.zeros(shape=self.arg_shape_dict['upsampling_weight'])
-        init = mx.init.Initializer()
-        init._init_bilinear('upsample_weight', arg_params['upsampling_weight'])
-
-
-        delta_arg_params = list(set(arg_params.keys()) - set(origin_arg_params.keys()))
-        delta_aux_params = list(set(aux_params.keys()) - set(origin_aux_params.keys()))
-
-        logger.info("arg_params initialize manually: {}".format(','.join(sorted(delta_arg_params))))
-        logger.info("aux_params initialize manually: {}".format(','.join(sorted(delta_aux_params))))
-         """

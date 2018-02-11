@@ -40,8 +40,8 @@ fixed_param_prefix = []
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
-    parser.add_argument("--gpu", default="1")
-    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
+    parser.add_argument("--gpu", default="5")
+    parser.add_argument('--frequent', help='frequency of logging', default=100, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--scratch", action="store_true" )
@@ -68,7 +68,7 @@ import shutil
 import mxnet as mx
 import numpy as np
 from mxnetgo.core import callback, metric
-from mxnetgo.core.gluon_module import MutableModule
+from mxnetgo.core.module import MutableModule
 from mxnetgo.myutils.lr_scheduler import WarmupMultiFactorScheduler,StepScheduler
 from mxnetgo.myutils.load_model import load_param,load_init_param
 
@@ -133,21 +133,11 @@ def train_net(args, ctx):
 
     sym_instance = resnet101_deeplab_new()
     sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True)
-
-    #digraph = mx.viz.plot_network(sym, save_format='pdf')
-    #digraph.render()
-
-    # setup multi-gpu
-    gpu_nums = len(ctx)
-    input_batch_size = args.batch_size * gpu_nums
+    eval_sym_instance = resnet101_deeplab_new()
+    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False)
 
     train_data = get_data("train_aug", DATA_DIR, LIST_DIR, len(ctx))
-    test_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
-
-    # infer max shape
-    max_scale = [args.crop_size]
-    max_data_shape = [('data', (args.batch_size, 3, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
-    max_label_shape = [('label', (args.batch_size, 1, max([v[0] for v in max_scale]), max([v[1] for v in max_scale])))]
+    eval_data = get_data("val", DATA_DIR, LIST_DIR, len(ctx))
 
     # infer shape
     data_shape_dict = {'data':(args.batch_size, 3, args.crop_size[0],args.crop_size[1])
@@ -156,45 +146,18 @@ def train_net(args, ctx):
     pprint.pprint(data_shape_dict)
     sym_instance.infer_shape(data_shape_dict)
 
-    eval_sym_instance = resnet101_deeplab_new()
-    eval_sym = eval_sym_instance.get_symbol(NUM_CLASSES, is_train=False)
-
 
     # load and initialize params
     begin_epoch = 1
-    """
-    if not args.scratch:
-        begin_epoch = int(epoch_string)
-        logger.info('continue training from {}'.format(begin_epoch))
-        arg_params, aux_params = load_init_param(args.load, convert=True)
-    else:
-        #logger.info(args.load)
-        #arg_params, aux_params = load_init_param(args.load, convert=True)
-        #sym_instance.init_weights(arg_params, aux_params)
-        pass
-    """
+    mod = MutableModule(sym, data_names=['data'], label_names=['label'],context=ctx, fixed_param_prefix=fixed_param_prefix)
 
-    # check parameter shapes
-    #arg_params, aux_params = sym_instance.get_params()
-    #sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict) useless in gluon.
-
-    data_names = ['data']
-    label_names = ['label']
-
-    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, max_data_shapes=[max_data_shape for _ in xrange(gpu_nums)],
-                        max_label_shapes=[max_label_shape for _ in xrange(gpu_nums)], fixed_param_prefix=fixed_param_prefix)
-
-    # decide training params
     # metric
     fcn_loss_metric = metric.FCNLogLossMetric(args.frequent,PascalVOC12.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
-
-    for child_metric in [fcn_loss_metric]:
-        eval_metrics.add(child_metric)
+    eval_metrics.add(fcn_loss_metric)
 
     # callback
-    batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]
-    #batch_end_callbacks = [mx.callback.ProgressBar(total=train_data.size/train_data.batch_size)]
+    batch_end_callbacks = [callback.Speedometer(args.batch_size, frequent=args.frequent)]
     epoch_end_callbacks = \
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
@@ -210,10 +173,10 @@ def train_net(args, ctx):
                         'clip_gradient': None}
 
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
-    mod.fit(train_data=train_data, args = args, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_data, args = args, eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=eval_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
-            arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
+            arg_params=None, aux_params=None, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)
 
 def view_data(ctx):
         ds = get_data("train_aug", DATA_DIR, LIST_DIR, ctx)
