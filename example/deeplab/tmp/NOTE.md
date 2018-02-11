@@ -100,6 +100,8 @@ resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze.adam
 
 ## some notes
 
-lr schedule is very important, in most tensorflow framework, the lr schedule is [(3, 1e-4), (5, 1e-5), (7, 8e-6)], however, in mxnet, as paper indicated. the lr schedule is [(4, 1e-3), (6, 1e-4)](total 30k iterations).
+* lr schedule is very important, in most tensorflow framework, the lr schedule is [(3, 1e-4), (5, 1e-5), (7, 8e-6)], however, in mxnet, as paper indicated. the lr schedule is [(4, 1e-3), (6, 1e-4)](total 30k iterations).
+
+* cityscapes evaluation cost 2.5 hours
 
 
