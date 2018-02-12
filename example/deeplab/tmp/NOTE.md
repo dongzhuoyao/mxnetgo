@@ -76,6 +76,9 @@ newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74.1**|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
+newmodel.deeplabv2res101.cs.imagesize1025.scale5|44.8|
+newmodel.deeplabv2res101.cs.imagesize673.scale5|50.8|
+
 |-----------------------------------|--
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze.conv1024|**71.2**|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|56.2
