@@ -73,6 +73,7 @@ newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn.fixallbn|:que
 |newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix|epoch7:72,got stuck,second time: **73.2**|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4|65.25|
 newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e-4|:question:|
+newmodel.deeplabv2res101.pascal.imagesize473.scale4.freeze.adam|59.1|
 newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74.1**|
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
