@@ -78,6 +78,7 @@ newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
 newmodel.deeplabv2res101.cs.imagesize673.scale18.useStats|:question:|
+newmodel.deeplabv2res101.cs.imagesize1025.scale5.useStats|:question:|
 newmodel.deeplabv2res101.cs.imagesize1025.scale5|44.8|
 newmodel.deeplabv2res101.cs.imagesize673.scale5|50.8,50.89|
 |-----------------------------------|--
