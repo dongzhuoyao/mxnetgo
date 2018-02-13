@@ -70,7 +70,7 @@ newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4|6
 newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e-4|none|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam|:question:|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.adam1e-4|epoch7:58,terminated|
-newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam|:question:|
+newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam1e-4|:question:|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn|72|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale12|57.7% in epoch 7,stucked|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4|60.3
