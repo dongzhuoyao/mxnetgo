@@ -70,7 +70,7 @@ newmodel.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.adam1e-4|6
 newmodel.deeplabv2res101.pascal.imagesize473.**scale4**.bnfix.dilationfix.adam1e-4|none|
 newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam|61.67|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.adam1e-4|epoch7:58,terminated|
-newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam1e-4|:question:|
+newmodel.deeplabv2res101.pascal.imagesize473.scale8.freeze.adam1e-4|**72.88**|
 newmodel.deeplabv2res101aspp.pascal.imagesize473.scale8.freeze.dcn|72|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale12|57.7% in epoch 7,stucked|
 |newmodel.deeplabv2res101.pascal.imagesize473.scale4|60.3
@@ -79,7 +79,7 @@ newmodel.deeplabv2res101.pascal.imagesize473.scale16.bnfix.dilationfix.4gpu|**74
 |newmodel.deeplabv2res101.cs.imagesize672.scale18|stopped, no use|
 newmodel.deeplabv2res101.cs.imagesize673.scale9.bnfix.dilationfix|53.4|
 newmodel.deeplabv2res101.cs.imagesize673.scale18.useStats|:question:|
-newmodel.deeplabv2res101.cs.imagesize1025.scale5.useStats|:question:|
+newmodel.deeplabv2res101.cs.imagesize1025.scale5.useStats|45.7|
 newmodel.deeplabv2res101.cs.imagesize1025.scale5|44.8|
 newmodel.deeplabv2res101.cs.imagesize673.scale5|50.8,50.89|
 |-----------------------------------|--
@@ -99,10 +99,10 @@ newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-4|epoch6:38,termi
 newmodel.deeplabv1res101.cs.imagesize673.scale18.freeze.adam1e-2|epoch1:3.3,terminated|
 |-----------------------------------|--
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix|70.1|
-resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.8**|
-resnext.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|**71.68**|
+resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|71.8|
+resnext.deeplabv2res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze|71.68|
 resnext.deeplabv1res101.pascal.imagesize473.scale8.bnfix.dilationfix.freeze.adam1e-4|epoch6:47, terminated|
-resnext.deeplabv2res101.pascal.imagesize473.scale8.freeze|:question:|
+resnext.deeplabv2res101.pascal.imagesize473.scale8.freeze|**73.5**|
 
 ## some notes
 
