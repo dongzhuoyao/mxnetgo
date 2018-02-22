@@ -110,4 +110,7 @@ resnext.deeplabv2res101.pascal.imagesize473.scale8.freeze|:question:|
 
 * cityscapes evaluation cost 2.5 hours
 
+## Target
 
+* mxnet deeplabv2 Cityscapes reproduce
+* mxnet deeplabv2 Mapillary 
