@@ -23,7 +23,7 @@ end_epoch = 9
 init_lr = 2.5e-4
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = Cityscapes.class_num()
-validation_on_last = end_epoch
+validation_on_last = 1
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','beta','gamma']

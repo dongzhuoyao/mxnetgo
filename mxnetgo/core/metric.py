@@ -4,6 +4,78 @@
 import mxnet as mx
 import numpy as np
 from mxnetgo.myutils import logger
+def check_label_shapes(labels, preds, shape=0):
+    if shape == 0:
+        label_shape, pred_shape = len(labels), len(preds)
+    else:
+        label_shape, pred_shape = labels.shape, preds.shape
+
+    if label_shape != pred_shape:
+        raise ValueError("Shape of labels {} does not match shape of "
+                         "predictions {}".format(label_shape, pred_shape))
+
+class CrossEntropy(mx.metric.EvalMetric):
+    """Computes Cross Entropy loss.
+    The cross entropy over a batch of sample size :math:`N` is given by
+    .. math::
+       -\\sum_{n=1}^{N}\\sum_{k=1}^{K}t_{nk}\\log (y_{nk}),
+    where :math:`t_{nk}=1` if and only if sample :math:`n` belongs to class :math:`k`.
+    :math:`y_{nk}` denotes the probability of sample :math:`n` belonging to
+    class :math:`k`.
+    Parameters
+    ----------
+    eps : float
+        Cross Entropy loss is undefined for predicted value is 0 or 1,
+        so predicted values are added with the small constant.
+    name : str
+        Name of this metric instance for display.
+    output_names : list of str, or None
+        Name of predictions that should be used when updating with update_dict.
+        By default include all predictions.
+    label_names : list of str, or None
+        Name of labels that should be used when updating with update_dict.
+        By default include all labels.
+    Examples
+    --------
+    >>> predicts = [mx.nd.array([[0.3, 0.7], [0, 1.], [0.4, 0.6]])]
+    >>> labels   = [mx.nd.array([0, 1, 1])]
+    >>> ce = mx.metric.CrossEntropy()
+    >>> ce.update(labels, predicts)
+    >>> print ce.get()
+    ('cross-entropy', 0.57159948348999023)
+    """
+    def __init__(self, eps=1e-12, name='cross-entropy',
+                 output_names=None, label_names=None):
+        super(CrossEntropy, self).__init__(
+            name, eps=eps,
+            output_names=output_names, label_names=label_names)
+        self.eps = eps
+
+    def update(self, labels, preds):
+        """Updates the internal evaluation result.
+        Parameters
+        ----------
+        labels : list of `NDArray`
+            The labels of the data.
+        preds : list of `NDArray`
+            Predicted values.
+        """
+        check_label_shapes(labels, preds)
+
+        for label, pred in zip(labels, preds):
+            label = label.asnumpy()
+            pred = pred.asnumpy()
+
+            label = label.ravel()
+            assert label.shape[0] == pred.shape[0]
+
+            keep_inds = np.where(label != 255)[0]
+            label = label[keep_inds]
+
+            prob = pred[np.arange(label.shape[0]), np.int64(label)]
+            self.sum_metric += (-np.log(prob + self.eps)).sum()
+            self.num_inst += label.shape[0]
+
 
 class FCNLogLossMetric(mx.metric.EvalMetric): #slow implementation!!!!
     def __init__(self, show_interval, class_num):

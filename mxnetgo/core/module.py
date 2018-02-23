@@ -1001,7 +1001,6 @@ class MutableModule(BaseModule):
             logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
             logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
             tic = time.time()
-            eval_metric.reset()
             batch_index = 0
             for batch_index in tqdm(range(epoch_volumn)):
                 data, label = next(_itr)
@@ -1017,12 +1016,14 @@ class MutableModule(BaseModule):
                     monitor.tic()
                 self.forward_backward(data_batch)
                 self.update()
-                self.update_metric(eval_metric, data_batch.label)
+                #self.update_metric(eval_metric, data_batch.label) remove outside epoch
                 #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
                 if monitor is not None:
                     monitor.toc_print()
 
-
+                if batch_index % args.frequent == 0:
+                    eval_metric.reset()
+                    self.update_metric(eval_metric, data_batch.label)  # only print single-batch loss
                 if batch_end_callback is not None:# caution! this part would greatly slow down the training process~
                     batch_end_params = BatchEndParam(epoch=epoch_index, nbatch=batch_index,
                                                      eval_metric=eval_metric,
@@ -1034,7 +1035,7 @@ class MutableModule(BaseModule):
                 batch_index += 1
 
             # one epoch of training is finished
-
+            #self.update_metric(eval_metric, data_batch.label) # only print single-batch loss
             for name, val in eval_metric.get_name_value():
                 logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
 
@@ -1059,6 +1060,7 @@ class MutableModule(BaseModule):
                     , 'softmax_label': (1, 1, args.tile_height, args.tile_width)}
                 eval_sym_instance.infer_shape(data_shape_dict)
                 eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
+
                 data_names = ['data']
                 label_names = ['softmax_label']
 

@@ -42,7 +42,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="5")
-    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=10, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--load", default="resnext-101-0000")
@@ -185,7 +185,7 @@ def train_net(args, ctx):
 
     # decide training params
     # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent)
+    fcn_loss_metric = metric.CrossEntropy(args.frequent)
     eval_metrics = mx.metric.CompositeEvalMetric()
 
     for child_metric in [fcn_loss_metric]:
