@@ -16,12 +16,13 @@ __all__ = ['Mapillary','MapillaryFiles']
 # size 3982 x 2988, sizes are different
 
 class Mapillary(RNGDataFlow):
-    def __init__(self, meta_dir, name,
+    def __init__(self,base_dir, meta_dir, name,
                  shuffle=None):
 
         assert name in ['train', 'val', 'test'], name
         self.reset_state()
         self.name = name
+        self.base_dir = base_dir
         if shuffle is None:
             shuffle = name == 'train'
         self.shuffle = shuffle
@@ -51,8 +52,8 @@ class Mapillary(RNGDataFlow):
             self.rng.shuffle(idxs)
         for k in idxs:
             fname, flabel = self.imglist[k]
-            #fname = os.path.join(self.dir, fname)
-            #flabel = os.path.join(self.dir,flabel)
+            fname = os.path.join(self.base_dir, fname)
+            flabel = os.path.join(self.base_dir, flabel)
             fname = cv2.imread(fname, cv2.IMREAD_COLOR)
             flabel = cv2.imread(flabel, cv2.IMREAD_GRAYSCALE)
             yield [fname, flabel]
@@ -63,13 +64,14 @@ class Mapillary(RNGDataFlow):
 
 
 class MapillaryFiles(RNGDataFlow):
-    def __init__(self, meta_dir, name,
+    def __init__(self,base_dir, meta_dir, name,
                  shuffle=None, dir_structure=None):
 
         assert name in ['train', 'val','test'], name
         assert os.path.isdir(meta_dir), meta_dir
         self.reset_state()
         self.name = name
+        self.base_dir = base_dir
 
         if shuffle is None:
             shuffle = name == 'train'
@@ -104,6 +106,8 @@ class MapillaryFiles(RNGDataFlow):
             self.rng.shuffle(idxs)
         for k in idxs:
             fname, flabel = self.imglist[k]
+            fname = os.path.join(self.base_dir, fname)
+            flabel = os.path.join(self.base_dir, flabel)
             yield [fname, flabel]
 
 

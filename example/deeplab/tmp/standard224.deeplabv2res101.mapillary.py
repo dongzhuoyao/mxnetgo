@@ -1,5 +1,6 @@
 
 LIST_DIR = "../data/mapillary"
+base_dir = '/data2/dataset/mapillary'
 import argparse
 import os,sys,cv2
 import pprint
@@ -18,7 +19,7 @@ tile_height = 673
 tile_width = 673
 batch_size = 5 #was 7
 
-EPOCH_SCALE = 18
+EPOCH_SCALE = 4
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = MapillaryFiles.class_num()
@@ -76,6 +77,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 import os
 from tensorpack.dataflow.common import BatchData, MapData, ProxyDataFlow
 from tensorpack.dataflow.imgaug.misc import RandomResize,Flip
+from tensorpack.dataflow.imgaug.crop import RandomCrop
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
 from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
@@ -99,17 +101,17 @@ def get_data(name, meta_dir, gpu_nums):
     if isTrain:
         #ds = LMDBData('/data2/dataset/Mapillary/Mapillary_train.lmdb', shuffle=True)
         #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
-        ds = MapillaryFiles(meta_dir, name, shuffle=True)
+        ds = MapillaryFiles(base_dir, meta_dir, name, shuffle=True)
         ds = MultiThreadMapData(ds,4,imgread)
         #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
         ds = MapData(ds, RandomResize)
     else:
-        ds = MapillaryFiles(meta_dir, name, shuffle=False)
+        ds = MapillaryFiles(base_dir, meta_dir, name, shuffle=False)
         ds = MultiThreadMapData(ds, 4, imgread)
 
     if isTrain:#special augmentation
         shape_aug = [
-                     RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
+                     RandomCrop(args.crop_size),
                      Flip(horiz=True),
                      ]
         ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)

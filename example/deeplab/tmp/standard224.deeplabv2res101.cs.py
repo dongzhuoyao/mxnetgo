@@ -76,6 +76,7 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 import os
 from tensorpack.dataflow.common import BatchData, MapData, ProxyDataFlow
 from tensorpack.dataflow.imgaug.misc import RandomResize,Flip
+from tensorpack.dataflow.imgaug.crop import RandomCrop
 from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
 from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
@@ -109,7 +110,7 @@ def get_data(name, meta_dir, gpu_nums):
 
     if isTrain:#special augmentation
         shape_aug = [
-                     RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
+                     RandomCrop(args.crop_size),
                      Flip(horiz=True),
                      ]
         ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
