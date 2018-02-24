@@ -76,15 +76,15 @@ from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 import os
 from tensorpack.dataflow.common import BatchData, MapData, ProxyDataFlow
-from tensorpack.dataflow.imgaug.misc import RandomResize,Flip
+from tensorpack.dataflow.imgaug.misc import Flip
 from tensorpack.dataflow.imgaug.crop import RandomCrop
-from tensorpack.dataflow.image import AugmentImageComponents
+from tensorpack.dataflow.image import AugmentImageComponents, AugmentImageComponent
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
 from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
 from tensorpack.dataflow.format import LMDBData
 from tensorpack.dataflow import FakeData
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-from seg_utils import RandomCropWithPadding,RandomResize
+from seg_utils import RandomCropWithPadding,RandomResize, ResizeShortestEdge
 from tensorpack.utils.serialize import dumps,loads
 
 from mxnetgo.tensorpack.dataflow.dataflow import FastBatchData,ImageDecode
@@ -102,8 +102,9 @@ def get_data(name, meta_dir, gpu_nums):
         #ds = LMDBData('/data2/dataset/Mapillary/Mapillary_train.lmdb', shuffle=True)
         #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
         ds = MapillaryFiles(base_dir, meta_dir, name, shuffle=True)
-        ds = MultiThreadMapData(ds,4,imgread)
+        ds = MultiThreadMapData(ds,8,imgread)
         #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
+        ds = MapData(ds, ResizeShortestEdge) # ResizeShortestEdge
         ds = MapData(ds, RandomResize)
     else:
         ds = MapillaryFiles(base_dir, meta_dir, name, shuffle=False)

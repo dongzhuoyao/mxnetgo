@@ -111,6 +111,25 @@ def RandomResize(ds,xrange=(0.7, 1.5), yrange=(0.7, 1.5),aspect_ratio_thres=0.15
     return [image,label]
 
 
+def ResizeShortestEdge(ds, size = 1000):
+    """
+    Resize the shortest edge to a certain number while
+    keeping the aspect ratio.
+    """
+    size = int(size)
+    img, label = ds
+    h, w = img.shape[:2]
+    scale = size * 1.0 / min(h, w)
+    if h < w:
+        newh, neww = size, int(scale * w + 0.5)
+    else:
+        newh, neww = int(scale * h + 0.5), size
+
+    img = cv2.resize(img, (neww, newh), interpolation=cv2.INTER_LINEAR)
+    label = cv2.resize(label, (neww, newh), interpolation=cv2.INTER_NEAREST)
+    return [img, label]
+
+
 
 
 
