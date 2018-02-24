@@ -1004,12 +1004,7 @@ class MutableModule(BaseModule):
             batch_index = 0
             for batch_index in tqdm(range(epoch_volumn)):
                 data, label = next(_itr)
-                data = np.transpose(data, (0, 3, 1, 2)) # NCHW
-                label = label[:,:,:,None]
-                label = np.transpose(label, (0, 3, 1, 2)) # NCHW
-                dl = [[mx.nd.array(data[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
-                ll = [[mx.nd.array(label[args.batch_size*i:args.batch_size*(i+1)])] for i in range(len(self._context))]
-                data_batch = mx.io.DataBatch(data=dl, label=ll,
+                data_batch = mx.io.DataBatch(data=data, label=label,
                                     pad=0, index=batch_index,
                                     provide_data=provide_data, provide_label=provide_label)
                 if monitor is not None:
@@ -1046,6 +1041,9 @@ class MutableModule(BaseModule):
             arg_params, aux_params = self.get_params()
             self.set_params(arg_params, aux_params)
 
+            arg_params['constant_color'] = mx.ndarray.expand_dims(arg_params['constant_color'][0],
+                                                                  axis=0)  # single batch
+
             # epoch_end_callback execute
             if epoch_end_callback is not None:
                 for callback in _as_list(epoch_end_callback):
@@ -1061,24 +1059,26 @@ class MutableModule(BaseModule):
                 eval_sym_instance.infer_shape(data_shape_dict)
                 eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
 
-                data_names = ['data']
-                label_names = ['softmax_label']
-
                 # create predictor
-                predictor = Predictor(eval_sym, data_names, label_names,
+                predictor = Predictor(eval_sym, ['data'], ['softmax_label'],
                                       context=[self._context[0]],#only use one gpu
                                       provide_data=val_provide_data, provide_label=val_provide_label,
                                       arg_params=arg_params, aux_params=aux_params)
 
                 stats = MIoUStatistics(args.class_num)
+
+                def mypredictor(data):
+                    data_batch = mx.io.DataBatch(data=data, label=None,
+                                                 pad=0, index=batch_index,
+                                                 provide_data=val_provide_data, provide_label=val_provide_label)
+                    return predictor.predict(data_batch)
+
                 eval_data.reset_state()
                 for data, label in tqdm(eval_data.get_data()):
-                    output_all = predict_scaler(data, predictor,
+                    output_all = predict_scaler(data, mypredictor,
                           scales=[0.9,1.0,1.1],classes=args.class_num,
                                                 tile_size=(args.tile_height, args.tile_width),
-                                                is_densecrf=False,nbatch =batch_index,
-                                                val_provide_data = val_provide_data,
-                                                val_provide_label = val_provide_label)
+                                                is_densecrf=False)
                     output_all = np.argmax(output_all, axis=0)
                     label = np.squeeze(label)
                     stats.feed(output_all,label) #very time-consuming

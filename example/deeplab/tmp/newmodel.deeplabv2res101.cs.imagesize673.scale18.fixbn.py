@@ -3,7 +3,7 @@ LIST_DIR = "../data/cityscapes"
 import argparse
 import os,sys,cv2
 import pprint
-from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
+from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes, CityscapesFiles
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -22,7 +22,7 @@ EPOCH_SCALE = 18
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = Cityscapes.class_num()
-validation_on_last = 2
+validation_on_last = end_epoch
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','stage1','beta','gamma',]
@@ -74,59 +74,68 @@ from symbols.resnet_v1_101_deeplab import resnet_v1_101_deeplab
 from symbols.resnet_v1_101_deeplab_dcn import resnet_v1_101_deeplab_dcn
 
 import os
-from tensorpack.dataflow.common import BatchData, MapData
+from tensorpack.dataflow.common import BatchData, MapData, ProxyDataFlow
 from tensorpack.dataflow.imgaug.misc import RandomResize,Flip
 from tensorpack.dataflow.image import AugmentImageComponents
-from tensorpack.dataflow.prefetch import PrefetchDataZMQ
+from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
+from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
 from tensorpack.dataflow.format import LMDBData
+from tensorpack.dataflow import FakeData
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
-
-from tensorpack import MapDataComponent, dftools
 from seg_utils import RandomCropWithPadding,RandomResize
 from tensorpack.utils.serialize import dumps,loads
-def ImageDecode(ds):
-    key, obj = ds
-    obj = loads(obj)
-    def func(im_data,flag):
-            img = cv2.imdecode(im_data, flag)
-            return img
-    return func(obj[0], cv2.IMREAD_COLOR), func(obj[1], cv2.IMREAD_GRAYSCALE)
 
+from mxnetgo.tensorpack.dataflow.dataflow import FastBatchData,ImageDecode
 
 def get_data(name, meta_dir, gpu_nums):
     isTrain = name == 'train'
 
+    def imgread(ds):
+        img, label = ds
+        img = cv2.imread(img, cv2.IMREAD_COLOR)
+        label = cv2.imread(label, cv2.IMREAD_GRAYSCALE)
+        return img, label
+
     if isTrain:
-        ds = LMDBData('/data2/dataset/cityscapes/cityscapes_train.lmdb', shuffle=True)
-        ds = MapData(ds, ImageDecode)
+        #ds = LMDBData('/data2/dataset/cityscapes/cityscapes_train.lmdb', shuffle=True)
+        #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
+        ds = CityscapesFiles(meta_dir, name, shuffle=True)
+        ds = MultiThreadMapData(ds,4,imgread)
+        #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
         ds = MapData(ds, RandomResize)
     else:
-        ds = Cityscapes(meta_dir, name, shuffle=True)
+        ds = CityscapesFiles(meta_dir, name, shuffle=False)
+        ds = MultiThreadMapData(ds, 4, imgread)
 
     if isTrain:#special augmentation
         shape_aug = [
                      RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
-    else:
-        shape_aug = []
+        ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
 
-    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+    def MxnetPrepare(ds):
+        data, label = ds
+        data = np.transpose(data, (0, 3, 1, 2))  # NCHW
+        label = label[:, :, :, None]
+        label = np.transpose(label, (0, 3, 1, 2))  # NCHW
+        dl = [[mx.nd.array(data[args.batch_size * i:args.batch_size * (i + 1)])] for i in
+              range(gpu_nums)]  # multi-gpu distribute data, time-consuming!!!
+        ll = [[mx.nd.array(label[args.batch_size * i:args.batch_size * (i + 1)])] for i in
+              range(gpu_nums)]
+        return dl, ll
 
-    def f(ds):
-        image, label = ds
-        m = np.array([104, 116, 122])
-        const_arr = np.resize(m, (1,1,3))  # NCHW
-        image = image - const_arr
-        return image, label
-
-    ds = MapData(ds, f)
     if isTrain:
-        ds = BatchData(ds, args.batch_size*gpu_nums)
-        ds = PrefetchDataZMQ(ds, 3)
+        ds = FastBatchData(ds, args.batch_size*gpu_nums)
+        #ds = PrefetchDataZMQ(ds, 1)
+        ds = MapData(ds, MxnetPrepare)
+        #ds = PrefetchData(ds,100, 1)
+        #ds = MultiProcessPrefetchData(ds, 100, 2)
+        #ds = PrefetchDataZMQ(MyBatchData(ds, args.batch_size*gpu_nums), 6)
     else:
         ds = BatchData(ds, 1)
     return ds
+
 
 
 
@@ -142,13 +151,11 @@ def train_net(args, ctx):
     gpu_nums = len(ctx)
     input_batch_size = args.batch_size * gpu_nums
 
-    train_data = get_data("train", LIST_DIR, len(ctx))
-    test_data = get_data("val", LIST_DIR, len(ctx))
+    train_dataflow = get_data("train", LIST_DIR, len(ctx))
+    val_dataflow = get_data("val", LIST_DIR, len(ctx))
 
     eval_sym_instance = resnet101_deeplab_new()
     eval_sym = eval_sym_instance.get_symbol(args.class_num, is_train=False,use_global_stats=True)
-
-
 
     # infer shape
     data_shape_dict = {'data':(args.batch_size, 3, args.crop_size[0],args.crop_size[1])
@@ -171,11 +178,7 @@ def train_net(args, ctx):
 
     # check parameter shapes
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict)
-
-    data_names = ['data']
-    label_names = ['label']
-
-    mod = MutableModule(sym, data_names=data_names, label_names=label_names,context=ctx, fixed_param_prefix=fixed_param_prefix)
+    mod = MutableModule(sym, data_names=['data'], label_names=['label'], context=ctx, fixed_param_prefix=fixed_param_prefix)
 
     # decide training params
     # metric
@@ -192,7 +195,7 @@ def train_net(args, ctx):
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]
 
-    lr_scheduler = StepScheduler(train_data.size()*EPOCH_SCALE,lr_step_list)
+    lr_scheduler = StepScheduler(train_dataflow.size()*EPOCH_SCALE,lr_step_list)
 
     # optimizer
     optimizer_params = {'momentum': 0.9,
@@ -203,9 +206,8 @@ def train_net(args, ctx):
                         'clip_gradient': None}
 
 
-
     logger.info("epoch scale = {}".format(EPOCH_SCALE))
-    mod.fit(train_data=train_data, args = args, eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=test_data, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
+    mod.fit(train_data=train_dataflow, args = args, eval_sym=eval_sym, eval_sym_instance=eval_sym_instance, eval_data=val_dataflow, eval_metric=eval_metrics, epoch_end_callback=epoch_end_callbacks,
             batch_end_callback=batch_end_callbacks, kvstore=kvstore,
             optimizer='sgd', optimizer_params=optimizer_params,
             arg_params=arg_params, aux_params=aux_params, begin_epoch=begin_epoch, num_epoch=end_epoch,epoch_scale=EPOCH_SCALE, validation_on_last=validation_on_last)

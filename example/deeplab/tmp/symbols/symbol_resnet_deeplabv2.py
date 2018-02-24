@@ -5,7 +5,7 @@ Kaiming He, Xiangyu Zhang, Shaoqing Ren, Jian Sun. "Identity Mappings in Deep Re
 import mxnet as mx
 from mxnetgo.myutils.symbol import Symbol
 from mxnetgo.myutils import logger
-
+import numpy as np
 
 class resnet101_deeplab_new(Symbol):
     def __init__(self):
@@ -113,6 +113,12 @@ class resnet101_deeplab_new(Symbol):
 
         assert(num_unit == num_stage)
         data = mx.sym.Variable(name='data')
+
+
+        constant_color = mx.sym.Variable('constant_color')
+        constant_color = mx.sym.BlockGrad(constant_color)
+        data = data - constant_color
+
         if self.is_train:
             seg_cls_gt = mx.symbol.Variable(name='label')
         data = mx.sym.BatchNorm(data=data, fix_gamma=True, use_global_stats=self.use_global_stats, eps=2e-5, momentum=bn_mom, name='bn_data')
@@ -174,6 +180,11 @@ class resnet101_deeplab_new(Symbol):
         origin_arg_params = arg_params.copy()
         origin_aux_params = aux_params.copy()
 
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,3,1,1))  # NCHW
+        logger.warn("constant_color initialized in symbol")
+
+        arg_params['constant_color'] = mx.nd.array(const_arr, dtype='float32').broadcast_to(self.arg_shape_dict['constant_color'])
         arg_params['fc6_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['fc6_weight'])
         arg_params['fc6_bias'] = mx.nd.zeros(shape=self.arg_shape_dict['fc6_bias'])
         arg_params['score_weight'] = mx.random.normal(0, 0.01, shape=self.arg_shape_dict['score_weight'])

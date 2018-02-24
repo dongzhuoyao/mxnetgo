@@ -68,7 +68,7 @@ def visualize_label(label):
     return img_color
 
 
-def predict_slider(full_image, predictor, classes, tile_size, nbatch,val_provide_data,val_provide_label):
+def predict_slider(full_image, predictor, classes, tile_size):
     overlap = 1.0/3
     stride = ceil(tile_size[0] * (1 - overlap))
     tile_rows = int(ceil((full_image.shape[0] - tile_size[0]) / stride) + 1)  # strided convolution formula
@@ -90,11 +90,9 @@ def predict_slider(full_image, predictor, classes, tile_size, nbatch,val_provide
             padded_img = padded_img[None, :, :, :].astype('float32') # extend one dimension
             padded_img = np.transpose(padded_img,(0,3,1,2)) #NCWH
 
-            dl = [[mx.nd.array(padded_img)]]
-            data_batch = mx.io.DataBatch(data=dl, label=None,
-                                         pad=0, index=nbatch,
-                                         provide_data=val_provide_data, provide_label=val_provide_label)
-            output_all = predictor.predict(data_batch)
+            data = [[mx.nd.array(padded_img)]]
+
+            output_all = predictor(data)
             padded_prediction = output_all[0]["softmax_output"]
             padded_prediction = padded_prediction.asnumpy()
             padded_prediction = np.squeeze(padded_prediction)
@@ -108,7 +106,7 @@ def predict_slider(full_image, predictor, classes, tile_size, nbatch,val_provide
     return full_probs
 
 
-def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf,nbatch,val_provide_data,val_provide_label):
+def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf):
     data = np.squeeze(data).astype(np.int16) #default batch size is 1
 
     full_probs = np.zeros((classes, data.shape[0], data.shape[1]))
@@ -116,7 +114,7 @@ def predict_scaler(data, predictor, scales, classes, tile_size, is_densecrf,nbat
 
     for scale in scales:
         scaled_img = cv2.resize(data, (int(scale*w_ori), int(scale*h_ori)))
-        scaled_probs = predict_slider(scaled_img, predictor, classes, tile_size,nbatch,val_provide_data,val_provide_label)
+        scaled_probs = predict_slider(scaled_img, predictor, classes, tile_size)
         scaled_probs = np.transpose(scaled_probs,(1,2,0))# to HWC
         probs = cv2.resize(scaled_probs, (w_ori,h_ori))
         probs = np.transpose(probs, (2,0,1))
