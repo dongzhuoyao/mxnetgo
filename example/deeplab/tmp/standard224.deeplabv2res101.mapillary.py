@@ -1,9 +1,9 @@
 
-LIST_DIR = "../data/cityscapes"
+LIST_DIR = "../data/mapillary"
 import argparse
 import os,sys,cv2
 import pprint
-from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes, CityscapesFiles
+from mxnetgo.tensorpack.dataset.Mapillary.Mapillary import Mapillary, MapillaryFiles
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -21,8 +21,8 @@ batch_size = 5 #was 7
 EPOCH_SCALE = 18
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
-NUM_CLASSES = Cityscapes.class_num()
-validation_on_last = end_epoch
+NUM_CLASSES = MapillaryFiles.class_num()
+validation_on_last = 2
 
 kvstore = "device"
 fixed_param_prefix = ['conv0_weight','stage1','beta','gamma',]
@@ -97,14 +97,14 @@ def get_data(name, meta_dir, gpu_nums):
         return img, label
 
     if isTrain:
-        #ds = LMDBData('/data2/dataset/cityscapes/cityscapes_train.lmdb', shuffle=True)
+        #ds = LMDBData('/data2/dataset/Mapillary/Mapillary_train.lmdb', shuffle=True)
         #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
-        ds = CityscapesFiles(meta_dir, name, shuffle=True)
+        ds = MapillaryFiles(meta_dir, name, shuffle=True)
         ds = MultiThreadMapData(ds,4,imgread)
         #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
         ds = MapData(ds, RandomResize)
     else:
-        ds = CityscapesFiles(meta_dir, name, shuffle=False)
+        ds = MapillaryFiles(meta_dir, name, shuffle=False)
         ds = MultiThreadMapData(ds, 4, imgread)
 
     if isTrain:#special augmentation
@@ -180,9 +180,7 @@ def train_net(args, ctx):
     sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict)
     mod = MutableModule(sym, data_names=['data'], label_names=['label'], context=ctx, fixed_param_prefix=fixed_param_prefix)
 
-    # decide training params
-    # metric
-    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent, Cityscapes.class_num())
+    fcn_loss_metric = metric.FCNLogLossMetric(args.frequent, Mapillary.class_num())
     eval_metrics = mx.metric.CompositeEvalMetric()
 
     # rpn_eval_metric, rpn_cls_metric, rpn_bbox_metric, eval_metric, cls_metric, bbox_metric
