@@ -41,7 +41,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     # training
     parser.add_argument("--gpu", default="5")
-    parser.add_argument('--frequent', help='frequency of logging', default=100, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--scratch", action="store_true" )
@@ -157,6 +157,7 @@ def train_net(args, ctx):
 
     from symbols.gluon_deeplabv2 import resnet101_deeplab_new
 
+    input_batch_size = args.batch_size * len(ctx)
 
     sym_instance = resnet101_deeplab_new()
     sym = sym_instance.get_symbol(NUM_CLASSES, is_train=True)
@@ -182,7 +183,7 @@ def train_net(args, ctx):
     eval_metrics = mx.metric.CompositeEvalMetric()
     eval_metrics.add(fcn_loss_metric)
 
-    batch_end_callbacks = []
+    batch_end_callbacks = [callback.Speedometer(input_batch_size, frequent=args.frequent)]
     epoch_end_callbacks = \
         [mx.callback.module_checkpoint(mod, os.path.join(logger.get_logger_dir(),"mxnetgo"), period=1, save_optimizer_states=True),
          ]

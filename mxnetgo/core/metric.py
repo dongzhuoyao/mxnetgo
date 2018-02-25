@@ -91,9 +91,9 @@ class FCNLogLossMetric(mx.metric.EvalMetric): #slow implementation!!!!
         label = labels[0]
 
         # label (b, p)
-        label = label.asnumpy().astype('int32').reshape((-1))
+        label = label.asnumpy().astype('int32').reshape((-1)) # WARNING: asnumpy is time-consuming
         # pred (b, c, p) or (b, c, h, w) --> (b, p, c) --> (b*p, c)
-        pred = pred.asnumpy().reshape((pred.shape[0], pred.shape[1], -1)).transpose((0, 2, 1))
+        pred = pred.asnumpy().reshape((pred.shape[0], pred.shape[1], -1)).transpose((0, 2, 1)) # # WARNING: asnumpy is time-consuming
         pred = pred.reshape((label.shape[0], -1))
 
         # filter with keep_inds
