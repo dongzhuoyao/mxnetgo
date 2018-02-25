@@ -92,7 +92,6 @@ from mxnetgo.tensorpack.dataflow.dataflow import FastBatchData,ImageDecode
 
 def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = True if 'train' in name else False
-    ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
     def imgread(ds):
         img, label = ds
@@ -104,22 +103,19 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
         #ds = LMDBData('/data2/dataset/cityscapes/cityscapes_train.lmdb', shuffle=True)
         #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
         ds = PascalVOC12Files(data_dir, meta_dir, name, shuffle=True)
-        ds = MultiThreadMapData(ds,4,imgread)
+        ds = MultiThreadMapData(ds,4,imgread, buffer_size= 2)
         #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
         ds = MapData(ds, RandomResize)
     else:
         ds = PascalVOC12Files(data_dir, meta_dir, name, shuffle=False)
-        ds = MultiThreadMapData(ds, 4, imgread)
+        ds = MultiThreadMapData(ds, 4, imgread, buffer_size= 2)
 
     if isTrain:
         shape_aug = [
                      RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
                      Flip(horiz=True),
                      ]
-    else:
-        shape_aug = []
-
-    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+        ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
 
     def reduce_mean_rgb(ds):
         image, label = ds
@@ -140,7 +136,7 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
         return dl, ll
 
     #ds = MapData(ds, reduce_mean_rgb)
-    ds = MultiThreadMapData(ds, 4, reduce_mean_rgb)
+    ds = MultiThreadMapData(ds, 4, reduce_mean_rgb, buffer_size=2)
 
     if isTrain:
         ds = FastBatchData(ds, args.batch_size*gpu_nums)

@@ -89,7 +89,7 @@ class CityscapesFiles(RNGDataFlow):
             self.imglist.append(line.strip("\n").split(" "))
         f.close()
 
-        self.imglist = self.imglist[:200]
+        #self.imglist = self.imglist[:200]
 
     def size(self):
         return len(self.imglist)
