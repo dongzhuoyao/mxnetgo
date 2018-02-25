@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
+    parser.add_argument("--test_speed", action="store_true")
     parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=batch_size)
@@ -81,7 +82,7 @@ from tensorpack.dataflow.image import AugmentImageComponents
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
 from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
 from tensorpack.dataflow.format import LMDBData
-from tensorpack.dataflow import FakeData
+from tensorpack.dataflow import FakeData, TestDataSpeed
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
 from seg_utils import RandomCropWithPadding,RandomResize
 from tensorpack.utils.serialize import dumps,loads
@@ -235,11 +236,18 @@ def view_data(ctx):
                 cv2.imshow("color-label", visualize_label(label))
                 cv2.waitKey(0)
 
+
+def test_speed():
+    train_dataflow = get_data("train", LIST_DIR, len(ctx))
+    TestDataSpeed(train_dataflow).start()
+
 if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
     if args.view:
         view_data(ctx)
     elif args.validation:
         test_deeplab(ctx)
+    elif args.test_speed:
+        test_speed()
     else:
         train_net(args, ctx)
