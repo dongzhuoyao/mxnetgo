@@ -239,7 +239,7 @@ def view_data(ctx):
 
 def test_speed():
     train_dataflow = get_data("train", LIST_DIR, len(ctx))
-    TestDataSpeed(train_dataflow).start()
+    TestDataSpeed(train_dataflow, size=1000).start()
 
 if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]

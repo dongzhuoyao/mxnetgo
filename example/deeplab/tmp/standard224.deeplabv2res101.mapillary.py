@@ -1,6 +1,6 @@
 
 LIST_DIR = "../data/mapillary"
-base_dir = '/data2/dataset/mapillary'
+base_dir = '/home/hutao/dataset/mapillary_resize1000'
 import argparse
 import os,sys,cv2
 import pprint
@@ -35,6 +35,7 @@ def parse_args():
     parser.add_argument('--frequent', help='frequency of logging', default=1000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
+    parser.add_argument("--test_speed", action="store_true")
     parser.add_argument("--load", default="tornadomeet-resnet-101-0000")
     parser.add_argument("--scratch", action="store_true" )
     parser.add_argument('--batch_size', default=batch_size)
@@ -82,7 +83,7 @@ from tensorpack.dataflow.image import AugmentImageComponents, AugmentImageCompon
 from tensorpack.dataflow.prefetch import PrefetchDataZMQ, PrefetchData, MultiThreadMapData
 from tensorpack.dataflow.parallel import MultiThreadPrefetchData, MultiProcessPrefetchData
 from tensorpack.dataflow.format import LMDBData
-from tensorpack.dataflow import FakeData
+from tensorpack.dataflow import FakeData, TestDataSpeed
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
 from seg_utils import RandomCropWithPadding,RandomResize, ResizeShortestEdge
 from tensorpack.utils.serialize import dumps,loads
@@ -128,9 +129,19 @@ def get_data(name, meta_dir, gpu_nums):
               range(gpu_nums)]
         return dl, ll
 
+    def reduce_mean_rgb(ds):
+        image, label = ds
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,1,3))  # NCHW
+        image = image - const_arr
+        return image, label
+
+    #ds = MapData(ds, reduce_mean_rgb)
+    ds = MultiThreadMapData(ds, 4, reduce_mean_rgb)
+
     if isTrain:
         ds = FastBatchData(ds, args.batch_size*gpu_nums)
-        #ds = PrefetchDataZMQ(ds, 1)
+        #ds = PrefetchDataZMQ(ds, 3)
         ds = MapData(ds, MxnetPrepare)
         #ds = PrefetchData(ds,100, 1)
         #ds = MultiProcessPrefetchData(ds, 100, 2)
@@ -225,11 +236,17 @@ def view_data(ctx):
                 cv2.imshow("color-label", visualize_label(label))
                 cv2.waitKey(0)
 
+def test_speed():
+    train_dataflow = get_data("train", LIST_DIR, len(ctx))
+    TestDataSpeed(train_dataflow, size=1000).start()
+
 if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
     if args.view:
         view_data(ctx)
     elif args.validation:
         test_deeplab(ctx)
+    elif args.test_speed:
+        test_speed()
     else:
         train_net(args, ctx)
