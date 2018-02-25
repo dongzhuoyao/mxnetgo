@@ -993,8 +993,6 @@ class MutableModule(BaseModule):
             logger.warn("continue from {}-th snapshot..".format(epoch_index-1))
 
         train_data = RepeatedData(train_data, -1)
-
-
         train_data.reset_state()
         _itr = train_data.get_data()
         while epoch_index <= num_epoch:
@@ -1041,8 +1039,8 @@ class MutableModule(BaseModule):
             arg_params, aux_params = self.get_params()
             self.set_params(arg_params, aux_params)
 
-            arg_params['constant_color'] = mx.ndarray.expand_dims(arg_params['constant_color'][0],
-                                                                  axis=0)  # single batch
+            #arg_params['constant_color'] = mx.ndarray.expand_dims(arg_params['constant_color'][0],
+            #                                                      axis=0)  # single batch
 
             # epoch_end_callback execute
             if epoch_end_callback is not None:

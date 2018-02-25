@@ -122,9 +122,9 @@ class resnet101_deeplab_new(Symbol):
             net.add(nn.BatchNorm())
 
         data = mx.sym.var('data')
-        constant_color = mx.sym.Variable('constant_color')
-        constant_color = mx.sym.BlockGrad(constant_color)
-        data = data - constant_color
+        #constant_color = mx.sym.Variable('constant_color')
+        #constant_color = mx.sym.BlockGrad(constant_color)
+        #data = data - constant_color
 
         out = net(data)
 

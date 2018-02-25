@@ -6,13 +6,13 @@
 # Written by Zheng Zhang
 # --------------------------------------------------------
 
-DATA_DIR, LIST_DIR = "/data1/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
+DATA_DIR, LIST_DIR = "/home/hutao/dataset/pascalvoc2012/VOC2012trainval/VOCdevkit/VOC2012", "../data/pascalvoc12"
 
 
 import argparse
 import os,sys,cv2
 import pprint
-from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
+from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12, PascalVOC12Files
 
 os.environ['PYTHONUNBUFFERED'] = '1'
 os.environ['MXNET_CUDNN_AUTOTUNE_DEFAULT'] = '0'
@@ -83,10 +83,10 @@ from mxnetgo.tensorpack.dataset.cityscapes import Cityscapes
 from mxnetgo.tensorpack.dataset.pascalvoc12 import PascalVOC12
 from tensorpack.dataflow.imgaug.misc import  Flip
 from tensorpack.dataflow.image import AugmentImageComponents
-from tensorpack.dataflow.prefetch import PrefetchDataZMQ
+from tensorpack.dataflow.prefetch import PrefetchDataZMQ, MultiThreadMapData
 from mxnetgo.myutils.segmentation.segmentation import visualize_label
 from seg_utils import RandomCropWithPadding,RandomResize
-
+from mxnetgo.tensorpack.dataflow.dataflow import FastBatchData,ImageDecode
 
 
 
@@ -94,6 +94,39 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     isTrain = True if 'train' in name else False
     ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
+    def imgread(ds):
+        img, label = ds
+        img = cv2.imread(img, cv2.IMREAD_COLOR)
+        label = cv2.imread(label, cv2.IMREAD_GRAYSCALE)
+        return img, label
+
+    if isTrain:
+        #ds = LMDBData('/data2/dataset/cityscapes/cityscapes_train.lmdb', shuffle=True)
+        #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
+        ds = PascalVOC12Files(data_dir, meta_dir, name, shuffle=True)
+        ds = MultiThreadMapData(ds,4,imgread)
+        #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
+        ds = MapData(ds, RandomResize)
+    else:
+        ds = PascalVOC12Files(data_dir, meta_dir, name, shuffle=False)
+        ds = MultiThreadMapData(ds, 4, imgread)
+
+    if isTrain:
+        shape_aug = [
+                     RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
+                     Flip(horiz=True),
+                     ]
+    else:
+        shape_aug = []
+
+    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+
+    def reduce_mean_rgb(ds):
+        image, label = ds
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,1,3))  # NCHW
+        image = image - const_arr
+        return image, label
 
     def MxnetPrepare(ds):
         data, label = ds
@@ -106,29 +139,11 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
               range(gpu_nums)]
         return dl, ll
 
-    if isTrain:
-        ds = MapData(ds, RandomResize)
+    #ds = MapData(ds, reduce_mean_rgb)
+    ds = MultiThreadMapData(ds, 4, reduce_mean_rgb)
 
     if isTrain:
-        shape_aug = [
-                     RandomCropWithPadding(args.crop_size,IGNORE_LABEL),
-                     Flip(horiz=True),
-                     ]
-    else:
-        shape_aug = []
-
-    ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
-
-    def f(ds):
-        image, label = ds
-        m = np.array([104, 116, 122])
-        const_arr = np.resize(m, (1,1,3))  # NCHW
-        image = image - const_arr
-        return image, label
-
-    ds = MapData(ds, f)
-    if isTrain:
-        ds = BatchData(ds, args.batch_size*gpu_nums)
+        ds = FastBatchData(ds, args.batch_size*gpu_nums)
         ds = MapData(ds, MxnetPrepare)
         #ds = PrefetchDataZMQ(ds, 1)
     else:
@@ -160,13 +175,6 @@ def train_net(args, ctx):
 
     # load and initialize params
     begin_epoch = 1
-    m = np.array([104, 116, 122])
-    const_arr = np.resize(m, (1, 3, 1, 1))  # NCHW
-    logger.warn("constant_color initialized in symbol")
-
-    arg_params['constant_color'] = mx.nd.array(const_arr, dtype='float32').broadcast_to(
-        self.arg_shape_dict['constant_color'])
-
     mod = MutableModule(sym, data_names=['data'], label_names=['label'],context=ctx, fixed_param_prefix=fixed_param_prefix)
 
     # metric
