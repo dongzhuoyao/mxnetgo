@@ -126,6 +126,16 @@ def get_data(name, meta_dir, gpu_nums):
               range(gpu_nums)]
         return dl, ll
 
+    def reduce_mean_rgb(ds):
+        image, label = ds
+        m = np.array([104, 116, 122])
+        const_arr = np.resize(m, (1,1,3))  # NCHW
+        image = image - const_arr
+        return image, label
+
+    #ds = MapData(ds, reduce_mean_rgb)
+    ds = MultiThreadMapData(ds, 4, reduce_mean_rgb)
+
     if isTrain:
         ds = FastBatchData(ds, args.batch_size*gpu_nums)
         #ds = PrefetchDataZMQ(ds, 1)

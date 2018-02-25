@@ -95,6 +95,17 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     ds = PascalVOC12(data_dir, meta_dir, name, shuffle=True)
 
 
+    def MxnetPrepare(ds):
+        data, label = ds
+        data = np.transpose(data, (0, 3, 1, 2))  # NCHW
+        label = label[:, :, :, None]
+        label = np.transpose(label, (0, 3, 1, 2))  # NCHW
+        dl = [[mx.nd.array(data[args.batch_size * i:args.batch_size * (i + 1)])] for i in
+              range(gpu_nums)]  # multi-gpu distribute data, time-consuming!!!
+        ll = [[mx.nd.array(label[args.batch_size * i:args.batch_size * (i + 1)])] for i in
+              range(gpu_nums)]
+        return dl, ll
+
     if isTrain:
         ds = MapData(ds, RandomResize)
 
@@ -118,6 +129,7 @@ def get_data(name, data_dir, meta_dir, gpu_nums):
     ds = MapData(ds, f)
     if isTrain:
         ds = BatchData(ds, args.batch_size*gpu_nums)
+        ds = MapData(ds, MxnetPrepare)
         #ds = PrefetchDataZMQ(ds, 1)
     else:
         ds = BatchData(ds, 1)
@@ -148,6 +160,13 @@ def train_net(args, ctx):
 
     # load and initialize params
     begin_epoch = 1
+    m = np.array([104, 116, 122])
+    const_arr = np.resize(m, (1, 3, 1, 1))  # NCHW
+    logger.warn("constant_color initialized in symbol")
+
+    arg_params['constant_color'] = mx.nd.array(const_arr, dtype='float32').broadcast_to(
+        self.arg_shape_dict['constant_color'])
+
     mod = MutableModule(sym, data_names=['data'], label_names=['label'],context=ctx, fixed_param_prefix=fixed_param_prefix)
 
     # metric

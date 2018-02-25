@@ -102,7 +102,7 @@ def get_data(name, meta_dir, gpu_nums):
         #ds = LMDBData('/data2/dataset/Mapillary/Mapillary_train.lmdb', shuffle=True)
         #ds = FakeData([[batch_size, CROP_HEIGHT, CROP_HEIGHT, 3], [batch_size, CROP_HEIGHT, CROP_HEIGHT, 1]], 5000, random=False, dtype='uint8')
         ds = MapillaryFiles(base_dir, meta_dir, name, shuffle=True)
-        ds = MultiThreadMapData(ds,8,imgread)
+        ds = MultiThreadMapData(ds,4,imgread)
         #ds = PrefetchDataZMQ(MapData(ds, ImageDecode), 1) #imagedecode is heavy
         ds = MapData(ds, ResizeShortestEdge) # ResizeShortestEdge
         ds = MapData(ds, RandomResize)

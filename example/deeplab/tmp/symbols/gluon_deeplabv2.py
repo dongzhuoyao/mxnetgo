@@ -100,7 +100,6 @@ class resnet101_deeplab_new(Symbol):
         if self.is_train:
             logger.info("is_train: {}".format(self.is_train))
             logger.info("use_global_stats: {}".format(self.use_global_stats))
-        data = mx.sym.Variable(name='data')
         if self.is_train:
             seg_cls_gt = mx.symbol.Variable(name='label')
 
@@ -123,6 +122,10 @@ class resnet101_deeplab_new(Symbol):
             net.add(nn.BatchNorm())
 
         data = mx.sym.var('data')
+        constant_color = mx.sym.Variable('constant_color')
+        constant_color = mx.sym.BlockGrad(constant_color)
+        data = data - constant_color
+
         out = net(data)
 
         croped_score = mx.symbol.Crop(*[out, data], offset=(4, 4), name='croped_score')
