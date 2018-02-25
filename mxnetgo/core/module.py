@@ -952,6 +952,9 @@ class MutableModule(BaseModule):
         provide_data = [[("data",(args.batch_size, 3, args.crop_size[0],args.crop_size[1]))] for i in range(len(self._context))]
         provide_label = [[("label",(args.batch_size, 1, args.crop_size[0], args.crop_size[1]))] for i in range(len(self._context))]
 
+        val_provide_data = [[("data", (1, 3, args.tile_height, args.tile_width))]]
+        val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]
+
         self.bind(data_shapes=provide_data, label_shapes=provide_label,
                   for_training=True, force_rebind=force_rebind)
         if monitor is not None:
@@ -995,94 +998,100 @@ class MutableModule(BaseModule):
         train_data = RepeatedData(train_data, -1)
         train_data.reset_state()
         _itr = train_data.get_data()
-        while epoch_index <= num_epoch:
-            logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
-            logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
-            tic = time.time()
-            batch_index = 0
-            for batch_index in tqdm(range(epoch_volumn)):
-                data, label = next(_itr)
-                data_batch = mx.io.DataBatch(data=data, label=label,
-                                    pad=0, index=batch_index,
-                                    provide_data=provide_data, provide_label=provide_label)
-                if monitor is not None:
-                    monitor.tic()
-                self.forward_backward(data_batch)
-                self.update()
-                #self.update_metric(eval_metric, data_batch.label) remove outside epoch
-                #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
-                if monitor is not None:
-                    monitor.toc_print()
+        try:
+            while epoch_index <= num_epoch:
+                logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
+                logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
+                tic = time.time()
+                batch_index = 0
+                for batch_index in tqdm(range(epoch_volumn)):
+                    data, label = next(_itr)
+                    data_batch = mx.io.DataBatch(data=data, label=label,
+                                        pad=0, index=batch_index,
+                                        provide_data=provide_data, provide_label=provide_label)
+                    if monitor is not None:
+                        monitor.tic()
+                    self.forward_backward(data_batch)
+                    self.update()
+                    #self.update_metric(eval_metric, data_batch.label) remove outside epoch
+                    #logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
+                    if monitor is not None:
+                        monitor.toc_print()
 
-                if batch_index % args.frequent == 0:
-                    eval_metric.reset()
-                    self.update_metric(eval_metric, data_batch.label)  # only print single-batch loss
-                if batch_end_callback is not None:# caution! this part would greatly slow down the training process~
-                    batch_end_params = BatchEndParam(epoch=epoch_index, nbatch=batch_index,
-                                                     eval_metric=eval_metric,
-                                                     locals=locals())
-                    for callback in _as_list(batch_end_callback):
-                        callback(batch_end_params)
+                    if batch_index % args.frequent == 0:
+                        eval_metric.reset()
+                        self.update_metric(eval_metric, data_batch.label)  # only print single-batch loss
+                    if batch_end_callback is not None:# caution! this part would greatly slow down the training process~
+                        batch_end_params = BatchEndParam(epoch=epoch_index, nbatch=batch_index,
+                                                         eval_metric=eval_metric,
+                                                         locals=locals())
+                        for callback in _as_list(batch_end_callback):
+                            callback(batch_end_params)
 
 
-                batch_index += 1
+                    batch_index += 1
 
-            # one epoch of training is finished
-            #self.update_metric(eval_metric, data_batch.label) # only print single-batch loss
-            for name, val in eval_metric.get_name_value():
-                logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
+                # one epoch of training is finished
+                #self.update_metric(eval_metric, data_batch.label) # only print single-batch loss
+                for name, val in eval_metric.get_name_value():
+                    logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
 
-            toc = time.time()
-            logger.info('Epoch[%d] Time cost=%.3f mins', epoch_index, (toc - tic) / 60)
+                toc = time.time()
+                logger.info('Epoch[%d] Time cost=%.3f mins', epoch_index, (toc - tic) / 60)
 
-            # sync aux params across devices
-            arg_params, aux_params = self.get_params()
-            self.set_params(arg_params, aux_params)
+                # sync aux params across devices
+                arg_params, aux_params = self.get_params()
+                self.set_params(arg_params, aux_params)
 
-            #arg_params['constant_color'] = mx.ndarray.expand_dims(arg_params['constant_color'][0],
-            #                                                      axis=0)  # single batch
+                #arg_params['constant_color'] = mx.ndarray.expand_dims(arg_params['constant_color'][0],
+                #                                                      axis=0)  # single batch
 
-            # epoch_end_callback execute
-            if epoch_end_callback is not None:
-                for callback in _as_list(epoch_end_callback):
-                    callback(epoch_index-1, self.symbol, arg_params, aux_params) # epoch number align
+                # epoch_end_callback execute
+                if epoch_end_callback is not None:
+                    for callback in _as_list(epoch_end_callback):
+                        callback(epoch_index-1, self.symbol, arg_params, aux_params) # epoch number align
 
-            #----------------------------------------
-            # evaluation on validation set
-            if epoch_index >= num_epoch - validation_on_last:
-                val_provide_data = [[("data", (1, 3, args.tile_height, args.tile_width))]]
-                val_provide_label = [[("softmax_label", (1, 1, args.tile_height, args.tile_width))]]
-                data_shape_dict = {'data': (1, 3, args.tile_height, args.tile_width)
-                    , 'softmax_label': (1, 1, args.tile_height, args.tile_width)}
-                eval_sym_instance.infer_shape(data_shape_dict)
-                eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
+                #----------------------------------------
+                # evaluation on validation set
+                if epoch_index >= num_epoch - validation_on_last:
+                    data_shape_dict = {'data': (1, 3, args.tile_height, args.tile_width)
+                        , 'softmax_label': (1, 1, args.tile_height, args.tile_width)}
+                    eval_sym_instance.infer_shape(data_shape_dict)
+                    #eval_sym_instance.check_parameter_shapes(arg_params, aux_params, data_shape_dict, is_train=False)
 
-                # create predictor
-                predictor = Predictor(eval_sym, ['data'], ['softmax_label'],
-                                      context=[self._context[0]],#only use one gpu
-                                      provide_data=val_provide_data, provide_label=val_provide_label,
-                                      arg_params=arg_params, aux_params=aux_params)
+                    stats = MIoUStatistics(args.class_num)
 
-                stats = MIoUStatistics(args.class_num)
+                    def mypredictor(data):
+                        data_batch = mx.io.DataBatch(data=data, label=None,
+                                                     pad=0, index=batch_index,
+                                                     provide_data=val_provide_data, provide_label=val_provide_label)
 
-                def mypredictor(data):
-                    data_batch = mx.io.DataBatch(data=data, label=None,
-                                                 pad=0, index=batch_index,
-                                                 provide_data=val_provide_data, provide_label=val_provide_label)
-                    return predictor.predict(data_batch)
+                        # create predictor
+                        predictor = Predictor(eval_sym, ['data'], ['softmax_label'],
+                                              context=[self._context[0]],  # only use one gpu
+                                              provide_data=val_provide_data, provide_label=val_provide_label,
+                                              arg_params=arg_params, aux_params=aux_params)
 
-                eval_data.reset_state()
-                for data, label in tqdm(eval_data.get_data()):
-                    output_all = predict_scaler(data, mypredictor,
-                          scales=[0.9,1.0,1.1],classes=args.class_num,
-                                                tile_size=(args.tile_height, args.tile_width),
-                                                is_densecrf=False)
-                    output_all = np.argmax(output_all, axis=0)
-                    label = np.squeeze(label)
-                    stats.feed(output_all,label) #very time-consuming
-                logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
+                        return predictor.predict(data_batch)
 
-            epoch_index += 1
+                    eval_data.reset_state()
+                    for data, label in tqdm(eval_data.get_data()):
+                        output_all = predict_scaler(data, mypredictor,
+                              scales=[0.9,1.0,1.1],classes=args.class_num,
+                                                    tile_size=(args.tile_height, args.tile_width),
+                                                    is_densecrf=False)
+                        output_all = np.argmax(output_all, axis=0)
+                        label = np.squeeze(label)
+                        stats.feed(output_all,label) #very time-consuming
+                    logger.info("mIoU: {}, meanAcc: {}, acc: {} ".format(stats.mIoU,stats.mean_accuracy,stats.accuracy))
+
+                epoch_index += 1
+        except KeyboardInterrupt:
+            logger.info("Detected Ctrl-C and exiting main loop.")
+            raise
+        finally:
+            logger.info("finally dongzhuoyao")
+            pass
 
 
     def forward(self, data_batch, is_train=None):

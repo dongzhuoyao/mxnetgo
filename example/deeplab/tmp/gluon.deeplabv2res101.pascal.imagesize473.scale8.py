@@ -26,7 +26,7 @@ CROP_WIDTH = 473
 tile_height = 321
 tile_width = 321
 
-batch_size = 11
+batch_size = 1#11
 EPOCH_SCALE = 8
 end_epoch = 9
 lr_step_list = [(6, 1e-3), (9, 1e-4)]
@@ -172,6 +172,7 @@ def train_net(args, ctx):
                        ,'label':(args.batch_size, 1, args.crop_size[0],args.crop_size[1])}
 
     sym_instance.infer_shape(data_shape_dict)
+
 
 
     # load and initialize params
