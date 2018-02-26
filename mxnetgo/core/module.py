@@ -1005,7 +1005,6 @@ class MutableModule(BaseModule):
                 logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
                 logger.info("current learning rate: {}".format(self._curr_module._optimizer.lr_scheduler.base_lr))
                 tic = time.time()
-                batch_index = 0
                 for batch_index in tqdm(range(epoch_volumn)):
                     data_batch = next(_itr)
                     if monitor is not None:

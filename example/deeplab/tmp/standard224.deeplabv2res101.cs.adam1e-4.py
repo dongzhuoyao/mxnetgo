@@ -20,7 +20,7 @@ batch_size = 5 #was 7
 
 EPOCH_SCALE = 18
 end_epoch = 9
-init_lr = 1e-3
+init_lr = 1e-4
 lr_step_list = [(6, 1e-4), (9, 1e-5)]
 NUM_CLASSES = CityscapesFiles.class_num()
 validation_on_last = 2

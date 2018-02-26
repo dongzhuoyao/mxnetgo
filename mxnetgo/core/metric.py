@@ -97,7 +97,8 @@ class FCNLogLossMetric(mx.metric.EvalMetric): #slow implementation!!!!
         pred = pred.reshape((label.shape[0], -1))
 
         # filter with keep_inds
-        keep_inds = np.where(label < self.class_num)[0]#keep_inds = np.where(label != 255)[0]
+        #keep_inds = np.where(label < self.class_num)[0]#
+        keep_inds = np.where(label != 255)[0]
         label = label[keep_inds]
         cls = pred[keep_inds, label]
 
