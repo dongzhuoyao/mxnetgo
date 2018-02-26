@@ -82,6 +82,8 @@ newmodel.deeplabv2res101.cs.imagesize673.scale18.useStats|:question:|
 newmodel.deeplabv2res101.cs.imagesize1025.scale5.useStats|45.7|
 newmodel.deeplabv2res101.cs.imagesize1025.scale5|44.8|
 newmodel.deeplabv2res101.cs.imagesize673.scale5|50.8,50.89|
+newmodel.deeplabv2res101.cs.imagesize673.scale18.fixbn|53.76|
+
 |-----------------------------------|--
 newmodel.deeplabv1res101.pascal.imagesize473.scale8.freeze.conv1024|**71.2**|
 newmodel.deeplabv1res101.pascal.imagesize473.scale4.freezestage123|56.2
