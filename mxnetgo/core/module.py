@@ -36,7 +36,7 @@ import numpy as np
 from mxnetgo.myutils.stats import MIoUStatistics
 from mxnetgo.myutils.segmentation.segmentation import predict_scaler
 from tensorpack.dataflow.common import RepeatedData
-
+from mxnetgo.core.io import Tensorpack2Mxnet, PrefetchingIter
 class Module(BaseModule):
     """Module is a basic module that wrap a `Symbol`. It is functionally the same
     as the `FeedForward` model, except under the module API.
@@ -998,6 +998,8 @@ class MutableModule(BaseModule):
         train_data = RepeatedData(train_data, -1)
         train_data.reset_state()
         _itr = train_data.get_data()
+        _itr = Tensorpack2Mxnet(_itr,provide_data,provide_label,args.batch_size, gpu_nums=len(self._context))
+        _iter = PrefetchingIter([_itr])
         try:
             while epoch_index <= num_epoch:
                 logger.info("{} epoch {}/{} {}".format("*"*20, epoch_index,num_epoch,"*"*20))
@@ -1005,10 +1007,7 @@ class MutableModule(BaseModule):
                 tic = time.time()
                 batch_index = 0
                 for batch_index in tqdm(range(epoch_volumn)):
-                    data, label = next(_itr)
-                    data_batch = mx.io.DataBatch(data=data, label=label,
-                                        pad=0, index=batch_index,
-                                        provide_data=provide_data, provide_label=provide_label)
+                    data_batch = next(_itr)
                     if monitor is not None:
                         monitor.tic()
                     self.forward_backward(data_batch)

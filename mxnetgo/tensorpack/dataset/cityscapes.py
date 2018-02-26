@@ -63,13 +63,14 @@ class Cityscapes(RNGDataFlow):
 
 
 class CityscapesFiles(RNGDataFlow):
-    def __init__(self, meta_dir, name,
+    def __init__(self, base_dir, meta_dir, name,
                  shuffle=None, dir_structure=None):
 
         assert name in ['train', 'val','test'], name
         assert os.path.isdir(meta_dir), meta_dir
         self.reset_state()
         self.name = name
+        self.base_dir = base_dir
 
         if shuffle is None:
             shuffle = name == 'train'
@@ -86,7 +87,10 @@ class CityscapesFiles(RNGDataFlow):
             raise
 
         for line in f.readlines():
-            self.imglist.append(line.strip("\n").split(" "))
+            tmp = line.strip("\n").split(" ")
+            for i,t in enumerate(tmp):
+                tmp[i] = os.path.join(self.base_dir, t)
+            self.imglist.append(tmp)
         f.close()
 
         #self.imglist = self.imglist[:200]
