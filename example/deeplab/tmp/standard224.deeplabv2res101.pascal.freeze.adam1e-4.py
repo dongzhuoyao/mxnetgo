@@ -101,7 +101,7 @@ import multiprocessing
 from mxnetgo.tensorpack.dataflow.dataflow import FastBatchData,ImageDecode
 
 
-def get_data(name, base_dir, meta_dir, gpu_nums):
+def get_data_tmp(name, base_dir, meta_dir, gpu_nums):
 
     isTrain = True if 'train' in name else False
 
@@ -143,6 +143,40 @@ def get_data(name, base_dir, meta_dir, gpu_nums):
         ds = BatchData(ds, 1)
 
     return ds
+
+def get_data(name, base_dir, meta_dir, gpu_nums):
+        isTrain = True if 'train' in name else False
+        ds = PascalVOC12(base_dir, meta_dir, name, shuffle=True)
+
+        if isTrain:
+            ds = MapData(ds, RandomResize)
+
+        if isTrain:
+            shape_aug = [
+                RandomCropWithPadding(args.crop_size, IGNORE_LABEL),
+                Flip(horiz=True),
+            ]
+        else:
+            shape_aug = []
+
+        ds = AugmentImageComponents(ds, shape_aug, (0, 1), copy=False)
+
+
+        def f(ds):
+            image, label = ds
+            m = np.array([104, 116, 122])
+            const_arr = np.resize(m, (1, 1, 3))  # NCHW
+            image = image - const_arr
+            return image, label
+
+
+        ds = MapData(ds, f)
+        if isTrain:
+            ds = BatchData(ds, args.batch_size * gpu_nums)
+            ds = PrefetchDataZMQ(ds, 1)
+        else:
+            ds = BatchData(ds, 1)
+        return ds
 
 
 def test_deeplab(ctx):
@@ -279,7 +313,7 @@ def view_data(ctx):
 def test_speed():
     from tensorpack.dataflow import TestDataSpeed
     train_dataflow = get_data("train_aug", base_dir, LIST_DIR, len(ctx))
-    TestDataSpeed(train_dataflow, size=1000).start()
+    TestDataSpeed(train_dataflow, size=100).start()
 
 if __name__ == '__main__':
     ctx = [mx.gpu(int(i)) for i in args.gpu.split(',')]
