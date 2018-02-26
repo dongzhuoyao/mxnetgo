@@ -18,10 +18,10 @@ tile_height = 673
 tile_width = 673
 batch_size = 5 #was 7
 
-EPOCH_SCALE = 18
+EPOCH_SCALE = 15
 end_epoch = 9
 init_lr = 1e-3
-lr_step_list = [(6, 1e-4), (9, 1e-5)]
+lr_step_list = [(6, 1e-3), (9, 1e-4)]
 NUM_CLASSES = CityscapesFiles.class_num()
 validation_on_last = 2
 

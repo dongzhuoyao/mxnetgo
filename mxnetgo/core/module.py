@@ -1060,16 +1060,16 @@ class MutableModule(BaseModule):
 
                     stats = MIoUStatistics(args.class_num)
 
+                    # create predictor
+                    predictor = Predictor(eval_sym, ['data'], ['softmax_label'],
+                                          context=[self._context[0]],  # only use one gpu
+                                          provide_data=val_provide_data, provide_label=val_provide_label,
+                                          arg_params=arg_params, aux_params=aux_params) # must outside closure!!
+
                     def mypredictor(data):
                         data_batch = mx.io.DataBatch(data=data, label=None,
                                                      pad=0, index=batch_index,
                                                      provide_data=val_provide_data, provide_label=val_provide_label)
-
-                        # create predictor
-                        predictor = Predictor(eval_sym, ['data'], ['softmax_label'],
-                                              context=[self._context[0]],  # only use one gpu
-                                              provide_data=val_provide_data, provide_label=val_provide_label,
-                                              arg_params=arg_params, aux_params=aux_params)
 
                         return predictor.predict(data_batch)
 
