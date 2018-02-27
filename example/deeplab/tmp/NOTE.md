@@ -113,6 +113,8 @@ resnext.deeplabv2res101.pascal.imagesize473.scale8.freeze|**73.5**|
 
 ## Target
 
-* gluon deeplabv2 reproduce
 * mxnet deeplabv2 Cityscapes reproduce
+* larger batch size use gradient checkpoint
+* gluon deeplabv2 reproduce
 * mxnet deeplabv2 Mapillary 
+
