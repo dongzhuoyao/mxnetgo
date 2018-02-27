@@ -213,6 +213,7 @@ def train_net(args, ctx):
     optimizer_params = {
         'learning_rate': init_lr,
         'lr_scheduler': lr_scheduler,
+        'wd': 0.0005,
     }
 
 
