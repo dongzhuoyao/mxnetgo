@@ -18,10 +18,10 @@ tile_height = 673
 tile_width = 673
 batch_size = 5 #was 7
 
-EPOCH_SCALE = 18
-end_epoch = 9
-init_lr = 1e-4
-lr_step_list = [(6, 1e-4), (9, 1e-5)]
+EPOCH_SCALE = 9
+end_epoch = 10
+init_lr = 2.5e-4
+lr_step_list = [(2, 2.5e-4), (4,1e-4), (6,1e-5), (10, 8e-6)]
 NUM_CLASSES = CityscapesFiles.class_num()
 validation_on_last = 2
 
@@ -32,7 +32,7 @@ fixed_param_prefix = ['conv0_weight','stage1','beta','gamma',]
 def parse_args():
     parser = argparse.ArgumentParser(description='Train deeplab network')
     parser.add_argument("--gpu", default="1")
-    parser.add_argument('--frequent', help='frequency of logging', default=500, type=int)
+    parser.add_argument('--frequent', help='frequency of logging', default=50000, type=int)
     parser.add_argument('--view', action='store_true')
     parser.add_argument("--validation", action="store_true")
     parser.add_argument("--test_speed", action="store_true")

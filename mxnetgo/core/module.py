@@ -1031,6 +1031,8 @@ class MutableModule(BaseModule):
 
                 # one epoch of training is finished
                 #self.update_metric(eval_metric, data_batch.label) # only print single-batch loss
+                eval_metric.reset()
+                self.update_metric(eval_metric, data_batch.label)  # only print single-batch loss
                 for name, val in eval_metric.get_name_value():
                     logger.info('Epoch[%d] Train-%s=%f', epoch_index, name, val)
 
